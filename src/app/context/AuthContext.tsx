@@ -1,26 +1,27 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { 
-  onAuthStateChanged, 
-  signInWithPopup, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signOut, 
-  User 
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signOut,
+  User
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
+// Определяем интерфейс для контекста
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
 }
+
+// Создаём контекст с начальными значениями
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
@@ -36,23 +37,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
-    }, (error) => {
-      console.error(error);
-      setError(error.message);
-      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
+  // Вход через Google
   const signInWithGoogle = async () => {
-    setLoading(true);
-    setError(null);
     try {
+      setLoading(true);
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (err: any) {
-      setError(err.message);
+      setError(null);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -60,53 +58,42 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Вход через email и пароль
   const signInWithEmail = async (email: string, password: string) => {
-    setLoading(true);
-    setError(null);
     try {
+      setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (err: any) {
-      setError(err.message);
+      setError(null);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Регистрация (создание аккаунта) через email и пароль
-  const signUpWithEmail = async (email: string, password: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Выход
   const logOut = async () => {
-    setLoading(true);
-    setError(null);
     try {
+      setLoading(true);
       await signOut(auth);
-    } catch (err: any) {
-      setError(err.message);
+      setError(null);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signInWithGoogle, signInWithEmail, signUpWithEmail, logOut }}>
+    <AuthContext.Provider value={{ user, loading, error, signInWithGoogle, signInWithEmail, logOut }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
+// Хук для использования контекста
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth должен быть использован внутри AuthProvider');
   }
   return context;
 }
