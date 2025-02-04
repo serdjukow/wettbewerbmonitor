@@ -16,7 +16,6 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
-  signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
 }
@@ -41,22 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return () => unsubscribe();
   }, []);
-
-  // Вход через Google
-  const signInWithGoogle = async () => {
-    try {
-      setLoading(true);
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      setError(null);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Вход через email и пароль
+  
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -68,8 +52,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false);
     }
   };
-
-  // Выход
+  
   const logOut = async () => {
     try {
       setLoading(true);
@@ -83,17 +66,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signInWithGoogle, signInWithEmail, logOut }}>
+    <AuthContext.Provider value={{ user, loading, error, signInWithEmail, logOut }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Хук для использования контекста
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth должен быть использован внутри AuthProvider');
+    throw new Error('Userauth must be used inside AuthProvider');
   }
   return context;
 }
