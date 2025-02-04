@@ -3,15 +3,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import {
   onAuthStateChanged,
-  signInWithPopup,
   signInWithEmailAndPassword,
-  GoogleAuthProvider,
   signOut,
   User
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
-// Определяем интерфейс для контекста
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -20,7 +17,6 @@ interface AuthContextType {
   logOut: () => Promise<void>;
 }
 
-// Создаём контекст с начальными значениями
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
