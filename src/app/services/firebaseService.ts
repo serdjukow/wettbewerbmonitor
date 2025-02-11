@@ -14,13 +14,13 @@ import { toast } from "react-toastify"
 import { auth } from "@/firebase"
 import { onAuthStateChanged } from "firebase/auth"
 
-const removeUndefinedFields = (obj: any): any => {
+const removeUndefinedFields = (obj: unknown): unknown => {
     if (Array.isArray(obj)) {
         return obj.map(removeUndefinedFields)
     } else if (obj !== null && typeof obj === "object") {
         return Object.fromEntries(
-            Object.entries(obj)
-                .filter(([_, value]) => value !== undefined)
+            Object.entries(obj as Record<string, unknown>)
+                .filter(([key, value]) => value !== undefined)
                 .map(([key, value]) => [key, removeUndefinedFields(value)])
         )
     }
