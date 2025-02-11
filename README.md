@@ -1,5 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+Application Structure
+https://miro.com/welcomeonboard/eDNUMGpVVkxOS1czNTFkc2RTLzdhYnZEdXhnT2c1dXZpbGpsNXl0Z0lQdDdaL0lWUisxU1hJWnZXMkh5ZTFFOUs4eEFhZ0U0SjRzRXJGN2FHVVAvRFBzaHp0RHU1Z2ZVV3Y1bjRWWUZwcE5WNGRqaEdUL3VZQmlMZlNqZlluSld0R2lncW1vRmFBVnlLcVJzTmdFdlNRPT0hdjE=?share_link_id=776648092566
+
 ## Getting Started
 
 First, run the development server:
