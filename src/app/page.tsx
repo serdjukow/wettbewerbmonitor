@@ -10,8 +10,10 @@ import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
 
 export default function Home(props: { disableCustomTheme?: boolean }) {
+    const disableCustomTheme = false
+
     return (
-        <AppTheme {...props}>
+        <AppTheme disableCustomTheme={disableCustomTheme}>
             <CssBaseline enableColorScheme />
             <AppAppBar />
             <Box
@@ -19,11 +21,9 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
                 sx={(theme) => ({
                     width: "100%",
                     backgroundRepeat: "no-repeat",
-                    backgroundImage:
-                        "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 90%), transparent)",
+                    backgroundImage: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 90%), transparent)",
                     ...theme.applyStyles("dark", {
-                        backgroundImage:
-                            "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 16%), transparent)",
+                        backgroundImage: "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 16%), transparent)",
                     }),
                 })}
             >
@@ -77,15 +77,10 @@ export default function Home(props: { disableCustomTheme?: boolean }) {
                                 width: { sm: "100%", md: "80%" },
                             }}
                         >
-                            WettbewerbMonitor – Wettbewerbsanalyse für Ihr
-                            Unternehmen WettbewerbMonitor ist ein
-                            leistungsstarkes Tool zur Überwachung von
-                            Wettbewerbern und zur Analyse ihrer SEO-Strategien.
-                            Das System ermöglicht die Identifizierung von
-                            Konkurrenten anhand von Schlüsselwörtern, die
-                            Analyse ihrer Suchmaschinenplatzierungen und den
-                            Zugriff auf wertvolle SEO-Daten durch die
-                            Integration mit der Sistrix API.
+                            WettbewerbMonitor – Wettbewerbsanalyse für Ihr Unternehmen WettbewerbMonitor ist ein leistungsstarkes Tool zur
+                            Überwachung von Wettbewerbern und zur Analyse ihrer SEO-Strategien. Das System ermöglicht die Identifizierung
+                            von Konkurrenten anhand von Schlüsselwörtern, die Analyse ihrer Suchmaschinenplatzierungen und den Zugriff auf
+                            wertvolle SEO-Daten durch die Integration mit der Sistrix API.
                         </Typography>
                     </Stack>
                 </Container>
