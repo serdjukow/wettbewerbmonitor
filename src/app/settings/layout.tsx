@@ -1,15 +1,11 @@
 "use client"
 
 import * as React from "react"
-import AppTheme from "@/theme/AppTheme"
-import DashboardMenuBar from "@/components/DashboardMenuBar"
+import AppTheme from "@/src/theme/AppTheme"
+import DashboardMenuBar from "@/src/components/DashboardMenuBar"
 import { Box, CssBaseline, Toolbar, Container } from "@mui/material"
 
-export default function SettingsLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
     return (
         <AppTheme>
             <Box sx={{ display: "flex" }}>

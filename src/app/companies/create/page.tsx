@@ -1,11 +1,11 @@
 "use client"
 import { useForm, Controller } from "react-hook-form"
 import { useRouter } from "next/navigation"
-import { type Company } from "@/utils/types"
-import { addCompanyToDB } from "@/services/firebaseService"
+import { type Company } from "@/src/utils/types"
+import { addCompanyToDB } from "@/src/services/firebaseService"
 
 import { TextField, Button, Stack, Box, Typography } from "@mui/material"
-import { COMPANIES_ROUTE } from "@/utils/consts"
+import { COMPANIES_ROUTE } from "@/src/utils/consts"
 
 const AddCompanyPage = () => {
     const router = useRouter()
@@ -29,10 +29,10 @@ const AddCompanyPage = () => {
         },
     })
 
-    const onSubmit = (data: Company) => {
-        addCompanyToDB(data)
-        router.push(COMPANIES_ROUTE)
+    const onSubmit = async (data: Company) => {
+        await addCompanyToDB(data)
         reset()
+        router.push(COMPANIES_ROUTE)
     }
 
     return (
@@ -64,55 +64,26 @@ const AddCompanyPage = () => {
                     <Controller
                         name="address.street"
                         control={control}
-                        render={({ field }) => (
-                            <TextField
-                                fullWidth
-                                label="Street"
-                                variant="outlined"
-                                {...field}
-                                required
-                            />
-                        )}
+                        render={({ field }) => <TextField fullWidth label="Street" variant="outlined" {...field} required />}
                     />
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                         <Controller
                             name="address.houseNumber"
                             control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="House Number"
-                                    variant="outlined"
-                                    {...field}
-                                />
-                            )}
+                            render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" {...field} />}
                         />
                         <Controller
                             name="address.postalCode"
                             control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="Postal Code"
-                                    variant="outlined"
-                                    {...field}
-                                />
-                            )}
+                            render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" {...field} />}
                         />
                     </Stack>
                     <Controller
                         name="address.city"
                         control={control}
-                        render={({ field }) => (
-                            <TextField
-                                fullWidth
-                                label="City"
-                                variant="outlined"
-                                {...field}
-                            />
-                        )}
+                        render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />}
                     />
-                    
+
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                         <Controller
                             name="contact.phone"
@@ -164,14 +135,7 @@ const AddCompanyPage = () => {
                     <Controller
                         name="website"
                         control={control}
-                        render={({ field }) => (
-                            <TextField
-                                fullWidth
-                                label="Website"
-                                variant="outlined"
-                                {...field}
-                            />
-                        )}
+                        render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />}
                     />
 
                     {/* Social Networks Fields */}
@@ -180,61 +144,29 @@ const AddCompanyPage = () => {
                         <Controller
                             name="socialNetworks.facebook"
                             control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="Facebook"
-                                    variant="outlined"
-                                    {...field}
-                                />
-                            )}
+                            render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" {...field} />}
                         />
                         <Controller
                             name="socialNetworks.instagram"
                             control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="Instagram"
-                                    variant="outlined"
-                                    {...field}
-                                />
-                            )}
+                            render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" {...field} />}
                         />
                     </Stack>
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                         <Controller
                             name="socialNetworks.linkedin"
                             control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="LinkedIn"
-                                    variant="outlined"
-                                    {...field}
-                                />
-                            )}
+                            render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" {...field} />}
                         />
                         <Controller
                             name="socialNetworks.twitter"
                             control={control}
-                            render={({ field }) => (
-                                <TextField
-                                    fullWidth
-                                    label="Twitter"
-                                    variant="outlined"
-                                    {...field}
-                                />
-                            )}
+                            render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" {...field} />}
                         />
                     </Stack>
 
                     <Box sx={{ marginTop: 2 }}>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                        >
+                        <Button type="submit" variant="contained" color="primary">
                             Submit
                         </Button>
                     </Box>

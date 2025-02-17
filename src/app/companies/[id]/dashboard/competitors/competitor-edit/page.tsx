@@ -1,11 +1,11 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
-import { redirect } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "react-toastify"
 import { useAppStore } from "@/src/store/appStore"
-import { type Company } from "@/src/utils/types"
+import { type Competitor } from "@/src/utils/types"
 
 import {
     TextField,
@@ -13,30 +13,27 @@ import {
     Stack,
     Box,
     Typography,
-    Link,
-    Divider,
     Card,
-    CardActions,
     CardContent,
 } from "@mui/material"
 import {
-    Edit as EditIcon,
     Save as SaveIcon,
     Cancel as CancelIcon,
     DeleteForever as DeleteForeverIcon,
 } from "@mui/icons-material"
 
-import { COMPANIES_ROUTE } from "@/src/utils/consts"
-
-const EditProfilePage = () => {
-    const { selectedCompany, updateCompany, removeCompany } = useAppStore()
-    const [isEdit, setIsEdit] = useState(false)
+function CompetitorEditPaeg() {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const uuid = searchParams.get("uuid")
+    const { selectedCompany, updateCompany } = useAppStore()
     const { control, handleSubmit, reset } = useForm({
         defaultValues: {
+            uuid: "",
             name: "",
-            contact: { email: "", phone: "" },
+            domain: "",
             address: { street: "", houseNumber: "", city: "", postalCode: "" },
-            website: "",
+            contact: { email: "", phone: "" },
             socialNetworks: {
                 facebook: "",
                 instagram: "",
@@ -47,30 +44,55 @@ const EditProfilePage = () => {
     })
 
     useEffect(() => {
-        if (selectedCompany) {
-            reset(selectedCompany)
+        if (selectedCompany?.seo?.competitors && uuid) {
+            const competitor = selectedCompany.seo.competitors.find(
+                (c) => c.uuid === uuid
+            )
+            if (competitor) reset(competitor)
         }
-    }, [selectedCompany, reset])
+    }, [selectedCompany, uuid, reset])
 
-    const onSubmit = (data: Company) => {
-        if (selectedCompany && selectedCompany.uuid) {
-            updateCompany(selectedCompany.uuid, data)
-            setIsEdit(!isEdit)
-        } else {
-            toast.error("Error!")
+    const onSubmit = async (data: Competitor) => {
+        if (!selectedCompany || !selectedCompany.uuid || !uuid) {
+            toast.error("Error: No competitor found!")
+            return
+        }
+
+        try {
+            const updatedCompetitors = selectedCompany?.seo?.competitors?.map(
+                (c) => (c.uuid === uuid ? { ...c, ...data } : c)
+            )
+
+            await updateCompany(selectedCompany.uuid, {
+                seo: { competitors: updatedCompetitors },
+            })
+            router.back()
+        } catch (error) {
+            toast.error(`Error updating competitor! ${error}`)
         }
     }
 
-    const removeCurrentCompany = () => {
-        if (selectedCompany && selectedCompany.uuid) {
-            removeCompany(selectedCompany.uuid)
-            redirect(COMPANIES_ROUTE)
-        } else {
-            toast.error("Error!")
+    const handleDeleteCompetitor = async () => {
+        if (!selectedCompany || !selectedCompany.uuid || !uuid) {
+            toast.error("Error: No competitor found!")
+            return
+        }
+
+        try {
+            const updatedCompetitors =
+                selectedCompany?.seo?.competitors?.filter(
+                    (c) => c.uuid !== uuid
+                )
+            await updateCompany(selectedCompany.uuid, {
+                seo: { competitors: updatedCompetitors },
+            })
+            router.back()
+        } catch (error) {
+             toast.error(`Error when deleting a competitor! ${error}`)
         }
     }
 
-    return isEdit ? (
+    return (
         <Card sx={{ paddingTop: 4 }}>
             <CardContent>
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -167,7 +189,7 @@ const EditProfilePage = () => {
                         <Typography variant="h6">Website</Typography>
                         <Stack direction="row" spacing={2}>
                             <Controller
-                                name="website"
+                                name="domain"
                                 control={control}
                                 render={({ field }) => (
                                     <TextField
@@ -249,7 +271,7 @@ const EditProfilePage = () => {
                                 Save Changes
                             </Button>
                             <Button
-                                onClick={() => setIsEdit(!isEdit)}
+                                onClick={() => router.back()}
                                 variant="outlined"
                                 startIcon={<CancelIcon />}
                                 color="warning"
@@ -257,7 +279,7 @@ const EditProfilePage = () => {
                                 Cansel
                             </Button>
                             <Button
-                                onClick={removeCurrentCompany}
+                                onClick={() => handleDeleteCompetitor()}
                                 variant="outlined"
                                 startIcon={<DeleteForeverIcon />}
                                 color="error"
@@ -269,134 +291,7 @@ const EditProfilePage = () => {
                 </form>
             </CardContent>
         </Card>
-    ) : (
-        <Card sx={{ minWidth: 350, margin: "0 auto" }}>
-            <CardContent>
-                <Typography gutterBottom variant="h4" component="div">
-                    {selectedCompany?.name}
-                </Typography>
-                {selectedCompany?.address && (
-                    <>
-                        <Typography variant="h6">Address</Typography>
-                        <Typography
-                            variant="body2"
-                            sx={{ color: "text.secondary" }}
-                        >
-                            {selectedCompany?.address.street}{" "}
-                            {selectedCompany?.address.houseNumber},
-                            <br />
-                            {selectedCompany?.address.city},{" "}
-                            {selectedCompany?.address.postalCode}
-                        </Typography>
-                        <Divider sx={{ my: 2 }} />
-                    </>
-                )}
-                {selectedCompany?.contact && (
-                    <>
-                        <Typography variant="h6">Contact</Typography>
-                        <Typography
-                            variant="body2"
-                            sx={{ color: "text.secondary" }}
-                        >
-                            Phone: {selectedCompany?.contact.phone}
-                        </Typography>
-                        <Typography
-                            variant="body2"
-                            sx={{ color: "text.secondary" }}
-                        >
-                            Email: {selectedCompany?.contact.email}
-                        </Typography>
-                        <Divider sx={{ my: 2 }} />
-                    </>
-                )}
-                {selectedCompany?.website && (
-                    <>
-                        <Typography variant="h6">Website</Typography>
-                        <Link
-                            href={selectedCompany?.website}
-                            target="_blank"
-                            rel="noopener"
-                            sx={{
-                                textDecoration: "none",
-                            }}
-                        >
-                            {selectedCompany?.website}
-                        </Link>
-                        <Divider sx={{ my: 2 }} />
-                    </>
-                )}
-
-                {selectedCompany?.socialNetworks && (
-                    <>
-                        <Typography variant="h6">Social Networks</Typography>
-                        <Stack spacing={1}>
-                            {selectedCompany.socialNetworks.facebook && (
-                                <Link
-                                    href={
-                                        selectedCompany.socialNetworks.facebook
-                                    }
-                                    target="_blank"
-                                    sx={{
-                                        textDecoration: "none",
-                                    }}
-                                >
-                                    Facebook
-                                </Link>
-                            )}
-                            {selectedCompany.socialNetworks.instagram && (
-                                <Link
-                                    href={
-                                        selectedCompany.socialNetworks.instagram
-                                    }
-                                    target="_blank"
-                                    sx={{
-                                        textDecoration: "none",
-                                    }}
-                                >
-                                    Instagram
-                                </Link>
-                            )}
-                            {selectedCompany.socialNetworks.linkedin && (
-                                <Link
-                                    href={
-                                        selectedCompany.socialNetworks.linkedin
-                                    }
-                                    target="_blank"
-                                    sx={{
-                                        textDecoration: "none",
-                                    }}
-                                >
-                                    LinkedIn
-                                </Link>
-                            )}
-                            {selectedCompany.socialNetworks.twitter && (
-                                <Link
-                                    href={
-                                        selectedCompany.socialNetworks.twitter
-                                    }
-                                    target="_blank"
-                                    sx={{
-                                        textDecoration: "none",
-                                    }}
-                                >
-                                    Twitter
-                                </Link>
-                            )}
-                        </Stack>
-                    </>
-                )}
-            </CardContent>
-            <CardActions>
-                <Button
-                    onClick={() => setIsEdit(!isEdit)}
-                    variant="outlined"
-                    startIcon={<EditIcon />}
-                >
-                    Edit
-                </Button>
-            </CardActions>
-        </Card>
     )
 }
 
-export default EditProfilePage
+export default CompetitorEditPaeg

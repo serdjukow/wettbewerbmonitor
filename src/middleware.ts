@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
-import { LOGIN_PAGE_ROUTE } from "./app/utils/consts"
+import { LOGIN_PAGE_ROUTE } from "./utils/consts"
 
 export function middleware(req: NextRequest) {
     const token = req.cookies.get("auth_token")?.value
-    const url = new URL(req.url)    
+    const url = new URL(req.url)
 
     if (!token) {
         return NextResponse.redirect(

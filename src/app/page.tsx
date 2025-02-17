@@ -1,10 +1,10 @@
 "use client"
 
-import * as React from "react"
+import React from "react"
 import CssBaseline from "@mui/material/CssBaseline"
 import Container from "@mui/material/Container"
-import AppTheme from "@/theme/AppTheme"
-import AppAppBar from "@/components/AppAppBar"
+import AppTheme from "@/src//theme/AppTheme"
+import AppAppBar from "@/src/components/AppAppBar"
 import Box from "@mui/material/Box"
 import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"

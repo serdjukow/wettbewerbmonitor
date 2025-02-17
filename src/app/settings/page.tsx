@@ -1,8 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { addSistrixApiKey, getSistrixApiKey } from "@/services/firebaseService"
-import { useAuth } from "@/context/AuthContext"
+import {
+    addSistrixApiKey,
+    getSistrixApiKey,
+} from "@/src/services/firebaseService"
+import { useAuth } from "@/src/context/AuthContext"
 
 import Box from "@mui/material/Box"
 import TextField from "@mui/material/TextField"
@@ -13,7 +16,7 @@ import {
     Save as SaveIcon,
     Cancel as CancelIcon,
 } from "@mui/icons-material"
-import PageLoader from "@/components/PageLoader"
+import PageLoader from "@/src/components/PageLoader"
 
 const Settings = () => {
     const { user, loading } = useAuth()
