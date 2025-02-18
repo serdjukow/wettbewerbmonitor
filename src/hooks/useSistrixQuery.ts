@@ -3,13 +3,13 @@ import axios from "axios"
 
 export interface SistrixResponse {
     method: string[][]
-    info: Array<{ country: string; device: string; keyword: string }>
+    info: Array<{ country: string; device: string }>
     answer: Array<{
+        kw: string
         result: Array<{
-            intent_website: number
-            intent_know: number
-            intent_visit: number
-            intent_do: number
+            position: number
+            domain: string
+            url: string
         }>
     }>
     credits: Array<{ used: number }>

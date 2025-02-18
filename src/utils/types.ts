@@ -2,7 +2,9 @@ export type Competitor = {
     uuid?: string
     name?: string
     domain?: string
+    url?: string
     position?: number
+    keyword?: string
     address?: {
         street: string
         houseNumber: string
@@ -50,6 +52,8 @@ export type Company = {
     seo?: {
         keywords?: Keyword[]
         competitors?: Competitor[]
+        competitorsByKeyword?: Competitor[]
+        competitorsByDomain?: Competitor[]
     }
 }
 

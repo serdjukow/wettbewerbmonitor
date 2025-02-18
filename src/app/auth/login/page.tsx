@@ -57,7 +57,11 @@ function LoginPage() {
     return (
         <AppTheme>
             <AppProvider theme={theme}>
-                <SignInPage signIn={signIn} providers={providers} slotProps={{ emailField: { autoFocus: false } }} />
+                <SignInPage
+                    signIn={signIn}
+                    providers={providers}
+                    slotProps={{ emailField: { autoFocus: false }, rememberMe: { sx: { display: "none" } } }}
+                />
             </AppProvider>
         </AppTheme>
     )

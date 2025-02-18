@@ -21,6 +21,7 @@ function getPageTitle(pathname: string): string {
         "competitor-edit": "Edit competitor",
         "competitor-create": "Create competitor",
         "edit-profile": "Edit profile",
+        "competitor-view": "View competitor",
     }
 
     return pageTitles[pathname]

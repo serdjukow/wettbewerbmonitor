@@ -6,8 +6,9 @@ import { useAppStore } from "@/src/store/appStore"
 import Link from "next/link"
 import PageLoader from "@/src/components/PageLoader"
 import { useAuth } from "@/src/context/AuthContext"
+import companyImg from "@/src/assets/images/company.png"
 
-import { Box, Card, CardContent, Typography, CardActionArea } from "@mui/material"
+import { Box, Card, CardContent, Typography, CardActionArea, CardMedia } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
 import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
 
@@ -50,41 +51,60 @@ const Companies = () => {
                 }}
             >
                 {companies.map((company) => (
-                    <Card key={company.uuid}>
-                        <CardActionArea
-                            onClick={() => company.uuid && handleSelectCompany(company)}
-                            data-active={selectedCompany?.uuid === company.uuid ? "" : undefined}
-                            sx={{
-                                height: "100%",
-                                "&[data-active]": {
-                                    backgroundColor: "action.selected",
-                                    "&:hover": {
-                                        backgroundColor: "action.selectedHover",
+                    <>
+                        <Card sx={{ maxWidth: 345 }} key={company.uuid}>
+                            <CardActionArea
+                                onClick={() => company.uuid && handleSelectCompany(company)}
+                                data-active={selectedCompany?.uuid === company.uuid ? "" : undefined}
+                                sx={{
+                                    height: "100%",
+                                    "&[data-active]": {
+                                        backgroundColor: "action.selected",
+                                        "&:hover": {
+                                            backgroundColor: "action.selectedHover",
+                                        },
                                     },
-                                },
-                            }}
-                        >
-                            <CardContent sx={{ height: "100%" }}>
-                                <Typography variant="h5" component="div">
-                                    {company.name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {company.contact?.email}
-                                </Typography>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
+                                }}
+                            >
+                                <CardMedia component="img" height="140" image={companyImg.src} alt="green iguana" />
+                                <CardContent>
+                                    <Typography gutterBottom variant="h5" component="div">
+                                        {company.name}
+                                    </Typography>
+                                    <Typography gutterBottom variant="body2" sx={{ color: "text.secondary" }}>
+                                        {company.address?.city}
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: "text.secondary" }}>
+                                        {company.contact?.email}
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+                    </>
                 ))}
                 <Card>
                     <Link href={CREATE_COMPANY_ROUTE} style={{ textDecoration: "none", color: "inherit" }}>
-                        <CardContent sx={{ height: "100%" }}>
-                            <Box sx={{ textAlign: "center" }}>
-                                <AddIcon />
-                            </Box>
-                            <Typography variant="body2" color="text.secondary">
-                                Add new company
-                            </Typography>
-                        </CardContent>
+                        <CardActionArea
+                            sx={{
+                                height: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                "&:hover": {
+                                    backgroundColor: "action.selectedHover",
+                                },
+                            }}
+                        >
+                            <CardContent>
+                                <Box sx={{ textAlign: "center" }}>
+                                    <AddIcon sx={{ fontSize: 40 }} />
+                                </Box>
+                                <Typography variant="body2" color="text.secondary" sx={{ fontSize: 30 }}>
+                                    Add new company
+                                </Typography>
+                            </CardContent>
+                        </CardActionArea>
                     </Link>
                 </Card>
             </Box>

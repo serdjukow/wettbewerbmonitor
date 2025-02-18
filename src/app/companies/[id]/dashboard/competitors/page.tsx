@@ -4,14 +4,27 @@ import React, { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
 
-import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, IconButton, Stack, Box } from "@mui/material"
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material"
+import {
+    Button,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
+    IconButton,
+    Stack,
+    Box,
+} from "@mui/material"
+import { Delete as DeleteIcon, Edit as EditIcon, RemoveRedEye as RemoveRedEyeIcon } from "@mui/icons-material"
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
 
 import { type Competitor } from "@/src/utils/types"
 
 interface Column {
-    id: "domain" | "name"
+    id: "domain" | "url" | "keyword" | "name"
     label: string
     minWidth?: number
     maxWidth?: number
@@ -20,11 +33,19 @@ interface Column {
 
 const columns: readonly Column[] = [
     { id: "domain", label: "Domain" },
+    { id: "url", label: "URL" },
+    { id: "keyword", label: "Keyword" },
     { id: "name", label: "Name" },
 ]
 
-function createData(uuid: string, domain: string, name: string): Competitor {
-    return { uuid, domain, name }
+function createData(uuid: string, domain?: string, url?: string, keyword?: string, name?: string): Competitor {
+    return {
+        uuid,
+        domain: domain && domain.trim() !== "" ? domain : "-",
+        url: url && url.trim() !== "" ? url : " ",
+        keyword: keyword && keyword.trim() !== "" ? keyword : "-",
+        name: name && name.trim() !== "" ? name : "-",
+    }
 }
 
 const CompetitorsPage = () => {
@@ -37,8 +58,12 @@ const CompetitorsPage = () => {
     const [rowsPerPage, setRowsPerPage] = useState(100)
 
     useEffect(() => {
-        if (selectedCompany?.seo?.competitors) {
-            setRows(selectedCompany.seo.competitors.map((item) => createData(item.uuid || "", item.domain || "", item.name || "")))
+        if (selectedCompany?.seo?.competitorsByKeyword) {
+            setRows(
+                selectedCompany.seo.competitorsByKeyword.map((item) =>
+                    createData(item.uuid || "-", item.domain || "-", item.url || "-", (item as any).keyword || "-", item.name || "-")
+                )
+            )
         }
     }, [selectedCompany])
 
@@ -51,6 +76,10 @@ const CompetitorsPage = () => {
         setPage(0)
     }
 
+    const handleViewCompetitor = (uuid: string) => {
+        router.push(`${pathname}/competitor-view?uuid=${uuid}`)
+    }
+
     const handleEditCompetitor = (uuid: string) => {
         router.push(`${pathname}/competitor-edit?uuid=${uuid}`)
     }
@@ -59,10 +88,10 @@ const CompetitorsPage = () => {
         if (!selectedCompany || !selectedCompany.uuid || !uuid) return
 
         try {
-            const updatedCompetitors = selectedCompany?.seo?.competitors?.filter((c) => c.uuid !== uuid)
+            const updatedCompetitors = selectedCompany?.seo?.competitorsByKeyword?.filter((c) => c.uuid !== uuid)
 
             await updateCompany(selectedCompany.uuid, {
-                seo: { competitors: updatedCompetitors },
+                seo: { competitorsByKeyword: updatedCompetitors },
             })
             setRows(updatedCompetitors || [])
         } catch (error) {
@@ -86,7 +115,7 @@ const CompetitorsPage = () => {
             {!!rows.length ? (
                 <Paper sx={{ width: "100%", overflow: "hidden", padding: 2 }}>
                     <TableContainer sx={{ maxHeight: "75vh" }}>
-                        <Table stickyHeader aria-label="competitor table">
+                        <Table aria-label="competitor table">
                             <TableHead>
                                 <TableRow>
                                     {columns.map((column) => (
@@ -108,7 +137,7 @@ const CompetitorsPage = () => {
                                 {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                                     <TableRow key={row.uuid} hover role="checkbox" tabIndex={-1}>
                                         {columns.map((column) => {
-                                            const value = row[column.id]
+                                            const value = row[column.id] || "-"
                                             return (
                                                 <TableCell key={column.id} align={column.align}>
                                                     {value}
@@ -121,9 +150,19 @@ const CompetitorsPage = () => {
                                                     data-uuid={row.uuid}
                                                     onClick={(e) => {
                                                         const uuid = e.currentTarget.dataset.uuid
-                                                        if (uuid) handleEditCompetitor(uuid)
+                                                        if (uuid) handleViewCompetitor(uuid)
                                                     }}
                                                     color="success"
+                                                >
+                                                    <RemoveRedEyeIcon />
+                                                </IconButton>
+                                                <IconButton
+                                                    data-uuid={row.uuid}
+                                                    onClick={(e) => {
+                                                        const uuid = e.currentTarget.dataset.uuid
+                                                        if (uuid) handleEditCompetitor(uuid)
+                                                    }}
+                                                    color="primary"
                                                 >
                                                     <EditIcon />
                                                 </IconButton>
@@ -155,7 +194,14 @@ const CompetitorsPage = () => {
                     />
                 </Paper>
             ) : (
-                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "75vh" }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        minHeight: "75vh",
+                    }}
+                >
                     <NoCompetitorsFoundCard />
                 </Box>
             )}
