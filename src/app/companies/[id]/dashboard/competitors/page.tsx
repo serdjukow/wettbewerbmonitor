@@ -48,6 +48,8 @@ function createData(uuid: string, domain?: string, url?: string, keyword?: strin
     }
 }
 
+type ExtendedCompetitor = Competitor & { keyword?: string }
+
 const CompetitorsPage = () => {
     const router = useRouter()
     const pathname = usePathname()
@@ -60,8 +62,8 @@ const CompetitorsPage = () => {
     useEffect(() => {
         if (selectedCompany?.seo?.competitorsByKeyword) {
             setRows(
-                selectedCompany.seo.competitorsByKeyword.map((item) =>
-                    createData(item.uuid || "-", item.domain || "-", item.url || "-", (item as any).keyword || "-", item.name || "-")
+                (selectedCompany.seo.competitorsByKeyword as ExtendedCompetitor[]).map((item) =>
+                    createData(item.uuid || "-", item.domain || "-", item.url || "-", item.keyword || "-", item.name || "-")
                 )
             )
         }

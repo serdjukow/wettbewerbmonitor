@@ -206,6 +206,8 @@ function KeywordStatsTableToolbar(props: KeywordStatsTableToolbarProps) {
     )
 }
 
+type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
+
 const CACHE_TIME = 1000 * 60 * 60 * 24
 
 export default function CompetitorsManager() {
@@ -252,14 +254,14 @@ export default function CompetitorsManager() {
 
     useEffect(() => {
         if (data?.answer?.[0]?.result) {
-            const competitorResults = data.answer[0].result as unknown as SistrixCompetitorResult[]
+            const competitorResults = data.answer[0].result as SistrixCompetitorResult[]
             const validResults = competitorResults.filter((item) => Boolean(item.domain && item.url))
             const candidateKeyword = data?.answer?.[0]?.kw || ""
             const addedCompetitors = selectedCompany?.seo?.competitorsByKeyword || []
 
             const filteredResults = validResults.filter((item) => {
                 return !addedCompetitors.some((comp) => {
-                    const compKeyword = (comp as any).keyword || ""
+                    const compKeyword = (comp as ExtendedCompetitor).keyword || ""
                     return comp.domain === item.domain && compKeyword === candidateKeyword
                 })
             })
@@ -345,7 +347,7 @@ export default function CompetitorsManager() {
             const formattedCompetitors = competitors.map((comp) => ({
                 keyword: data?.answer?.[0]?.kw || "",
                 uuid: comp.uuid || "",
-                name: comp.name || (comp as any).competitorName || "",
+                name: comp.name || (comp as ExtendedCompetitor).competitorName || "",
                 domain: comp.domain || "",
                 url: comp.url || "",
                 position: comp.position !== undefined ? comp.position : 0,

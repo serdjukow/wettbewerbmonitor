@@ -1,8 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
 import { useAppStore } from "@/src/store/appStore"
-
 import Box from "@mui/material/Box"
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
 

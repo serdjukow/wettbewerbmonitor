@@ -11,11 +11,13 @@ import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
 import { Container, Typography, ButtonGroup, Button } from "@mui/material"
-import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
 import { type Competitor } from "@/src/utils/types"
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+type ExtendedCompetitor = Competitor & { keyword?: string }
+
+const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
     },
@@ -31,18 +33,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }))
 
 const CompetitorViewPage: React.FC = () => {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
     const router = useRouter()
     const { selectedCompany } = useAppStore()
     const uuid = searchParams.get("uuid")
-    const [competitor, setCompetitor] = useState<Competitor | null>(null)
+    const [competitor, setCompetitor] = useState<ExtendedCompetitor | null>(null)
 
     useEffect(() => {
         if (selectedCompany && uuid) {
             const comp =
-                selectedCompany?.seo?.competitorsByKeyword?.find((c: Competitor) => c.uuid === uuid) ||
-                selectedCompany?.seo?.competitors?.find((c: Competitor) => c.uuid === uuid) ||
+                selectedCompany?.seo?.competitorsByKeyword?.find((c: ExtendedCompetitor) => c.uuid === uuid) ||
+                selectedCompany?.seo?.competitors?.find((c: ExtendedCompetitor) => c.uuid === uuid) ||
                 null
             setCompetitor(comp)
         }
@@ -53,7 +54,7 @@ const CompetitorViewPage: React.FC = () => {
               { property: "Name", value: competitor.name },
               { property: "Domain", value: competitor.domain },
               { property: "URL", value: competitor.url },
-              { property: "Keyword", value: (competitor as any).keyword },
+              { property: "Keyword", value: competitor.keyword },
               { property: "Contact Email", value: competitor.contact?.email },
               { property: "Contact Phone", value: competitor.contact?.phone },
               { property: "Street", value: competitor.address?.street },
@@ -67,7 +68,16 @@ const CompetitorViewPage: React.FC = () => {
           ]
         : []
 
-    const renderValue = (value: any) => (value && value.toString().trim() !== "" ? value : "-")
+    // Функция для рендеринга значения: если значение отсутствует или пустое, возвращаем тире ("-")
+    const renderValue = (value: unknown): string => {
+        if (typeof value === "string") {
+            return value.trim() !== "" ? value : "-"
+        } else if (typeof value === "number") {
+            return value.toString()
+        } else {
+            return "-"
+        }
+    }
 
     if (!competitor) {
         return (
@@ -80,8 +90,8 @@ const CompetitorViewPage: React.FC = () => {
         )
     }
 
-    const handleEditCompetitor = (uuid: string) => {
-        router.push(`/companies/${selectedCompany?.uuid}/dashboard/competitors/competitor-edit?uuid=${uuid}`)
+    const handleEditCompetitor = (competitorUuid: string) => {
+        router.push(`/companies/${selectedCompany?.uuid}/dashboard/competitors/competitor-edit?uuid=${competitorUuid}`)
     }
 
     return (
@@ -109,14 +119,14 @@ const CompetitorViewPage: React.FC = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <ButtonGroup variant="contained" sx={{ mt: 4}}>
+            <ButtonGroup variant="contained" sx={{ mt: 4 }}>
                 <Button onClick={() => router.back()}>Back</Button>
                 <Button
                     data-uuid={competitor.uuid}
                     color="success"
                     onClick={(e) => {
-                        const uuid = e.currentTarget.dataset.uuid
-                        if (uuid) handleEditCompetitor(uuid)
+                        const competitorUuid = e.currentTarget.dataset.uuid
+                        if (competitorUuid) handleEditCompetitor(competitorUuid)
                     }}
                 >
                     Edit
