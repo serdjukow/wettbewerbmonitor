@@ -76,6 +76,9 @@ const CompetitorsPage = () => {
     const [productsList, setProductsList] = useState<string[]>([])
     const [newProduct, setNewProduct] = useState("")
 
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+    const [competitorToDelete, setCompetitorToDelete] = useState<Competitor | null>(null)
+
     useEffect(() => {
         if (selectedCompany?.seo?.competitorsByKeyword) {
             setRows(
@@ -100,9 +103,9 @@ const CompetitorsPage = () => {
 
     const filteredRows = rows.filter((row) => {
         if (tab === "not_checked") return row.status === "not_checked"
-        if (tab === "competitor") return row.status === "competitor" && (row.products ? row.products.length > 0 : false)
-        if (tab === "not_competitor") return row.status === "not_competitor" && (row.products ? row.products.length > 0 : false)
-        if (tab === "products_not_selected") return (row.status === "competitor" || row.status === "not_competitor") && row.products.length === 0
+        if (tab === "competitor") return row.status === "competitor" && row.products && row.products.length > 0
+        if (tab === "not_competitor") return row.status === "not_competitor"
+        if (tab === "products_not_selected") return row.status === "competitor" && row.products.length === 0
 
         return true
     })
@@ -116,7 +119,7 @@ const CompetitorsPage = () => {
                     seo: { competitorsByKeyword: updated },
                 })
             } catch (error) {
-                console.error("Ошибка при обновлении статуса:", error)
+                console.error("Error updating status:", error)
             }
         }
     }
@@ -175,20 +178,34 @@ const CompetitorsPage = () => {
     const handleSaveProducts = async () => {
         if (editingCompetitor) {
             const updatedRows = rows.map((row) => (row.uuid === editingCompetitor.uuid ? { ...row, products: productsList } : row))
-
             setRows(updatedRows)
-
             if (!selectedCompany || !selectedCompany.uuid) {
                 console.error("Selected company is null or its uuid is undefined")
                 return
             }
-
             await updateCompany(selectedCompany.uuid, {
                 seo: { competitorsByKeyword: updatedRows },
             })
-
             handleCloseProductsDialog()
         }
+    }
+
+    const handleOpenDeleteDialog = (competitor: Competitor) => {
+        setCompetitorToDelete(competitor)
+        setOpenDeleteDialog(true)
+    }
+
+    const handleCloseDeleteDialog = () => {
+        setOpenDeleteDialog(false)
+        setCompetitorToDelete(null)
+    }
+
+    const handleConfirmDelete = () => {
+        if (competitorToDelete) {
+            handleDeleteCompetitor(competitorToDelete.uuid)
+        }
+        setOpenDeleteDialog(false)
+        setCompetitorToDelete(null)
     }
 
     return (
@@ -221,7 +238,7 @@ const CompetitorsPage = () => {
                                     subheader={row.name}
                                     action={
                                         <FormControl variant="standard" size="small" sx={{ minWidth: 120 }}>
-                                            <InputLabel id={`status-label-${row.uuid}`} sx={{ color: "primary.contrastTextwh" }}>
+                                            <InputLabel id={`status-label-${row.uuid}`} sx={{ color: "primary.contrastText" }}>
                                                 Status
                                             </InputLabel>
                                             <Select
@@ -229,7 +246,7 @@ const CompetitorsPage = () => {
                                                 value={row.status}
                                                 onChange={(e: SelectChangeEvent) => handleStatusChange(row.uuid, e.target.value as "not_checked" | "competitor" | "not_competitor")}
                                                 label="Status"
-                                                sx={{ color: "primary.contrastTextwh" }}
+                                                sx={{ color: "primary.contrastText" }}
                                             >
                                                 <MenuItem value="not_checked">Not checked</MenuItem>
                                                 <MenuItem value="competitor">Competitor</MenuItem>
@@ -244,7 +261,6 @@ const CompetitorsPage = () => {
                                         <Typography variant="body2" color="text.secondary">
                                             URL: {row.url}
                                         </Typography>
-
                                         <Typography variant="body2" color="text.secondary">
                                             Keyword: {row.keyword}
                                         </Typography>
@@ -290,7 +306,7 @@ const CompetitorsPage = () => {
                                     <IconButton onClick={() => handleEditCompetitor(row.uuid)} color="primary">
                                         <EditIcon />
                                     </IconButton>
-                                    <IconButton onClick={() => handleDeleteCompetitor(row.uuid)} color="error">
+                                    <IconButton onClick={() => handleOpenDeleteDialog(row)} color="error">
                                         <DeleteIcon />
                                     </IconButton>
                                     <IconButton onClick={() => handleOpenProductsDialog(row)} color="info">
@@ -314,9 +330,22 @@ const CompetitorsPage = () => {
                 </Box>
             )}
 
+            <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+                <DialogTitle>Confirm deletion</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure you want to remove the competitor - {competitorToDelete?.domain ? `"${competitorToDelete.domain}"` : ""}?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Dialog open={openProductsDialog} onClose={handleCloseProductsDialog} fullWidth maxWidth="sm">
                 <DialogTitle>
-                    Editing products for {editingCompetitor ? editingCompetitor.name : ""}
+                    Editing products for: {editingCompetitor ? editingCompetitor.domain : ""}
                     <IconButton
                         aria-label="close"
                         onClick={handleCloseProductsDialog}

@@ -57,6 +57,11 @@ export type Company = {
         competitorsByKeyword?: Competitor[]
         competitorsByDomain?: Competitor[]
     }
+    generalKeywords?: string[]
+    generalServices?: {
+        title: string
+        description?: string
+    }[]
 }
 
 export type AppState = {

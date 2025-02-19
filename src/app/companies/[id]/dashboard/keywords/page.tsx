@@ -1,7 +1,6 @@
 "use client"
 
-import * as React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { alpha } from "@mui/material/styles"
 import {
     Box,
@@ -21,12 +20,23 @@ import {
     Checkbox,
     FormControlLabel,
     Switch,
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Divider,
+    Tooltip,
 } from "@mui/material"
 import { visuallyHidden } from "@mui/utils"
-import { useSistrixData } from "@/src/hooks/useSistrixQuery"
+import ListAltIcon from "@mui/icons-material/ListAlt"
 import { v4 as uuidv4 } from "uuid"
-import Tooltip from "@mui/material/Tooltip"
 import Skeleton from "@mui/material/Skeleton"
+import { useSistrixData } from "@/src/hooks/useSistrixQuery"
 import { type Competitor } from "@/src/utils/types"
 import { useAppStore } from "@/src/store/appStore"
 import RemainingCredits from "@/src/components/RemainingCredits"
@@ -100,11 +110,7 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
                         padding={headCell.disablePadding ? "none" : "normal"}
                         sortDirection={orderBy === headCell.id ? order : false}
                     >
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : "asc"}
-                            onClick={createSortHandler(headCell.id)}
-                        >
+                        <TableSortLabel active={orderBy === headCell.id} direction={orderBy === headCell.id ? order : "asc"} onClick={createSortHandler(headCell.id)}>
                             {headCell.label}
                             {orderBy === headCell.id ? (
                                 <Box component="span" sx={visuallyHidden}>
@@ -220,12 +226,26 @@ export default function CompetitorsManager() {
     const [dense, setDense] = useState(true)
     const { updateCompany, selectedCompany } = useAppStore()
 
-    const { data, isLoading, isError, error } = useSistrixData(
-        searchTerm,
-        "de",
-        { limit: "5", history: "false" },
-        { enabled: !!searchTerm }
-    )
+    const [openGeneralWordsModal, setOpenGeneralWordsModal] = useState(false)
+    const handleOpenGeneralWordsModal = () => setOpenGeneralWordsModal(true)
+    const handleCloseGeneralWordsModal = () => setOpenGeneralWordsModal(false)
+    const handleSelectGeneralWord = (word: string) => {
+        setKeyword(word)
+        setOpenGeneralWordsModal(false)
+    }
+    const groupedGeneralKeywords = React.useMemo(() => {
+        const words = (selectedCompany?.generalKeywords || []).slice()
+        words.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+        const groups: { [letter: string]: string[] } = {}
+        words.forEach((w) => {
+            const letter = w.charAt(0).toUpperCase()
+            if (!groups[letter]) groups[letter] = []
+            groups[letter].push(w)
+        })
+        return groups
+    }, [selectedCompany])
+
+    const { data, isLoading, isError, error } = useSistrixData(searchTerm, "de", { limit: "5", history: "false" }, { enabled: !!searchTerm })
 
     useEffect(() => {
         if (data?.answer?.[0]?.result) {
@@ -306,10 +326,7 @@ export default function CompetitorsManager() {
     }
 
     const sortedCompetitors = React.useMemo(() => [...competitors].sort(getComparator(order, orderBy)), [competitors, order, orderBy])
-    const paginatedCompetitors = React.useMemo(
-        () => sortedCompetitors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-        [sortedCompetitors, page, rowsPerPage]
-    )
+    const paginatedCompetitors = React.useMemo(() => sortedCompetitors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [sortedCompetitors, page, rowsPerPage])
 
     const isSelected = (uuid: string) => selected.indexOf(uuid) !== -1
 
@@ -344,9 +361,7 @@ export default function CompetitorsManager() {
             }))
 
             updateCompany(selectedCompany.uuid, {
-                seo: {
-                    competitorsByKeyword: [...currentCompetitorsByKeyword, ...formattedCompetitors],
-                },
+                seo: { competitorsByKeyword: [...currentCompetitorsByKeyword, ...formattedCompetitors] },
             })
             setSelected([])
         }
@@ -362,7 +377,7 @@ export default function CompetitorsManager() {
 
     return (
         <Box sx={{ p: 2 }}>
-            <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
+            <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap", alignItems: "center" }}>
                 <TextField
                     label="Enter keyword"
                     variant="outlined"
@@ -375,10 +390,41 @@ export default function CompetitorsManager() {
                     }}
                     sx={{ flex: 1 }}
                 />
+                <IconButton color="primary" onClick={handleOpenGeneralWordsModal}>
+                    <ListAltIcon />
+                </IconButton>
                 <Button variant="contained" onClick={handleSearch}>
                     Search
                 </Button>
             </Box>
+
+            <Dialog open={openGeneralWordsModal} onClose={handleCloseGeneralWordsModal} fullWidth maxWidth="sm">
+                <DialogTitle>Select a General Keyword</DialogTitle>
+                <DialogContent dividers>
+                    {Object.keys(groupedGeneralKeywords)
+                        .sort()
+                        .map((letter) => (
+                            <Box key={letter} sx={{ mb: 1 }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                    {letter}
+                                </Typography>
+                                <Divider sx={{ mb: 0 }} />
+                                <List>
+                                    {groupedGeneralKeywords[letter].map((word, index) => (
+                                        <ListItem key={index} disablePadding>
+                                            <ListItemButton onClick={() => handleSelectGeneralWord(word)}>
+                                                <ListItemText primary={word} />
+                                            </ListItemButton>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Box>
+                        ))}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseGeneralWordsModal}>Close</Button>
+                </DialogActions>
+            </Dialog>
 
             {!isLoading ? (
                 !!paginatedCompetitors.length && (
@@ -412,11 +458,7 @@ export default function CompetitorsManager() {
                                                     sx={{ cursor: "pointer" }}
                                                 >
                                                     <TableCell padding="checkbox">
-                                                        <Checkbox
-                                                            color="primary"
-                                                            checked={isItemSelected}
-                                                            inputProps={{ "aria-labelledby": labelId }}
-                                                        />
+                                                        <Checkbox color="primary" checked={isItemSelected} inputProps={{ "aria-labelledby": labelId }} />
                                                     </TableCell>
                                                     <TableCell align="left">{row.position}</TableCell>
                                                     <TableCell>{row.domain}</TableCell>
