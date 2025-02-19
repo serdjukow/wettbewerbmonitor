@@ -220,12 +220,6 @@ export default function CompetitorsManager() {
     const [dense, setDense] = useState(true)
     const { updateCompany, selectedCompany } = useAppStore()
 
-    // При загрузке компонента — никаких данных из localStorage, только начальные значения
-    useEffect(() => {
-        // Если данные уже были получены ранее, можно их сохранить в state,
-        // но здесь мы ничего не сохраняем между переходами.
-    }, [])
-
     const { data, isLoading, isError, error } = useSistrixData(
         searchTerm,
         "de",
@@ -261,13 +255,11 @@ export default function CompetitorsManager() {
                 socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
             }))
             setCompetitors(fetchedCompetitors)
-            // Больше не сохраняем данные в localStorage
         }
     }, [data, selectedCompany])
 
     const handleSearch = () => {
         setSearchTerm(keyword)
-        // Убираем сохранение в localStorage
     }
 
     const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Pick<Competitor, "position" | "domain" | "url">) => {

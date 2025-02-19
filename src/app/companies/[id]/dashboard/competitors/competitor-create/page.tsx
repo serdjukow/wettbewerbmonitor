@@ -21,6 +21,8 @@ function CompetitorCreatePage() {
         defaultValues: {
             uuid: uuidv4(),
             name: "",
+            status: "not_checked",
+            products: [],
             domain: "",
             keyword: "",
             url: "",
@@ -43,6 +45,8 @@ function CompetitorCreatePage() {
                 ...data,
                 uuid: data.uuid || uuidv4(),
                 name: data.name || "",
+                status: data.status || "not_checked",
+                products: data.products || [],
                 domain: data.domain || "",
                 keyword: data.keyword || "",
                 url: data.url || "",
@@ -81,17 +85,9 @@ function CompetitorCreatePage() {
                             <Controller
                                 name="name"
                                 control={control}
-                                rules={{ required: "Сompetitor name is required" }}
+                                rules={{ required: "Competitor name is required" }}
                                 render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Сompetitor Name"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.name}
-                                        helperText={errors.name?.message}
-                                        required
-                                    />
+                                    <TextField fullWidth label="Competitor Name" variant="outlined" {...field} error={!!errors.name} helperText={errors.name?.message} required />
                                 )}
                             />
 
@@ -113,11 +109,7 @@ function CompetitorCreatePage() {
                                     render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" {...field} />}
                                 />
                             </Stack>
-                            <Controller
-                                name="address.city"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />}
-                            />
+                            <Controller name="address.city" control={control} render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />} />
 
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
@@ -167,24 +159,12 @@ function CompetitorCreatePage() {
                             </Stack>
 
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                                <Controller
-                                    name="domain"
-                                    control={control}
-                                    render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />}
-                                />
-                                <Controller
-                                    name="url"
-                                    control={control}
-                                    render={({ field }) => <TextField fullWidth label="URL" variant="outlined" {...field} />}
-                                />
+                                <Controller name="domain" control={control} render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />} />
+                                <Controller name="url" control={control} render={({ field }) => <TextField fullWidth label="URL" variant="outlined" {...field} />} />
                             </Stack>
 
                             <Typography variant="h6">Keyword</Typography>
-                            <Controller
-                                name="keyword"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" {...field} />}
-                            />
+                            <Controller name="keyword" control={control} render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" {...field} />} />
 
                             <Typography variant="h6">Social Networks</Typography>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>

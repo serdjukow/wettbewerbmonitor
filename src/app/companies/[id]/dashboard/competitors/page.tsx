@@ -26,15 +26,10 @@ import {
     Tabs,
     TextField,
     Typography,
+    Alert,
 } from "@mui/material"
 
-import {
-    Close as CloseIcon,
-    Delete as DeleteIcon,
-    Edit as EditIcon,
-    RemoveRedEye as RemoveRedEyeIcon,
-    ListAlt as ListAltIcon,
-} from "@mui/icons-material"
+import { Close as CloseIcon, Delete as DeleteIcon, Edit as EditIcon, RemoveRedEye as RemoveRedEyeIcon, ListAlt as ListAltIcon } from "@mui/icons-material"
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
 import { type Competitor } from "@/src/utils/types"
 
@@ -107,8 +102,7 @@ const CompetitorsPage = () => {
         if (tab === "not_checked") return row.status === "not_checked"
         if (tab === "competitor") return row.status === "competitor" && (row.products ? row.products.length > 0 : false)
         if (tab === "not_competitor") return row.status === "not_competitor" && (row.products ? row.products.length > 0 : false)
-       if (tab === "products_not_selected")
-           return (row.status === "competitor" || row.status === "not_competitor") && row.products.length === 0
+        if (tab === "products_not_selected") return (row.status === "competitor" || row.status === "not_competitor") && row.products.length === 0
 
         return true
     })
@@ -219,7 +213,7 @@ const CompetitorsPage = () => {
             {filteredRows.length > 0 ? (
                 <Box>
                     {filteredRows.map((row) => (
-                        <Box key={row.uuid} sx={{ mb: 2}}>
+                        <Box key={row.uuid} sx={{ mb: 2 }}>
                             <Card variant="outlined">
                                 <CardHeader
                                     sx={{ bgcolor: "primary.main", color: "primary.contrastText" }}
@@ -233,12 +227,7 @@ const CompetitorsPage = () => {
                                             <Select
                                                 labelId={`status-label-${row.uuid}`}
                                                 value={row.status}
-                                                onChange={(e: SelectChangeEvent) =>
-                                                    handleStatusChange(
-                                                        row.uuid,
-                                                        e.target.value as "not_checked" | "competitor" | "not_competitor"
-                                                    )
-                                                }
+                                                onChange={(e: SelectChangeEvent) => handleStatusChange(row.uuid, e.target.value as "not_checked" | "competitor" | "not_competitor")}
                                                 label="Status"
                                                 sx={{ color: "primary.contrastTextwh" }}
                                             >
@@ -259,7 +248,7 @@ const CompetitorsPage = () => {
                                         <Typography variant="body2" color="text.secondary">
                                             Keyword: {row.keyword}
                                         </Typography>
-                                        {row.products && row.products.length > 0 && (
+                                        {row.products && row.products.length > 0 ? (
                                             <>
                                                 <Typography variant="body2" color="text.secondary">
                                                     Services / Products:
@@ -282,10 +271,18 @@ const CompetitorsPage = () => {
                                                     ))}
                                                 </Stack>
                                             </>
+                                        ) : (
+                                            <>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Services / Products:
+                                                </Typography>
+                                                <Alert severity="warning" sx={{ mt: 2 }}>
+                                                    Services / Products not filled
+                                                </Alert>
+                                            </>
                                         )}
                                     </Stack>
                                 </CardContent>
-                                {/* Footer карточки с кнопками */}
                                 <CardActions sx={{ justifyContent: "flex-end" }}>
                                     <IconButton onClick={() => handleViewCompetitor(row.uuid)} color="success">
                                         <RemoveRedEyeIcon />
@@ -365,14 +362,7 @@ const CompetitorsPage = () => {
                         </Typography>
                     )}
                     <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                        <TextField
-                            label="New product"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            value={newProduct}
-                            onChange={(e) => setNewProduct(e.target.value)}
-                        />
+                        <TextField label="New product" variant="outlined" size="small" fullWidth value={newProduct} onChange={(e) => setNewProduct(e.target.value)} />
                         <Button variant="contained" onClick={handleAddNewProduct}>
                             Add
                         </Button>

@@ -11,8 +11,9 @@ export default function CompaniesLayout({
 }: {
     children: React.ReactNode
 }) {
+     const disableCustomTheme = false
     return (
-        <AppTheme>
+        <AppTheme disableCustomTheme={disableCustomTheme}>
             <Box>
                 <CssBaseline />
                 <DashboardMenuBar />
