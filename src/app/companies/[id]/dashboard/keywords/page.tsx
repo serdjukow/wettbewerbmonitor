@@ -208,8 +208,6 @@ function KeywordStatsTableToolbar(props: KeywordStatsTableToolbarProps) {
 
 type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
 
-const CACHE_TIME = 1000 * 60 * 60 * 24
-
 export default function CompetitorsManager() {
     const [keyword, setKeyword] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
@@ -222,27 +220,10 @@ export default function CompetitorsManager() {
     const [dense, setDense] = useState(true)
     const { updateCompany, selectedCompany } = useAppStore()
 
+    // При загрузке компонента — никаких данных из localStorage, только начальные значения
     useEffect(() => {
-        const storedTerm = localStorage.getItem("lastSearchTerm")
-        const storedTimestamp = localStorage.getItem("lastSearchTimestamp")
-        if (storedTerm && storedTimestamp) {
-            const elapsed = Date.now() - parseInt(storedTimestamp, 10)
-            if (elapsed < CACHE_TIME) {
-                setKeyword(storedTerm)
-                setSearchTerm(storedTerm)
-            } else {
-                localStorage.removeItem("lastSearchTerm")
-                localStorage.removeItem("lastCompetitors")
-                localStorage.removeItem("lastSearchTimestamp")
-                setKeyword("")
-                setSearchTerm("")
-                setCompetitors([])
-            }
-        }
-        const storedCompetitors = localStorage.getItem("lastCompetitors")
-        if (storedCompetitors) {
-            setCompetitors(JSON.parse(storedCompetitors))
-        }
+        // Если данные уже были получены ранее, можно их сохранить в state,
+        // но здесь мы ничего не сохраняем между переходами.
     }, [])
 
     const { data, isLoading, isError, error } = useSistrixData(
@@ -273,20 +254,20 @@ export default function CompetitorsManager() {
                 domain: item.domain || "",
                 keyword: "",
                 name: item.name || "",
+                status: "not_checked",
+                products: [],
                 address: { street: "", houseNumber: "", postalCode: "", city: "" },
                 contact: { phone: "", email: "" },
                 socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
             }))
             setCompetitors(fetchedCompetitors)
-            localStorage.setItem("lastCompetitors", JSON.stringify(fetchedCompetitors))
-            localStorage.setItem("lastSearchTimestamp", Date.now().toString())
+            // Больше не сохраняем данные в localStorage
         }
     }, [data, selectedCompany])
 
     const handleSearch = () => {
         setSearchTerm(keyword)
-        localStorage.setItem("lastSearchTerm", keyword)
-        localStorage.setItem("lastSearchTimestamp", Date.now().toString())
+        // Убираем сохранение в localStorage
     }
 
     const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Pick<Competitor, "position" | "domain" | "url">) => {
@@ -343,11 +324,12 @@ export default function CompetitorsManager() {
     const handleSaveCompetitorsByKeyword = (competitors: Competitor[]) => {
         if (selectedCompany?.uuid) {
             const currentCompetitorsByKeyword = selectedCompany?.seo?.competitorsByKeyword || []
-
             const formattedCompetitors = competitors.map((comp) => ({
                 keyword: data?.answer?.[0]?.kw || "",
                 uuid: comp.uuid || "",
                 name: comp.name || (comp as ExtendedCompetitor).competitorName || "",
+                status: comp.status,
+                products: comp.products,
                 domain: comp.domain || "",
                 url: comp.url || "",
                 position: comp.position !== undefined ? comp.position : 0,

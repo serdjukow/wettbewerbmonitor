@@ -3,52 +3,70 @@
 import React, { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
+import {
+    Box,
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CardHeader,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    SelectChangeEvent,
+    Stack,
+    Tab,
+    Tabs,
+    TextField,
+    Typography,
+} from "@mui/material"
 
 import {
-    Button,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    IconButton,
-    Stack,
-    Box,
-} from "@mui/material"
-import { Delete as DeleteIcon, Edit as EditIcon, RemoveRedEye as RemoveRedEyeIcon } from "@mui/icons-material"
+    Close as CloseIcon,
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+    RemoveRedEye as RemoveRedEyeIcon,
+    ListAlt as ListAltIcon,
+} from "@mui/icons-material"
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
-
 import { type Competitor } from "@/src/utils/types"
 
-interface Column {
-    id: "domain" | "url" | "keyword" | "name"
-    label: string
-    minWidth?: number
-    maxWidth?: number
-    align?: "right"
-}
+type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
 
-const columns: readonly Column[] = [
-    { id: "domain", label: "Domain" },
-    { id: "url", label: "URL" },
-    { id: "keyword", label: "Keyword" },
-    { id: "name", label: "Name" },
-]
+type TabValue = "not_checked" | "competitor" | "not_competitor" | "products_not_selected"
 
-function createData(uuid: string, domain?: string, url?: string, keyword?: string, name?: string): Competitor {
+function createData(
+    uuid: string,
+    domain?: string,
+    url?: string,
+    keyword?: string,
+    name?: string,
+    status: "not_checked" | "competitor" | "not_competitor" = "not_checked",
+    products: string[] = []
+): Competitor {
     return {
         uuid,
         domain: domain && domain.trim() !== "" ? domain : "-",
-        url: url && url.trim() !== "" ? url : " ",
+        url: url && url.trim() !== "" ? url : "-",
         keyword: keyword && keyword.trim() !== "" ? keyword : "-",
         name: name && name.trim() !== "" ? name : "-",
+        status,
+        products,
     }
 }
 
-type ExtendedCompetitor = Competitor & { keyword?: string }
+const NoProcessedCompetitorsCard = () => (
+    <Paper sx={{ p: 4, textAlign: "center" }}>
+        <Typography variant="h6">There are competitors, but none have been processed yet.</Typography>
+    </Paper>
+)
 
 const CompetitorsPage = () => {
     const router = useRouter()
@@ -56,26 +74,57 @@ const CompetitorsPage = () => {
     const { selectedCompany, updateCompany } = useAppStore()
 
     const [rows, setRows] = useState<Competitor[]>([])
-    const [page, setPage] = useState(0)
-    const [rowsPerPage, setRowsPerPage] = useState(100)
+    const [tab, setTab] = useState<TabValue>("not_checked")
+
+    const [openProductsDialog, setOpenProductsDialog] = useState(false)
+    const [editingCompetitor, setEditingCompetitor] = useState<Competitor | null>(null)
+    const [productsList, setProductsList] = useState<string[]>([])
+    const [newProduct, setNewProduct] = useState("")
 
     useEffect(() => {
         if (selectedCompany?.seo?.competitorsByKeyword) {
             setRows(
                 (selectedCompany.seo.competitorsByKeyword as ExtendedCompetitor[]).map((item) =>
-                    createData(item.uuid || "-", item.domain || "-", item.url || "-", item.keyword || "-", item.name || "-")
+                    createData(
+                        item.uuid || "-",
+                        item.domain || "-",
+                        item.url || "-",
+                        item.keyword || "-",
+                        item.name || "-",
+                        (item as Competitor).status || "not_checked",
+                        (item as Competitor).products || []
+                    )
                 )
             )
         }
     }, [selectedCompany])
 
-    const handleChangePage = (_: unknown, newPage: number) => {
-        setPage(newPage)
+    const handleTabChange = (_: React.SyntheticEvent, newValue: TabValue) => {
+        setTab(newValue)
     }
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value)
-        setPage(0)
+    const filteredRows = rows.filter((row) => {
+        if (tab === "not_checked") return row.status === "not_checked"
+        if (tab === "competitor") return row.status === "competitor" && (row.products ? row.products.length > 0 : false)
+        if (tab === "not_competitor") return row.status === "not_competitor" && (row.products ? row.products.length > 0 : false)
+       if (tab === "products_not_selected")
+           return (row.status === "competitor" || row.status === "not_competitor") && row.products.length === 0
+
+        return true
+    })
+
+    const handleStatusChange = async (uuid: string, newStatus: "not_checked" | "competitor" | "not_competitor") => {
+        const updated = rows.map((row) => (row.uuid === uuid ? { ...row, status: newStatus } : row))
+        setRows(updated)
+        if (selectedCompany?.uuid) {
+            try {
+                await updateCompany(selectedCompany.uuid, {
+                    seo: { competitorsByKeyword: updated },
+                })
+            } catch (error) {
+                console.error("Ошибка при обновлении статуса:", error)
+            }
+        }
     }
 
     const handleViewCompetitor = (uuid: string) => {
@@ -88,16 +137,14 @@ const CompetitorsPage = () => {
 
     const handleDeleteCompetitor = async (uuid: string) => {
         if (!selectedCompany || !selectedCompany.uuid || !uuid) return
-
         try {
             const updatedCompetitors = selectedCompany?.seo?.competitorsByKeyword?.filter((c) => c.uuid !== uuid)
-
             await updateCompany(selectedCompany.uuid, {
                 seo: { competitorsByKeyword: updatedCompetitors },
             })
             setRows(updatedCompetitors || [])
         } catch (error) {
-            console.error("Ошибка при удалении конкурента:", error)
+            console.error("Error when deleting a competitor:", error)
         }
     }
 
@@ -105,108 +152,239 @@ const CompetitorsPage = () => {
         router.push(`${pathname}/competitor-create`)
     }
 
+    const handleOpenProductsDialog = (competitor: Competitor) => {
+        setEditingCompetitor(competitor)
+        setProductsList(competitor.products || [])
+        setNewProduct("")
+        setOpenProductsDialog(true)
+    }
+
+    const handleCloseProductsDialog = () => {
+        setOpenProductsDialog(false)
+        setEditingCompetitor(null)
+        setProductsList([])
+        setNewProduct("")
+    }
+
+    const handleAddNewProduct = () => {
+        const trimmed = newProduct.trim()
+        if (trimmed && !productsList.includes(trimmed)) {
+            setProductsList([...productsList, trimmed])
+            setNewProduct("")
+        }
+    }
+
+    const handleRemoveProduct = (product: string) => {
+        setProductsList(productsList.filter((p) => p !== product))
+    }
+
+    const handleSaveProducts = async () => {
+        if (editingCompetitor) {
+            const updatedRows = rows.map((row) => (row.uuid === editingCompetitor.uuid ? { ...row, products: productsList } : row))
+
+            setRows(updatedRows)
+
+            if (!selectedCompany || !selectedCompany.uuid) {
+                console.error("Selected company is null or its uuid is undefined")
+                return
+            }
+
+            await updateCompany(selectedCompany.uuid, {
+                seo: { competitorsByKeyword: updatedRows },
+            })
+
+            handleCloseProductsDialog()
+        }
+    }
+
     return (
-        <Box>
-            <Paper sx={{ width: "100%", overflow: "hidden", marginBottom: 3 }}>
-                <Stack direction="row" spacing={2} sx={{ padding: 2, justifyContent: "flex-start" }}>
+        <Box sx={{ p: 2 }}>
+            <Paper sx={{ width: "100%", mb: 3, p: 2 }}>
+                <Stack direction="row" spacing={2} justifyContent="flex-start">
                     <Button onClick={handleCreateCompetitor} variant="contained" color="success">
                         Add new competitor
                     </Button>
                 </Stack>
             </Paper>
-            {!!rows.length ? (
-                <Paper sx={{ width: "100%", overflow: "hidden", padding: 2 }}>
-                    <TableContainer sx={{ maxHeight: "75vh" }}>
-                        <Table aria-label="competitor table">
-                            <TableHead>
-                                <TableRow>
-                                    {columns.map((column) => (
-                                        <TableCell
-                                            key={column.id}
-                                            align={column.align}
-                                            style={{
-                                                minWidth: column.minWidth,
-                                                maxWidth: column.maxWidth,
-                                            }}
-                                        >
-                                            {column.label}
-                                        </TableCell>
-                                    ))}
-                                    <TableCell sx={{ width: "140px" }}>Action</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                                    <TableRow key={row.uuid} hover role="checkbox" tabIndex={-1}>
-                                        {columns.map((column) => {
-                                            const value = row[column.id] || "-"
-                                            return (
-                                                <TableCell key={column.id} align={column.align}>
-                                                    {value}
-                                                </TableCell>
-                                            )
-                                        })}
-                                        <TableCell>
-                                            <Stack direction="row" spacing={1}>
-                                                <IconButton
-                                                    data-uuid={row.uuid}
-                                                    onClick={(e) => {
-                                                        const uuid = e.currentTarget.dataset.uuid
-                                                        if (uuid) handleViewCompetitor(uuid)
-                                                    }}
-                                                    color="success"
-                                                >
-                                                    <RemoveRedEyeIcon />
-                                                </IconButton>
-                                                <IconButton
-                                                    data-uuid={row.uuid}
-                                                    onClick={(e) => {
-                                                        const uuid = e.currentTarget.dataset.uuid
-                                                        if (uuid) handleEditCompetitor(uuid)
-                                                    }}
-                                                    color="primary"
-                                                >
-                                                    <EditIcon />
-                                                </IconButton>
-                                                <IconButton
-                                                    data-uuid={row.uuid}
-                                                    onClick={(e) => {
-                                                        const uuid = e.currentTarget.dataset.uuid
-                                                        if (uuid) handleDeleteCompetitor(uuid)
-                                                    }}
-                                                    color="error"
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </Stack>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    <TablePagination
-                        rowsPerPageOptions={[10, 25, 100]}
-                        component="div"
-                        count={rows.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                </Paper>
+
+            <Paper sx={{ width: "100%", mb: 2, p: 1 }}>
+                <Tabs value={tab} onChange={handleTabChange} indicatorColor="primary" textColor="primary" variant="scrollable">
+                    <Tab label="Not checked" value="not_checked" />
+                    <Tab label="Competitor" value="competitor" />
+                    <Tab label="Not competitor" value="not_competitor" />
+                    <Tab label="Products not selected" value="products_not_selected" />
+                </Tabs>
+            </Paper>
+
+            {filteredRows.length > 0 ? (
+                <Box>
+                    {filteredRows.map((row) => (
+                        <Box key={row.uuid} sx={{ mb: 2}}>
+                            <Card variant="outlined">
+                                <CardHeader
+                                    sx={{ bgcolor: "primary.main", color: "primary.contrastText" }}
+                                    title={row.domain}
+                                    subheader={row.name}
+                                    action={
+                                        <FormControl variant="standard" size="small" sx={{ minWidth: 120 }}>
+                                            <InputLabel id={`status-label-${row.uuid}`} sx={{ color: "primary.contrastTextwh" }}>
+                                                Status
+                                            </InputLabel>
+                                            <Select
+                                                labelId={`status-label-${row.uuid}`}
+                                                value={row.status}
+                                                onChange={(e: SelectChangeEvent) =>
+                                                    handleStatusChange(
+                                                        row.uuid,
+                                                        e.target.value as "not_checked" | "competitor" | "not_competitor"
+                                                    )
+                                                }
+                                                label="Status"
+                                                sx={{ color: "primary.contrastTextwh" }}
+                                            >
+                                                <MenuItem value="not_checked">Not checked</MenuItem>
+                                                <MenuItem value="competitor">Competitor</MenuItem>
+                                                <MenuItem value="not_competitor">Not competitor</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    }
+                                />
+
+                                <CardContent>
+                                    <Stack spacing={1}>
+                                        <Typography variant="body2" color="text.secondary">
+                                            URL: {row.url}
+                                        </Typography>
+
+                                        <Typography variant="body2" color="text.secondary">
+                                            Keyword: {row.keyword}
+                                        </Typography>
+                                        {row.products && row.products.length > 0 && (
+                                            <>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Services / Products:
+                                                </Typography>
+                                                <Stack direction="row" spacing={1} flexWrap="wrap">
+                                                    {row.products.map((prod) => (
+                                                        <Box
+                                                            key={prod}
+                                                            sx={{
+                                                                border: "1px solid",
+                                                                borderColor: "grey.400",
+                                                                borderRadius: 1,
+                                                                px: 1,
+                                                                py: 0.5,
+                                                                mb: 0.5,
+                                                            }}
+                                                        >
+                                                            <Typography variant="caption">{prod}</Typography>
+                                                        </Box>
+                                                    ))}
+                                                </Stack>
+                                            </>
+                                        )}
+                                    </Stack>
+                                </CardContent>
+                                {/* Footer карточки с кнопками */}
+                                <CardActions sx={{ justifyContent: "flex-end" }}>
+                                    <IconButton onClick={() => handleViewCompetitor(row.uuid)} color="success">
+                                        <RemoveRedEyeIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => handleEditCompetitor(row.uuid)} color="primary">
+                                        <EditIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => handleDeleteCompetitor(row.uuid)} color="error">
+                                        <DeleteIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => handleOpenProductsDialog(row)} color="info">
+                                        <ListAltIcon />
+                                    </IconButton>
+                                </CardActions>
+                            </Card>
+                        </Box>
+                    ))}
+                </Box>
             ) : (
                 <Box
                     sx={{
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        minHeight: "75vh",
+                        minHeight: "50vh",
                     }}
                 >
-                    <NoCompetitorsFoundCard />
+                    {filteredRows.length > 0 ? <NoCompetitorsFoundCard /> : <NoProcessedCompetitorsCard />}
                 </Box>
             )}
+
+            <Dialog open={openProductsDialog} onClose={handleCloseProductsDialog} fullWidth maxWidth="sm">
+                <DialogTitle>
+                    Editing products for {editingCompetitor ? editingCompetitor.name : ""}
+                    <IconButton
+                        aria-label="close"
+                        onClick={handleCloseProductsDialog}
+                        sx={{
+                            position: "absolute",
+                            right: 8,
+                            top: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                        Already added products:
+                    </Typography>
+                    {productsList.length > 0 ? (
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                            {productsList.map((product) => (
+                                <Box
+                                    key={product}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        border: "1px solid",
+                                        borderColor: "grey.400",
+                                        borderRadius: 1,
+                                        px: 1,
+                                        py: 0.5,
+                                    }}
+                                >
+                                    <Typography variant="body2">{product}</Typography>
+                                    <IconButton size="small" onClick={() => handleRemoveProduct(product)} sx={{ ml: 0.5 }}>
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            ))}
+                        </Box>
+                    ) : (
+                        <Typography variant="body2" color="text.secondary">
+                            No products added.
+                        </Typography>
+                    )}
+                    <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                        <TextField
+                            label="New product"
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            value={newProduct}
+                            onChange={(e) => setNewProduct(e.target.value)}
+                        />
+                        <Button variant="contained" onClick={handleAddNewProduct}>
+                            Add
+                        </Button>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseProductsDialog}>Cancel</Button>
+                    <Button onClick={handleSaveProducts} variant="contained" color="primary">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     )
 }

@@ -1,8 +1,10 @@
-export type Competitor = {
-    uuid?: string
-    name?: string
-    domain?: string
-    url?: string
+export interface Competitor {
+    uuid: string
+    name: string
+    status: "not_checked" | "competitor" | "not_competitor"
+    products: string[]
+    domain: string
+    url: string
     position?: number
     keyword?: string
     address?: {
