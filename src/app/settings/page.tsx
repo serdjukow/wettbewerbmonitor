@@ -1,21 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
-    addSistrixApiKey,
-    getSistrixApiKey,
-} from "@/src/services/firebaseService"
+import { addSistrixApiKey, getSistrixApiKey } from "@/src/services/firebaseService"
 import { useAuth } from "@/src/context/AuthContext"
 
-import Box from "@mui/material/Box"
-import TextField from "@mui/material/TextField"
-import IconButton from "@mui/material/IconButton"
-import Stack from "@mui/material/Stack"
-import {
-    Edit as EditIcon,
-    Save as SaveIcon,
-    Cancel as CancelIcon,
-} from "@mui/icons-material"
+import { Box, TextField, IconButton, Stack } from "@mui/material"
+import { Edit as EditIcon, Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import PageLoader from "@/src/components/PageLoader"
 
 const Settings = () => {
@@ -46,12 +36,7 @@ const Settings = () => {
     if (loading) return <PageLoader />
 
     return (
-        <Box
-            component="form"
-            sx={{ "& > :not(style)": { m: 1, width: "70ch" } }}
-            noValidate
-            autoComplete="off"
-        >
+        <Box component="form" sx={{ "& > :not(style)": { m: 1, width: "70ch" } }} noValidate autoComplete="off">
             <Stack direction="row" spacing={1}>
                 <TextField
                     id="outlined-basic"
@@ -68,27 +53,15 @@ const Settings = () => {
 
                 {isEdit ? (
                     <>
-                        <IconButton
-                            onClick={handleSave}
-                            color="success"
-                            aria-label="add to shopping cart"
-                        >
+                        <IconButton onClick={handleSave} color="success" aria-label="add to shopping cart">
                             <SaveIcon />
                         </IconButton>
-                        <IconButton
-                            onClick={() => setIsEdit(!isEdit)}
-                            color="warning"
-                            aria-label="add to shopping cart"
-                        >
+                        <IconButton onClick={() => setIsEdit(!isEdit)} color="warning" aria-label="add to shopping cart">
                             <CancelIcon />
                         </IconButton>
                     </>
                 ) : (
-                    <IconButton
-                        onClick={() => setIsEdit(!isEdit)}
-                        color="primary"
-                        aria-label="add to shopping cart"
-                    >
+                    <IconButton onClick={() => setIsEdit(!isEdit)} color="primary" aria-label="add to shopping cart">
                         <EditIcon />
                     </IconButton>
                 )}

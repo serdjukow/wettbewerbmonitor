@@ -79,12 +79,10 @@ export const deleteCompanyFromDB = async (uuid: string) => {
     try {
         const user = auth.currentUser
         if (!user) {
-            toast.error("User is not authenticated!")
             throw new Error("User not authenticated")
         }
         const companyRef = doc(db, `users/${user.uid}/companies`, uuid)
         await deleteDoc(companyRef)
-        toast.success(`Company deleted successfully with UUID: ${uuid}`)
     } catch (error) {
         toast.error(`Error deleting company: ${error}`)
         throw error
@@ -101,14 +99,11 @@ export const updateCompanyInDB = async (
             Object.entries(updatedData).filter(([, v]) => v !== undefined)
         )
         if (!user) {
-            toast.error("User is not authenticated!")
             throw new Error("User not authenticated")
         }
         const companyRef = doc(db, `users/${user.uid}/companies`, uuid)
         await updateDoc(companyRef, cleanData)
-        toast.success(`Company updated successfully with UUID: ${uuid}`)
     } catch (error) {
-        toast.error(`Error updating company: ${error}`)
         throw error
     }
 }
@@ -144,7 +139,6 @@ export const getSistrixApiKey = async (): Promise<string | null> => {
             toast.error("User is not authenticated!")
             throw new Error("User not authenticated")
         }
-
         const userRef = doc(db, `users/${user.uid}`)
         const userDoc = await getDoc(userRef)
 

@@ -68,7 +68,6 @@ const CompetitorViewPage: React.FC = () => {
           ]
         : []
 
-    // Функция для рендеринга значения: если значение отсутствует или пустое, возвращаем тире ("-")
     const renderValue = (value: unknown): string => {
         if (typeof value === "string") {
             return value.trim() !== "" ? value : "-"

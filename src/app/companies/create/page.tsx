@@ -36,7 +36,7 @@ const AddCompanyPage = () => {
     }
 
     return (
-        <Container sx={{ padding: 2, marginTop: 3 }}>
+        <Container sx={{display: "flex", alignItems: "center", justifyContent: "center",  pt: 2, minHeight: "calc(100vh - 68px)" }}>
             <Card sx={{ padding: 1 }}>
                 <CardContent>
                     <Typography variant="h4" gutterBottom>

@@ -36,12 +36,12 @@ const menuItems: MenuItem[] = [
         path: DASHBOARD_ROUTE,
     },
     {
-        title: "Domains",
+        title: "Search by Domain",
         icon: <InsertLinkIcon />,
         path: DOMAINS_ROUTE,
     },
     {
-        title: "Keywords",
+        title: "Search by Keyword",
         icon: <KeyIcon />,
         path: KEYWORDS_ROUTE,
     },

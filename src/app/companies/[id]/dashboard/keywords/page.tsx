@@ -1,35 +1,33 @@
 "use client"
 
-import * as React from "react"
-import { useState, useEffect } from "react"
-import { alpha } from "@mui/material/styles"
+import React, { useState, useEffect } from "react"
+import { alpha, styled } from "@mui/material/styles"
 import {
     Box,
     Button,
     TextField,
     Typography,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TableSortLabel,
-    Toolbar,
     Paper,
-    Checkbox,
-    FormControlLabel,
-    Switch,
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Divider,
+    Tooltip,
+    Toolbar,
 } from "@mui/material"
-import { visuallyHidden } from "@mui/utils"
-import { useSistrixData } from "@/src/hooks/useSistrixQuery"
+import ListAltIcon from "@mui/icons-material/ListAlt"
 import { v4 as uuidv4 } from "uuid"
-import Tooltip from "@mui/material/Tooltip"
-import Skeleton from "@mui/material/Skeleton"
+import { useSistrixData } from "@/src/hooks/useSistrixQuery"
 import { type Competitor } from "@/src/utils/types"
 import { useAppStore } from "@/src/store/appStore"
 import RemainingCredits from "@/src/components/RemainingCredits"
+import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 
 interface SistrixCompetitorResult {
     uuid?: string
@@ -39,85 +37,7 @@ interface SistrixCompetitorResult {
     domain?: string
 }
 
-interface HeadCell {
-    disablePadding: boolean
-    id: keyof Pick<Competitor, "position" | "domain" | "url">
-    label: string
-    numeric: boolean
-}
-
-const headCells: readonly HeadCell[] = [
-    { id: "position", numeric: false, disablePadding: false, label: "Position" },
-    { id: "domain", numeric: false, disablePadding: false, label: "Domain" },
-    { id: "url", numeric: false, disablePadding: false, label: "Url" },
-]
-
 type Order = "asc" | "desc"
-
-function descendingComparator(a: number | string, b: number | string) {
-    if (b < a) return -1
-    if (b > a) return 1
-    return 0
-}
-
-function getComparator<Key extends "position" | "domain" | "url">(order: Order, orderBy: Key): (a: Competitor, b: Competitor) => number {
-    return order === "desc"
-        ? (a, b) => descendingComparator(a[orderBy] ?? (orderBy === "position" ? 0 : ""), b[orderBy] ?? (orderBy === "position" ? 0 : ""))
-        : (a, b) => -descendingComparator(a[orderBy] ?? (orderBy === "position" ? 0 : ""), b[orderBy] ?? (orderBy === "position" ? 0 : ""))
-}
-
-interface EnhancedTableHeadProps {
-    numSelected: number
-    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void
-    order: Order
-    orderBy: keyof Pick<Competitor, "position" | "domain" | "url">
-    rowCount: number
-    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Pick<Competitor, "position" | "domain" | "url">) => void
-}
-
-function EnhancedTableHead(props: EnhancedTableHeadProps) {
-    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props
-    const createSortHandler = (property: keyof Pick<Competitor, "position" | "domain" | "url">) => (event: React.MouseEvent<unknown>) => {
-        onRequestSort(event, property)
-    }
-
-    return (
-        <TableHead>
-            <TableRow>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        color="primary"
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                        inputProps={{ "aria-label": "select all competitors" }}
-                    />
-                </TableCell>
-                {headCells.map((headCell) => (
-                    <TableCell
-                        key={headCell.id}
-                        align={headCell.numeric ? "right" : "left"}
-                        padding={headCell.disablePadding ? "none" : "normal"}
-                        sortDirection={orderBy === headCell.id ? order : false}
-                    >
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : "asc"}
-                            onClick={createSortHandler(headCell.id)}
-                        >
-                            {headCell.label}
-                            {orderBy === headCell.id ? (
-                                <Box component="span" sx={visuallyHidden}>
-                                    {order === "desc" ? "sorted descending" : "sorted ascending"}
-                                </Box>
-                            ) : null}
-                        </TableSortLabel>
-                    </TableCell>
-                ))}
-            </TableRow>
-        </TableHead>
-    )
-}
 
 interface EnhancedTableToolbarProps {
     numSelected: number
@@ -217,14 +137,31 @@ export default function CompetitorsManager() {
     const [selected, setSelected] = useState<string[]>([])
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(100)
-    const [dense, setDense] = useState(true)
     const { updateCompany, selectedCompany } = useAppStore()
 
-    // При загрузке компонента — никаких данных из localStorage, только начальные значения
-    useEffect(() => {
-        // Если данные уже были получены ранее, можно их сохранить в state,
-        // но здесь мы ничего не сохраняем между переходами.
-    }, [])
+    const [openGeneralWordsModal, setOpenGeneralWordsModal] = useState(false)
+    const handleOpenGeneralWordsModal = () => setOpenGeneralWordsModal(true)
+    const handleCloseGeneralWordsModal = () => {
+        setOpenGeneralWordsModal(false)
+        setGeneralSearchQuery("")
+    }
+    const handleSelectGeneralWord = (word: string) => {
+        setKeyword(word)
+        setOpenGeneralWordsModal(false)
+        setGeneralSearchQuery("")
+    }
+    const [generalSearchQuery, setGeneralSearchQuery] = useState("")
+    const groupedGeneralKeywords = React.useMemo(() => {
+        const words = (selectedCompany?.generalKeywords || []).slice()
+        words.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+        const groups: { [letter: string]: string[] } = {}
+        words.forEach((w) => {
+            const letter = w.charAt(0).toUpperCase()
+            if (!groups[letter]) groups[letter] = []
+            groups[letter].push(w)
+        })
+        return groups
+    }, [selectedCompany])
 
     const { data, isLoading, isError, error } = useSistrixData(
         searchTerm,
@@ -261,65 +198,12 @@ export default function CompetitorsManager() {
                 socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
             }))
             setCompetitors(fetchedCompetitors)
-            // Больше не сохраняем данные в localStorage
         }
     }, [data, selectedCompany])
 
     const handleSearch = () => {
         setSearchTerm(keyword)
-        // Убираем сохранение в localStorage
     }
-
-    const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Pick<Competitor, "position" | "domain" | "url">) => {
-        const isAsc = orderBy === property && order === "asc"
-        setOrder(isAsc ? "desc" : "asc")
-        setOrderBy(property)
-    }
-
-    const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            const newSelected = competitors.map((comp) => comp.uuid || "")
-            setSelected(newSelected)
-            return
-        }
-        setSelected([])
-    }
-
-    const handleClick = (event: React.MouseEvent<unknown>, uuid: string) => {
-        const selectedIndex = selected.indexOf(uuid)
-        let newSelected: string[] = []
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, uuid)
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1))
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1))
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
-        }
-        setSelected(newSelected)
-    }
-
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage)
-    }
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10))
-        setPage(0)
-    }
-
-    const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDense(event.target.checked)
-    }
-
-    const sortedCompetitors = React.useMemo(() => [...competitors].sort(getComparator(order, orderBy)), [competitors, order, orderBy])
-    const paginatedCompetitors = React.useMemo(
-        () => sortedCompetitors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-        [sortedCompetitors, page, rowsPerPage]
-    )
-
-    const isSelected = (uuid: string) => selected.indexOf(uuid) !== -1
 
     const handleSaveCompetitorsByKeyword = (competitors: Competitor[]) => {
         if (selectedCompany?.uuid) {
@@ -352,9 +236,7 @@ export default function CompetitorsManager() {
             }))
 
             updateCompany(selectedCompany.uuid, {
-                seo: {
-                    competitorsByKeyword: [...currentCompetitorsByKeyword, ...formattedCompetitors],
-                },
+                seo: { competitorsByKeyword: [...currentCompetitorsByKeyword, ...formattedCompetitors] },
             })
             setSelected([])
         }
@@ -366,106 +248,184 @@ export default function CompetitorsManager() {
         setCompetitors([])
     }
 
+    const gridRows = competitors.map((comp) => ({
+        id: comp.uuid,
+        position: comp.position,
+        domain: comp.domain,
+        url: comp.url,
+    }))
+
+    const columns: GridColDef[] = [
+        { field: "position", headerName: "Position", flex: 1 },
+        { field: "domain", headerName: "Domain", flex: 1 },
+        { field: "url", headerName: "Url", flex: 1 },
+    ]
+
+    const sortModel: GridSortModel = [
+        {
+            field: orderBy,
+            sort: order,
+        },
+    ]
+
+    const StyledGridOverlay = styled("div")(({ theme }) => ({
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        "& .no-rows-primary": {
+            fill: "#3D4751",
+            ...theme.applyStyles("light", {
+                fill: "#AEB8C2",
+            }),
+        },
+        "& .no-rows-secondary": {
+            fill: "#1D2126",
+            ...theme.applyStyles("light", {
+                fill: "#E8EAED",
+            }),
+        },
+    }))
+
+    function CustomNoRowsOverlay() {
+        return (
+            <StyledGridOverlay>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" width={96} viewBox="0 0 452 257" aria-hidden focusable="false">
+                    <path
+                        className="no-rows-primary"
+                        d="M348 69c-46.392 0-84 37.608-84 84s37.608 84 84 84 84-37.608 84-84-37.608-84-84-84Zm-104 84c0-57.438 46.562-104 104-104s104 46.562 104 104-46.562 104-104 104-104-46.562-104-104Z"
+                    />
+                    <path
+                        className="no-rows-primary"
+                        d="M308.929 113.929c3.905-3.905 10.237-3.905 14.142 0l63.64 63.64c3.905 3.905 3.905 10.236 0 14.142-3.906 3.905-10.237 3.905-14.142 0l-63.64-63.64c-3.905-3.905-3.905-10.237 0-14.142Z"
+                    />
+                    <path
+                        className="no-rows-primary"
+                        d="M308.929 191.711c-3.905-3.906-3.905-10.237 0-14.142l63.64-63.64c3.905-3.905 10.236-3.905 14.142 0 3.905 3.905 3.905 10.237 0 14.142l-63.64 63.64c-3.905 3.905-10.237 3.905-14.142 0Z"
+                    />
+                    <path
+                        className="no-rows-secondary"
+                        d="M0 10C0 4.477 4.477 0 10 0h380c5.523 0 10 4.477 10 10s-4.477 10-10 10H10C4.477 20 0 15.523 0 10ZM0 59c0-5.523 4.477-10 10-10h231c5.523 0 10 4.477 10 10s-4.477 10-10 10H10C4.477 69 0 64.523 0 59ZM0 106c0-5.523 4.477-10 10-10h203c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10ZM0 153c0-5.523 4.477-10 10-10h195.5c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10ZM0 200c0-5.523 4.477-10 10-10h203c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10ZM0 247c0-5.523 4.477-10 10-10h231c5.523 0 10 4.477 10 10s-4.477 10-10 10H10c-5.523 0-10-4.477-10-10Z"
+                    />
+                </svg>
+                <Box sx={{ mt: 2 }}>No rows</Box>
+            </StyledGridOverlay>
+        )
+    }
+
     if (isError) return <Typography color="error">Error: {error?.message}</Typography>
 
     return (
-        <Box sx={{ p: 2 }}>
-            <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
-                <TextField
-                    label="Enter keyword"
-                    variant="outlined"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            handleSearch()
-                        }
-                    }}
-                    sx={{ flex: 1 }}
-                />
-                <Button variant="contained" onClick={handleSearch}>
-                    Search
-                </Button>
-            </Box>
+        <>
+            <Box sx={{ p: 2 }}>
+                <Dialog open={openGeneralWordsModal} onClose={handleCloseGeneralWordsModal} fullWidth maxWidth="sm">
+                    <DialogTitle>Select a General Keyword</DialogTitle>
+                    <DialogContent dividers>
+                        <TextField
+                            label="Search keywords"
+                            fullWidth
+                            value={generalSearchQuery}
+                            onChange={(e) => setGeneralSearchQuery(e.target.value)}
+                            sx={{ mb: 2 }}
+                        />
+                        {Object.keys(groupedGeneralKeywords)
+                            .sort()
+                            .map((letter) => {
+                                const filteredWords = groupedGeneralKeywords[letter].filter((word) =>
+                                    word.toLowerCase().includes(generalSearchQuery.toLowerCase())
+                                )
+                                if (filteredWords.length === 0) return null
+                                return (
+                                    <Box key={letter} sx={{ mb: 1 }}>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                            {letter}
+                                        </Typography>
+                                        <Divider sx={{ mb: 0 }} />
+                                        <List>
+                                            {filteredWords.map((word, index) => (
+                                                <ListItem key={index} disablePadding>
+                                                    <ListItemButton onClick={() => handleSelectGeneralWord(word)}>
+                                                        <ListItemText primary={word} />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Box>
+                                )
+                            })}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="outlined" color="secondary" onClick={handleCloseGeneralWordsModal}>
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
-            {!isLoading ? (
-                !!paginatedCompetitors.length && (
-                    <Box>
-                        <Paper sx={{ width: "100%", mb: 2 }}>
-                            <KeywordStatsTableToolbar keyword={keyword} keywordStats={data?.keywordStats ?? {}} />
-                            <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
-                            <TableContainer>
-                                <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? "small" : "medium"}>
-                                    <EnhancedTableHead
-                                        numSelected={selected.length}
-                                        order={order}
-                                        orderBy={orderBy}
-                                        rowCount={competitors.length}
-                                        onSelectAllClick={handleSelectAllClick}
-                                        onRequestSort={handleRequestSort}
-                                    />
-                                    <TableBody>
-                                        {paginatedCompetitors.map((row, index) => {
-                                            const isItemSelected = isSelected(row.uuid || "")
-                                            const labelId = `enhanced-table-checkbox-${index}`
-                                            return (
-                                                <TableRow
-                                                    hover
-                                                    onClick={(event) => handleClick(event, row.uuid || "")}
-                                                    role="checkbox"
-                                                    aria-checked={isItemSelected}
-                                                    tabIndex={-1}
-                                                    key={row.uuid || index}
-                                                    selected={isItemSelected}
-                                                    sx={{ cursor: "pointer" }}
-                                                >
-                                                    <TableCell padding="checkbox">
-                                                        <Checkbox
-                                                            color="primary"
-                                                            checked={isItemSelected}
-                                                            inputProps={{ "aria-labelledby": labelId }}
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell align="left">{row.position}</TableCell>
-                                                    <TableCell>{row.domain}</TableCell>
-                                                    <TableCell>{row.url}</TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
-                                        {paginatedCompetitors.length === 0 && (
-                                            <TableRow>
-                                                <TableCell colSpan={4} align="center">
-                                                    No data
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25, 50, 100]}
-                                component="div"
-                                count={competitors.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
+                <Box sx={{ mb: 2 }}>
+                    <Paper sx={{ width: "100%" }}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                gap: 2,
+                                flexWrap: "wrap",
+                                alignItems: "center",
+                                pt: 2,
+                                pr: 2,
+                                pl: 2,
+                            }}
+                        >
+                            <TextField
+                                label="Enter keyword"
+                                variant="outlined"
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleSearch()
+                                    }
+                                }}
+                                sx={{ flex: 1 }}
                             />
-                        </Paper>
-                        <FormControlLabel control={<Switch checked={dense} onChange={handleChangeDense} />} label="Dense padding" />
-                    </Box>
-                )
-            ) : (
-                <>
-                    <Skeleton animation="wave" variant="rectangular" height={50} />
-                    <Skeleton animation="wave" height={50} />
-                    <Skeleton animation="wave" height={50} />
-                    <Skeleton animation="wave" height={50} />
-                    <Skeleton animation="wave" height={50} />
-                    <Skeleton animation="wave" height={50} />
-                    <Skeleton animation="wave" height={50} />
-                </>
-            )}
-        </Box>
+                            <IconButton color="primary" onClick={handleOpenGeneralWordsModal}>
+                                <ListAltIcon />
+                            </IconButton>
+                            <Button variant="contained" onClick={handleSearch}>
+                                Search
+                            </Button>
+                        </Box>
+                        <KeywordStatsTableToolbar keyword={keyword} keywordStats={data?.keywordStats ?? {}} />
+                        <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
+                        <Box sx={{ height: "65vh", width: "100%" }}>
+                            <DataGrid
+                                rows={gridRows}
+                                columns={columns}
+                                checkboxSelection
+                                loading={isLoading}
+                                pagination
+                                paginationModel={{ page: page, pageSize: rowsPerPage }}
+                                onPaginationModelChange={(model) => {
+                                    setPage(model.page)
+                                    setRowsPerPage(model.pageSize)
+                                }}
+                                sortModel={sortModel}
+                                onSortModelChange={(model) => {
+                                    if (model.length) {
+                                        const field = model[0].field
+                                        if (field === "position" || field === "domain" || field === "url") {
+                                            setOrderBy(field)
+                                            setOrder(model[0].sort as Order)
+                                        }
+                                    }
+                                }}
+                                rowSelectionModel={selected}
+                                onRowSelectionModelChange={(newSelection) => setSelected(newSelection as string[])}
+                                slots={{ noRowsOverlay: CustomNoRowsOverlay }}
+                            />
+                        </Box>
+                    </Paper>
+                </Box>
+            </Box>
+        </>
     )
 }

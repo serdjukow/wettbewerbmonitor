@@ -8,7 +8,8 @@ import PageLoader from "@/src/components/PageLoader"
 import { useAuth } from "@/src/context/AuthContext"
 import companyImg from "@/src/assets/images/company.png"
 
-import { Box, Card, CardContent, Typography, CardActionArea, CardMedia } from "@mui/material"
+import { Box, Card, CardContent, Typography, CardActionArea, CardMedia, Container } from "@mui/material"
+import Grid from "@mui/material/Grid2"
 import AddIcon from "@mui/icons-material/Add"
 import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
 
@@ -35,24 +36,11 @@ const Companies = () => {
     if (loading) return <PageLoader />
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: "90vh",
-            }}
-        >
-            <Box
-                sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 2,
-                }}
-            >
+        <Container sx={{ display: "flex", alignItems: "center", minHeight: "calc(100vh - 68px)", pt: 3, pb: 3}}>
+            <Grid container spacing={{ xs: 2, md: 2 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                 {companies.map((company) => (
-                    <>
-                        <Card sx={{ maxWidth: 345 }} key={company.uuid}>
+                    <Grid key={company.uuid} size={{ xs: 2, sm: 4, md: 4 }}>
+                        <Card>
                             <CardActionArea
                                 onClick={() => company.uuid && handleSelectCompany(company)}
                                 data-active={selectedCompany?.uuid === company.uuid ? "" : undefined}
@@ -80,7 +68,7 @@ const Companies = () => {
                                 </CardContent>
                             </CardActionArea>
                         </Card>
-                    </>
+                    </Grid>
                 ))}
                 <Card>
                     <Link href={CREATE_COMPANY_ROUTE} style={{ textDecoration: "none", color: "inherit" }}>
@@ -107,8 +95,8 @@ const Companies = () => {
                         </CardActionArea>
                     </Link>
                 </Card>
-            </Box>
-        </Box>
+            </Grid>
+        </Container>
     )
 }
 
