@@ -118,7 +118,7 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                         <br />
                         – the &quot;Competitor&quot; status (checkbox),
                         <br />
-                        – the analysis method (select: Empty, Manual, AI),
+                        – the analysis method (select: Not Processed, Manual, AI),
                         <br />– the service name.
                     </Typography>
 
@@ -166,7 +166,7 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                                                     displayEmpty
                                                     sx={{ minWidth: 120 }}
                                                 >
-                                                    <MenuItem value="">Empty</MenuItem>
+                                                    <MenuItem value="">Not Processed</MenuItem>
                                                     <MenuItem value="manual">Manual</MenuItem>
                                                     <MenuItem value="ai">AI</MenuItem>
                                                 </Select>

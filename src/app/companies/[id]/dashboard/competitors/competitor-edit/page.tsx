@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "react-toastify"
 import { useAppStore } from "@/src/store/appStore"
-import { type Competitor } from "@/src/utils/types"
+import { type Competitor, type GeneralService } from "@/src/utils/types"
 import ProductsDialog from "@/src/components/ProductsDialog"
 
 import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container, Alert } from "@mui/material"
@@ -87,7 +87,8 @@ function CompetitorEditPage() {
         setOpenProductsDialog(false)
     }
     const handleSaveProducts = (products: string[]) => {
-        reset({ ...watch(), products })
+        const productsMapped = products.map((prod) => ({ title: prod }))
+        reset({ ...watch(), products: productsMapped })
     }
 
     return (
@@ -99,23 +100,37 @@ function CompetitorEditPage() {
                             <Controller
                                 name="name"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Competitor Name" variant="outlined" {...field} required />}
+                                render={({ field }) => (
+                                    <TextField fullWidth label="Competitor Name" variant="outlined" {...field} required />
+                                )}
                             />
                             <Controller
                                 name="contact.email"
                                 control={control}
                                 render={({ field }) => <TextField fullWidth label="Email" variant="outlined" {...field} required />}
                             />
-                            <Controller name="contact.phone" control={control} render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" {...field} />} />
+                            <Controller
+                                name="contact.phone"
+                                control={control}
+                                render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" {...field} />}
+                            />
                             <Typography variant="h6">Address</Typography>
-                            <Controller name="address.street" control={control} render={({ field }) => <TextField fullWidth label="Street" variant="outlined" {...field} />} />
+                            <Controller
+                                name="address.street"
+                                control={control}
+                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" {...field} />}
+                            />
                             <Controller
                                 name="address.houseNumber"
                                 control={control}
                                 render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" {...field} />}
                             />
                             <Stack direction="row" spacing={2}>
-                                <Controller name="address.city" control={control} render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />} />
+                                <Controller
+                                    name="address.city"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />}
+                                />
                                 <Controller
                                     name="address.postalCode"
                                     control={control}
@@ -123,9 +138,17 @@ function CompetitorEditPage() {
                                 />
                             </Stack>
                             <Typography variant="h6">Website</Typography>
-                            <Controller name="domain" control={control} render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />} />
+                            <Controller
+                                name="domain"
+                                control={control}
+                                render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />}
+                            />
                             <Typography variant="h6">Keyword</Typography>
-                            <Controller name="keyword" control={control} render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" {...field} />} />
+                            <Controller
+                                name="keyword"
+                                control={control}
+                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" {...field} />}
+                            />
                             <Typography variant="h6">Social Networks</Typography>
                             <Stack direction="row" spacing={2}>
                                 <Controller
@@ -159,7 +182,7 @@ function CompetitorEditPage() {
                             </Box>
                             <Stack direction="row" spacing={1} flexWrap="wrap">
                                 {watch("products")?.length > 0 ? (
-                                    watch("products").map((prod: string, index: number) => (
+                                    watch("products").map((prod, index: number) => (
                                         <Box
                                             key={index}
                                             sx={{
@@ -171,7 +194,7 @@ function CompetitorEditPage() {
                                                 mb: 0.5,
                                             }}
                                         >
-                                            <Typography variant="caption">{prod}</Typography>
+                                            <Typography variant="caption">{prod.title}</Typography>
                                         </Box>
                                     ))
                                 ) : (
@@ -207,7 +230,7 @@ function CompetitorEditPage() {
             <ProductsDialog
                 open={openProductsDialog}
                 competitorName={editingCompetitor?.name}
-                products={watch("products") || []}
+                products={(watch("products") as GeneralService[]).map((prod) => prod.title)}
                 onClose={handleCloseProductsDialog}
                 onSave={handleSaveProducts}
             />
