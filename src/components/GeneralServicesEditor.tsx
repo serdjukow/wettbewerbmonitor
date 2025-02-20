@@ -6,14 +6,19 @@ import { Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
 
-interface Service {
+// Расширенный интерфейс сервиса с дополнительными полями для анализа и сопоставления.
+// Пока что эти поля будут сохраняться пустыми, но в дальнейшем их можно заполнить вручную или через ИИ.
+export interface GeneralService {
     title: string
     description?: string
+    aiAnalysis?: string // Результат анализа с использованием ИИ (пока пустое)
+    manualAnalysis?: string // Ручной анализ (пока пустой)
+    competitorMapping?: { [competitorId: string]: boolean } // Сопоставление с конкурентами (пока пустое)
 }
 
 const GeneralServicesEditor = () => {
     const { selectedCompany, updateCompany } = useAppStore()
-    const [services, setServices] = useState<Service[]>([])
+    const [services, setServices] = useState<GeneralService[]>([])
     const [newServiceTitle, setNewServiceTitle] = useState("")
     const [newServiceDescription, setNewServiceDescription] = useState("")
 
@@ -37,15 +42,18 @@ const GeneralServicesEditor = () => {
             toast.error("Title is required")
             return
         }
-        
+
         const duplicate = services.some((service) => service.title.toLowerCase() === titleTrimmed.toLowerCase())
         if (duplicate) {
             toast.error("Service with this title already exists")
             return
         }
-        const newService: Service = {
+        const newService: GeneralService = {
             title: titleTrimmed,
             description: newServiceDescription.trim() || "",
+            aiAnalysis: "", // пока пустое
+            manualAnalysis: "", // пока пустое
+            competitorMapping: {}, // пока пустое
         }
         const updatedServices = [...services, newService]
         setServices(updatedServices)
@@ -71,7 +79,7 @@ const GeneralServicesEditor = () => {
             toast.error("Title is required")
             return
         }
-        
+
         const duplicate = services.some((service, i) => i !== editIndex && service.title.toLowerCase() === titleTrimmed.toLowerCase())
         if (duplicate) {
             toast.error("Service with this title already exists")
@@ -79,8 +87,10 @@ const GeneralServicesEditor = () => {
         }
         const updatedServices = [...services]
         updatedServices[editIndex] = {
+            ...updatedServices[editIndex],
             title: titleTrimmed,
             description: editDescription.trim() || "",
+            // Дополнительные поля остаются без изменений (пока пустые)
         }
         setServices(updatedServices)
         setOpenEditDialog(false)
@@ -116,7 +126,13 @@ const GeneralServicesEditor = () => {
                 General Services/Produkts
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
-                <TextField label="Service Title" value={newServiceTitle} onChange={(e) => setNewServiceTitle(e.target.value)} fullWidth required />
+                <TextField
+                    label="Service Title"
+                    value={newServiceTitle}
+                    onChange={(e) => setNewServiceTitle(e.target.value)}
+                    fullWidth
+                    required
+                />
                 <TextField
                     label="Service Description"
                     value={newServiceDescription}
@@ -148,8 +164,22 @@ const GeneralServicesEditor = () => {
             <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
                 <DialogTitle>Edit Service</DialogTitle>
                 <DialogContent>
-                    <TextField label="Service Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} fullWidth required sx={{ mb: 2, mt: 1 }} />
-                    <TextField label="Service Description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} fullWidth multiline rows={3} />
+                    <TextField
+                        label="Service Title"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        fullWidth
+                        required
+                        sx={{ mb: 2, mt: 1 }}
+                    />
+                    <TextField
+                        label="Service Description"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        fullWidth
+                        multiline
+                        rows={3}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenEditDialog(false)} startIcon={<CancelIcon />} color="error">

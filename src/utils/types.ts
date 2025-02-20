@@ -1,8 +1,18 @@
+export interface GeneralService {
+    title: string
+    description?: string
+    aiAnalysis?: string
+    manualAnalysis?: string
+    competitorMapping?: { [competitorId: string]: boolean }
+    isCompetitor?: boolean
+    analysisType?: "" | "manual" | "ai"
+}
+
 export interface Competitor {
     uuid: string
     name: string
     status: "not_checked" | "competitor" | "not_competitor"
-    products: string[]
+    products: GeneralService[]
     domain: string
     url: string
     position?: number

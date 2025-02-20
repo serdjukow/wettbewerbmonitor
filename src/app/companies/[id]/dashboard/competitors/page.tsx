@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
+import { toast } from "react-toastify"
 import {
     Box,
     Button,
@@ -24,20 +25,15 @@ import {
     Stack,
     Tab,
     Tabs,
-    TextField,
     Typography,
     Alert,
 } from "@mui/material"
 
-import {
-    Close as CloseIcon,
-    Delete as DeleteIcon,
-    Edit as EditIcon,
-    RemoveRedEye as RemoveRedEyeIcon,
-    ListAlt as ListAltIcon,
-} from "@mui/icons-material"
+import { Delete as DeleteIcon, Edit as EditIcon, RemoveRedEye as RemoveRedEyeIcon, ListAlt as ListAltIcon } from "@mui/icons-material"
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
-import { type Competitor } from "@/src/utils/types"
+import { type Competitor, type GeneralService } from "@/src/utils/types"
+
+import CompetitorServicesEditor from "@/src/components/CompetitorServicesEditor"
 
 type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
 
@@ -50,7 +46,7 @@ function createData(
     keyword?: string,
     name?: string,
     status: "not_checked" | "competitor" | "not_competitor" = "not_checked",
-    products: string[] = []
+    products: GeneralService[] = []
 ): Competitor {
     return {
         uuid,
@@ -77,13 +73,12 @@ const CompetitorsPage = () => {
     const [rows, setRows] = useState<Competitor[]>([])
     const [tab, setTab] = useState<TabValue>("not_checked")
 
-    const [openProductsDialog, setOpenProductsDialog] = useState(false)
     const [editingCompetitor, setEditingCompetitor] = useState<Competitor | null>(null)
-    const [productsList, setProductsList] = useState<string[]>([])
-    const [newProduct, setNewProduct] = useState("")
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [competitorToDelete, setCompetitorToDelete] = useState<Competitor | null>(null)
+
+    const [openServicesDialog, setOpenServicesDialog] = useState(false)
 
     useEffect(() => {
         if (selectedCompany?.seo?.competitorsByKeyword) {
@@ -155,47 +150,6 @@ const CompetitorsPage = () => {
         router.push(`${pathname}/competitor-create`)
     }
 
-    const handleOpenProductsDialog = (competitor: Competitor) => {
-        setEditingCompetitor(competitor)
-        setProductsList(competitor.products || [])
-        setNewProduct("")
-        setOpenProductsDialog(true)
-    }
-
-    const handleCloseProductsDialog = () => {
-        setOpenProductsDialog(false)
-        setEditingCompetitor(null)
-        setProductsList([])
-        setNewProduct("")
-    }
-
-    const handleAddNewProduct = () => {
-        const trimmed = newProduct.trim()
-        if (trimmed && !productsList.includes(trimmed)) {
-            setProductsList([...productsList, trimmed])
-            setNewProduct("")
-        }
-    }
-
-    const handleRemoveProduct = (product: string) => {
-        setProductsList(productsList.filter((p) => p !== product))
-    }
-
-    const handleSaveProducts = async () => {
-        if (editingCompetitor) {
-            const updatedRows = rows.map((row) => (row.uuid === editingCompetitor.uuid ? { ...row, products: productsList } : row))
-            setRows(updatedRows)
-            if (!selectedCompany || !selectedCompany.uuid) {
-                console.error("Selected company is null or its uuid is undefined")
-                return
-            }
-            await updateCompany(selectedCompany.uuid, {
-                seo: { competitorsByKeyword: updatedRows },
-            })
-            handleCloseProductsDialog()
-        }
-    }
-
     const handleOpenDeleteDialog = (competitor: Competitor) => {
         setCompetitorToDelete(competitor)
         setOpenDeleteDialog(true)
@@ -213,6 +167,35 @@ const CompetitorsPage = () => {
         setOpenDeleteDialog(false)
         setCompetitorToDelete(null)
     }
+
+    const handleOpenServicesDialog = (competitor: Competitor) => {
+        setEditingCompetitor(competitor)
+        setOpenServicesDialog(true)
+    }
+
+    const handleCloseServicesDialog = () => {
+        setOpenServicesDialog(false)
+        setEditingCompetitor(null)
+    }
+
+    const handleSaveServices = async (selectedServices: GeneralService[]) => {
+        if (selectedCompany?.uuid && editingCompetitor) {
+            const updatedCompetitors = (selectedCompany.seo?.competitorsByKeyword || []).map((comp: Competitor) =>
+                comp.uuid === editingCompetitor.uuid ? { ...comp, products: selectedServices } : comp
+            )
+            try {
+                await updateCompany(selectedCompany.uuid, {
+                    seo: { competitorsByKeyword: updatedCompetitors },
+                })
+                toast.success("Services updated for competitor")
+                handleCloseServicesDialog()
+            } catch (error) {
+                console.error("Error updating competitor services:", error)
+            }
+        }
+    }
+
+    const generalServices: GeneralService[] = selectedCompany?.generalServices || []
 
     return (
         <Box sx={{ p: 2 }}>
@@ -280,22 +263,77 @@ const CompetitorsPage = () => {
                                                 <Typography variant="body2" color="text.secondary">
                                                     Services / Products:
                                                 </Typography>
-                                                <Stack direction="row" spacing={1} flexWrap="wrap">
-                                                    {row.products.map((prod) => (
+                                                <Stack direction="row" spacing={2} flexWrap="wrap" sx={{ mb: 1 }}>
+                                                    <Box sx={{ display: "flex", alignItems: "center" }}>
                                                         <Box
-                                                            key={prod}
                                                             sx={{
-                                                                border: "1px solid",
+                                                                width: 12,
+                                                                height: 12,
+                                                                border: 1,
                                                                 borderColor: "grey.400",
-                                                                borderRadius: 1,
-                                                                px: 1,
-                                                                py: 0.5,
-                                                                mb: 0.5,
+                                                                borderRadius: "50%",
+                                                                mr: 0.5,
                                                             }}
-                                                        >
-                                                            <Typography variant="caption">{prod}</Typography>
-                                                        </Box>
-                                                    ))}
+                                                        />
+                                                        <Typography variant="caption">Not Processed</Typography>
+                                                    </Box>
+                                                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                                                        <Box
+                                                            sx={{
+                                                                width: 12,
+                                                                height: 12,
+                                                                border: 1,
+                                                                borderColor: "success.main",
+                                                                borderRadius: "50%",
+                                                                mr: 0.5,
+                                                            }}
+                                                        />
+                                                        <Typography variant="caption">Manual</Typography>
+                                                    </Box>
+                                                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                                                        <Box
+                                                            sx={{
+                                                                width: 12,
+                                                                height: 12,
+                                                                border: 1,
+                                                                borderColor: "primary.main",
+                                                                borderRadius: "50%",
+                                                                mr: 0.5,
+                                                            }}
+                                                        />
+                                                        <Typography variant="caption">AI</Typography>
+                                                    </Box>
+                                                </Stack>
+                                                <Stack direction="row" spacing={1} flexWrap="wrap">
+                                                    {row.products.map((prod, index) => {
+                                                        let borderColor = "grey.400"
+                                                        let textColor = "grey.600"
+                                                        if (prod.analysisType === "manual") {
+                                                            borderColor = "success.main"
+                                                            textColor = "success.main"
+                                                        } else if (prod.analysisType === "ai") {
+                                                            borderColor = "primary.main"
+                                                            textColor = "primary.main"
+                                                        }
+                                                        return (
+                                                            <Box
+                                                                key={prod.title || index}
+                                                                sx={{
+                                                                    border: 1,
+                                                                    borderColor: borderColor,
+                                                                    borderRadius: 1,
+                                                                    px: 1,
+                                                                    py: 0.5,
+                                                                    mb: 0.5,
+                                                                    backgroundColor: "transparent",
+                                                                    color: textColor,
+                                                                    fontWeight: "bold",
+                                                                }}
+                                                            >
+                                                                <Typography variant="caption">{prod.title}</Typography>
+                                                            </Box>
+                                                        )
+                                                    })}
                                                 </Stack>
                                             </>
                                         ) : (
@@ -320,7 +358,7 @@ const CompetitorsPage = () => {
                                     <IconButton onClick={() => handleOpenDeleteDialog(row)} color="error">
                                         <DeleteIcon />
                                     </IconButton>
-                                    <IconButton onClick={() => handleOpenProductsDialog(row)} color="info">
+                                    <IconButton onClick={() => handleOpenServicesDialog(row)} color="info">
                                         <ListAltIcon />
                                     </IconButton>
                                 </CardActions>
@@ -337,7 +375,7 @@ const CompetitorsPage = () => {
                         minHeight: "50vh",
                     }}
                 >
-                    {(rows.length > 0) ? <NoProcessedCompetitorsCard /> : <NoCompetitorsFoundCard />}
+                    {rows.length > 0 ? <NoProcessedCompetitorsCard /> : <NoCompetitorsFoundCard />}
                 </Box>
             )}
 
@@ -357,74 +395,15 @@ const CompetitorsPage = () => {
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={openProductsDialog} onClose={handleCloseProductsDialog} fullWidth maxWidth="sm">
-                <DialogTitle>
-                    Editing products for: {editingCompetitor ? editingCompetitor.domain : ""}
-                    <IconButton
-                        aria-label="close"
-                        onClick={handleCloseProductsDialog}
-                        sx={{
-                            position: "absolute",
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent dividers>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                        Already added products:
-                    </Typography>
-                    {productsList.length > 0 ? (
-                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                            {productsList.map((product) => (
-                                <Box
-                                    key={product}
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        border: "1px solid",
-                                        borderColor: "grey.400",
-                                        borderRadius: 1,
-                                        px: 1,
-                                        py: 0.5,
-                                    }}
-                                >
-                                    <Typography variant="body2">{product}</Typography>
-                                    <IconButton size="small" onClick={() => handleRemoveProduct(product)} sx={{ ml: 0.5 }}>
-                                        <CloseIcon fontSize="small" />
-                                    </IconButton>
-                                </Box>
-                            ))}
-                        </Box>
-                    ) : (
-                        <Typography variant="body2" color="text.secondary">
-                            No products added.
-                        </Typography>
-                    )}
-                    <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                        <TextField
-                            label="New product"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            value={newProduct}
-                            onChange={(e) => setNewProduct(e.target.value)}
-                        />
-                        <Button variant="contained" onClick={handleAddNewProduct}>
-                            Add
-                        </Button>
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseProductsDialog}>Cancel</Button>
-                    <Button onClick={handleSaveProducts} variant="contained" color="primary">
-                        Save
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            {openServicesDialog && editingCompetitor && (
+                <CompetitorServicesEditor
+                    open={openServicesDialog}
+                    onClose={handleCloseServicesDialog}
+                    competitor={editingCompetitor}
+                    generalServices={generalServices}
+                    onSave={handleSaveServices}
+                />
+            )}
         </Box>
     )
 }
