@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
@@ -27,16 +27,14 @@ import {
     Tabs,
     Typography,
     Alert,
+    Badge,
 } from "@mui/material"
-
 import { Delete as DeleteIcon, Edit as EditIcon, RemoveRedEye as RemoveRedEyeIcon, ListAlt as ListAltIcon } from "@mui/icons-material"
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
-
 import CompetitorServicesEditor from "@/src/components/CompetitorServicesEditor"
 
 type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
-
 type TabValue = "not_checked" | "competitor" | "not_competitor" | "products_not_selected"
 
 function createData(
@@ -72,12 +70,9 @@ const CompetitorsPage = () => {
 
     const [rows, setRows] = useState<Competitor[]>([])
     const [tab, setTab] = useState<TabValue>("not_checked")
-
     const [editingCompetitor, setEditingCompetitor] = useState<Competitor | null>(null)
-
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [competitorToDelete, setCompetitorToDelete] = useState<Competitor | null>(null)
-
     const [openServicesDialog, setOpenServicesDialog] = useState(false)
 
     useEffect(() => {
@@ -102,14 +97,27 @@ const CompetitorsPage = () => {
         setTab(newValue)
     }
 
-    const filteredRows = rows.filter((row) => {
-        if (tab === "not_checked") return row.status === "not_checked"
-        if (tab === "competitor") return row.status === "competitor" && row.products && row.products.length > 0
-        if (tab === "not_competitor") return row.status === "not_competitor"
-        if (tab === "products_not_selected") return row.status === "competitor" && row.products.length === 0
+    const tabFilters = useMemo(
+        () => ({
+            not_checked: (row: Competitor) => row.status === "not_checked",
+            competitor: (row: Competitor) => row.status === "competitor" && row.products?.length > 0,
+            not_competitor: (row: Competitor) => row.status === "not_competitor",
+            products_not_selected: (row: Competitor) => row.status === "competitor" && row.products?.length === 0,
+        }),
+        []
+    )
 
-        return true
-    })
+    const counts = useMemo(
+        () => ({
+            not_checked: rows.filter(tabFilters.not_checked).length,
+            competitor: rows.filter(tabFilters.competitor).length,
+            not_competitor: rows.filter(tabFilters.not_competitor).length,
+            products_not_selected: rows.filter(tabFilters.products_not_selected).length,
+        }),
+        [rows, tabFilters]
+    )
+
+    const filteredRows = useMemo(() => (tabFilters[tab] ? rows.filter(tabFilters[tab]) : rows), [rows, tab, tabFilters])
 
     const handleStatusChange = async (uuid: string, newStatus: "not_checked" | "competitor" | "not_competitor") => {
         const updated = rows.map((row) => (row.uuid === uuid ? { ...row, status: newStatus } : row))
@@ -197,25 +205,116 @@ const CompetitorsPage = () => {
 
     const generalServices: GeneralService[] = selectedCompany?.generalServices || []
 
+    function shortNumber(num: number): string | number {
+        return num > 99 ? "99+" : num || "0"
+    }
+
     return (
         <Box sx={{ p: 2 }}>
             <Paper sx={{ width: "100%", mb: 3, p: 2 }}>
                 <Stack direction="row" spacing={2} justifyContent="flex-start">
-                    <Button onClick={handleCreateCompetitor} variant="contained" color="success">
+                    <Button sx={{ color: "white" }} onClick={handleCreateCompetitor} variant="contained" color="success">
                         Add new competitor
                     </Button>
                 </Stack>
             </Paper>
-
             <Paper sx={{ width: "100%", mb: 2, p: 1 }}>
                 <Tabs value={tab} onChange={handleTabChange} indicatorColor="primary" textColor="primary" variant="scrollable">
-                    <Tab label="Not checked" value="not_checked" />
-                    <Tab label="Competitor" value="competitor" />
-                    <Tab label="Not competitor" value="not_competitor" />
-                    <Tab label="Products not selected" value="products_not_selected" />
+                    <Tab
+                        sx={{ pr: 4 }}
+                        value="not_checked"
+                        label={
+                            <Badge
+                                badgeContent={shortNumber(counts.not_checked)}
+                                color="default"
+                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                sx={{
+                                    "& .MuiBadge-badge": {
+                                        transform: "translate(100%, -60%)",
+                                        minWidth: "22px",
+                                        height: "22px",
+                                        borderRadius: "50%",
+                                        padding: "0 4px",
+                                        backgroundColor: "grey",
+                                        color: "white",
+                                    },
+                                }}
+                            >
+                                NOT CHECKED
+                            </Badge>
+                        }
+                    />
+                    <Tab
+                        sx={{ pr: 4 }}
+                        value="competitor"
+                        label={
+                            <Badge
+                                badgeContent={shortNumber(counts.competitor)}
+                                color="success"
+                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                sx={{
+                                    "& .MuiBadge-badge": {
+                                        transform: "translate(100%, -60%)",
+                                        minWidth: "22px",
+                                        height: "22px",
+                                        borderRadius: "50%",
+                                        padding: "0 4px",
+                                        color: "white",
+                                    },
+                                }}
+                            >
+                                COMPETITOR
+                            </Badge>
+                        }
+                    />
+                    <Tab
+                        sx={{ pr: 4 }}
+                        value="not_competitor"
+                        label={
+                            <Badge
+                                badgeContent={shortNumber(counts.not_competitor)}
+                                color="warning"
+                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                sx={{
+                                    "& .MuiBadge-badge": {
+                                        transform: "translate(100%, -60%)",
+                                        minWidth: "22px",
+                                        height: "22px",
+                                        borderRadius: "50%",
+                                        padding: "0 4px",
+                                        color: "white",
+                                    },
+                                }}
+                            >
+                                NOT COMPETITOR
+                            </Badge>
+                        }
+                    />
+                    <Tab
+                        sx={{ pr: 4 }}
+                        value="products_not_selected"
+                        label={
+                            <Badge
+                                badgeContent={shortNumber(counts.products_not_selected)}
+                                color="info"
+                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                sx={{
+                                    "& .MuiBadge-badge": {
+                                        transform: "translate(100%, -60%)",
+                                        minWidth: "22px",
+                                        height: "22px",
+                                        borderRadius: "50%",
+                                        padding: "0 4px",
+                                        color: "white",
+                                    },
+                                }}
+                            >
+                                PRODUCTS NOT SELECTED
+                            </Badge>
+                        }
+                    />
                 </Tabs>
             </Paper>
-
             {filteredRows.length > 0 ? (
                 <Box>
                     {filteredRows.map((row) => (
@@ -249,7 +348,6 @@ const CompetitorsPage = () => {
                                         </FormControl>
                                     }
                                 />
-
                                 <CardContent>
                                     <Stack spacing={1}>
                                         <Typography variant="body2" color="text.secondary">
@@ -349,6 +447,9 @@ const CompetitorsPage = () => {
                                     </Stack>
                                 </CardContent>
                                 <CardActions sx={{ justifyContent: "flex-end" }}>
+                                    <IconButton onClick={() => handleOpenServicesDialog(row)} color="info">
+                                        <ListAltIcon />
+                                    </IconButton>
                                     <IconButton onClick={() => handleViewCompetitor(row.uuid)} color="success">
                                         <RemoveRedEyeIcon />
                                     </IconButton>
@@ -357,9 +458,6 @@ const CompetitorsPage = () => {
                                     </IconButton>
                                     <IconButton onClick={() => handleOpenDeleteDialog(row)} color="error">
                                         <DeleteIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleOpenServicesDialog(row)} color="info">
-                                        <ListAltIcon />
                                     </IconButton>
                                 </CardActions>
                             </Card>
@@ -378,7 +476,6 @@ const CompetitorsPage = () => {
                     {rows.length > 0 ? <NoProcessedCompetitorsCard /> : <NoCompetitorsFoundCard />}
                 </Box>
             )}
-
             <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
                 <DialogTitle>Confirm deletion</DialogTitle>
                 <DialogContent>
@@ -394,7 +491,6 @@ const CompetitorsPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
             {openServicesDialog && editingCompetitor && (
                 <CompetitorServicesEditor
                     open={openServicesDialog}

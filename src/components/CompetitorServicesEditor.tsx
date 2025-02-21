@@ -24,6 +24,7 @@ import {
     ListItem,
     ListItemText,
     ListItemButton,
+    TextField,
 } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
@@ -41,6 +42,7 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
     const [openAddDialog, setOpenAddDialog] = useState(false)
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
     const [deleteIndex, setDeleteIndex] = useState<number | null>(null)
+    const [searchTerm, setSearchTerm] = useState("")
 
     useEffect(() => {
         if (competitor) {
@@ -52,10 +54,12 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
 
     const availableServices = useMemo(() => {
         const selectedTitles = selectedServices.map((s) => s.title)
-        return generalServices.filter((service) => !selectedTitles.includes(service.title)).sort((a, b) => a.title.localeCompare(b.title))
-    }, [generalServices, selectedServices])
+        return generalServices
+            .filter((service) => !selectedTitles.includes(service.title))
+            .filter((service) => service.title.toLowerCase().includes(searchTerm.toLowerCase()))
+            .sort((a, b) => a.title.localeCompare(b.title))
+    }, [generalServices, selectedServices, searchTerm])
 
-    // Group services by first letter
     const groupedServices = useMemo(() => {
         return availableServices.reduce<Record<string, GeneralService[]>>((groups, service) => {
             const letter = service.title.charAt(0).toUpperCase()
@@ -205,6 +209,15 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
             <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} fullWidth maxWidth="sm">
                 <DialogTitle>Select Service to Add</DialogTitle>
                 <DialogContent dividers>
+                    {/* Поле поиска */}
+                    <TextField
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        label="Search services"
+                        variant="outlined"
+                        fullWidth
+                        sx={{ mb: 2 }}
+                    />
                     {availableServices.length ? (
                         <List>
                             {sortedGroupKeys.map((letter) => (
@@ -235,7 +248,7 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                             ))}
                         </List>
                     ) : (
-                        <Typography variant="body2">All services have been selected.</Typography>
+                        <Typography variant="body2">No matching services found or all services have been selected.</Typography>
                     )}
                 </DialogContent>
                 <DialogActions>
