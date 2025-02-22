@@ -22,7 +22,7 @@ function LoginPage() {
     const { user, error, signInWithEmail, signInWithGoogle } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const redirect = searchParams.get("redirect") || COMPANIES_ROUTE
+    const redirect = searchParams.get("redirect") || COMPANIES_ROUTE    
 
     useEffect(() => {
         if (user) {

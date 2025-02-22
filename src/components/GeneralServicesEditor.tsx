@@ -130,6 +130,12 @@ const GeneralServicesEditor = () => {
                     label="Service Title"
                     value={newServiceTitle}
                     onChange={(e) => setNewServiceTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleAddService()
+                        }
+                    }}
                     fullWidth
                     required
                 />
@@ -137,6 +143,12 @@ const GeneralServicesEditor = () => {
                     label="Service Description"
                     value={newServiceDescription}
                     onChange={(e) => setNewServiceDescription(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleAddService()
+                        }
+                    }}
                     fullWidth
                     multiline
                     rows={3}
@@ -185,7 +197,18 @@ const GeneralServicesEditor = () => {
                     <Button onClick={() => setOpenEditDialog(false)} startIcon={<CancelIcon />} color="error">
                         Cancel
                     </Button>
-                    <Button onClick={handleSaveEdit} startIcon={<SaveIcon />} color="primary" variant="contained">
+                    <Button
+                        onClick={handleSaveEdit}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault()
+                                handleSaveEdit()
+                            }
+                        }}
+                        startIcon={<SaveIcon />}
+                        color="primary"
+                        variant="contained"
+                    >
                         Save
                     </Button>
                 </DialogActions>

@@ -76,9 +76,9 @@ const CompetitorsPage = () => {
     const [openServicesDialog, setOpenServicesDialog] = useState(false)
 
     useEffect(() => {
-        if (selectedCompany?.seo?.competitorsByKeyword) {
+        if (selectedCompany?.seo?.competitors) {
             setRows(
-                (selectedCompany.seo.competitorsByKeyword as ExtendedCompetitor[]).map((item) =>
+                (selectedCompany.seo.competitors as ExtendedCompetitor[]).map((item) =>
                     createData(
                         item.uuid || "-",
                         item.domain || "-",
@@ -125,7 +125,7 @@ const CompetitorsPage = () => {
         if (selectedCompany?.uuid) {
             try {
                 await updateCompany(selectedCompany.uuid, {
-                    seo: { competitorsByKeyword: updated },
+                    seo: { competitors: updated },
                 })
             } catch (error) {
                 console.error("Error updating status:", error)
@@ -144,12 +144,14 @@ const CompetitorsPage = () => {
     const handleDeleteCompetitor = async (uuid: string) => {
         if (!selectedCompany || !selectedCompany.uuid || !uuid) return
         try {
-            const updatedCompetitors = selectedCompany?.seo?.competitorsByKeyword?.filter((c) => c.uuid !== uuid)
+            const updatedCompetitors = selectedCompany?.seo?.competitors?.filter((c) => c.uuid !== uuid)
             await updateCompany(selectedCompany.uuid, {
-                seo: { competitorsByKeyword: updatedCompetitors },
+                seo: { competitors: updatedCompetitors },
             })
+            toast.success("Competitor has been successfully deleted")
             setRows(updatedCompetitors || [])
         } catch (error) {
+            toast.error(`Error when deleting a competitor: ${error}`)
             console.error("Error when deleting a competitor:", error)
         }
     }
@@ -188,12 +190,12 @@ const CompetitorsPage = () => {
 
     const handleSaveServices = async (selectedServices: GeneralService[]) => {
         if (selectedCompany?.uuid && editingCompetitor) {
-            const updatedCompetitors = (selectedCompany.seo?.competitorsByKeyword || []).map((comp: Competitor) =>
+            const updatedCompetitors = (selectedCompany.seo?.competitors || []).map((comp: Competitor) =>
                 comp.uuid === editingCompetitor.uuid ? { ...comp, products: selectedServices } : comp
             )
             try {
                 await updateCompany(selectedCompany.uuid, {
-                    seo: { competitorsByKeyword: updatedCompetitors },
+                    seo: { competitors: updatedCompetitors },
                 })
                 toast.success("Services updated for competitor")
                 handleCloseServicesDialog()

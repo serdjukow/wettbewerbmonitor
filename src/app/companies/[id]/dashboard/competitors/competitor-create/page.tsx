@@ -39,7 +39,7 @@ function CompetitorCreatePage() {
 
     const handleSaveCompetitor = (data: Competitor) => {
         if (selectedCompany?.uuid) {
-            const currentCompetitors = selectedCompany?.seo?.competitorsByKeyword || []
+            const currentCompetitors = selectedCompany?.seo?.competitors || []
 
             const formattedCompetitor: Competitor = {
                 ...data,
@@ -69,7 +69,7 @@ function CompetitorCreatePage() {
             }
 
             updateCompany(selectedCompany.uuid, {
-                seo: { competitorsByKeyword: [...currentCompetitors, formattedCompetitor] },
+                seo: { competitors: [...currentCompetitors, formattedCompetitor] },
             })
             router.back()
             reset()

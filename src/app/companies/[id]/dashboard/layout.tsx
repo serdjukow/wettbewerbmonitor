@@ -15,8 +15,8 @@ const drawerWidth = 240
 function getPageTitle(pathname: string): string {
     const pageTitles: Record<string, string> = {
         dashboard: "Dashboard",
-        domains: "Domains",
-        keywords: "Keywords",
+        domains: "Search by Domain",
+        keywords: "Search by Keyword",
         competitors: "Competitors",
         "competitor-edit": "Edit competitor",
         "competitor-create": "Create competitor",

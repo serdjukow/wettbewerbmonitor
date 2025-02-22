@@ -10,6 +10,8 @@ import { TextField, Button, Stack, Box, Typography, Link, Divider, Card, CardAct
 import { Edit as EditIcon, Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import GeneralKeyWordsEditor from "@/src/components/GeneralKeyWordsEditor"
 import GeneralServicesEditor from "@/src/components/GeneralServicesEditor"
+import GeneralDomainsEditor from "@/src/components/GeneralDomainsEditor"
+
 
 import CompanyDeleteButton from "@/src/components/CompanyDeleteButton"
 
@@ -256,6 +258,7 @@ const EditProfilePage = () => {
                     </Card>
                     <GeneralKeyWordsEditor />
                     <GeneralServicesEditor />
+                    <GeneralDomainsEditor />
                 </>
             )}
         </Container>

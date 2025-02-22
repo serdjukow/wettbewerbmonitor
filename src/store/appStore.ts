@@ -1,12 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { type Company, type AppState } from "@/src/utils/types"
-import {
-    addCompanyToDB,
-    getCompanies,
-    deleteCompanyFromDB,
-    updateCompanyInDB,
-} from "@/src/services/firebaseService"
+import { addCompanyToDB, getCompanies, deleteCompanyFromDB, updateCompanyInDB } from "@/src/services/firebaseService"
 
 export const useAppStore = create(
     persist<AppState>(
@@ -14,6 +9,10 @@ export const useAppStore = create(
             companies: [],
             selectedCompany: null,
             keywords: [],
+            queryParams: {
+                limit: "10",
+                country: "de",
+            },
 
             addCompany: async (company: Omit<Company, "uuid">) => {
                 const newCompany: Company = await addCompanyToDB(company)
@@ -29,43 +28,34 @@ export const useAppStore = create(
                     const data = await getCompanies()
                     set({ companies: data })
                 } catch (error) {
-                    console.error(
-                        "Error uploading companies: AppStore function",
-                        error
-                    )
+                    console.error("Error uploading companies: AppStore function", error)
                 }
             },
 
             removeCompany: async (uuid: string) => {
                 await deleteCompanyFromDB(uuid)
                 set((state) => ({
-                    companies: state.companies.filter(
-                        (company) => company.uuid !== uuid
-                    ),
-                    selectedCompany:
-                        state.selectedCompany?.uuid === uuid
-                            ? null
-                            : state.selectedCompany,
+                    companies: state.companies.filter((company) => company.uuid !== uuid),
+                    selectedCompany: state.selectedCompany?.uuid === uuid ? null : state.selectedCompany,
                 }))
             },
 
-            updateCompany: async (
-                uuid: string,
-                updatedData: Partial<Company>
-            ) => {
+            updateCompany: async (uuid: string, updatedData: Partial<Company>) => {
                 await updateCompanyInDB(uuid, updatedData)
                 set((state) => ({
-                    companies: state.companies.map((company) =>
-                        company.uuid === uuid
-                            ? { ...company, ...updatedData }
-                            : company
-                    ),
+                    companies: state.companies.map((company) => (company.uuid === uuid ? { ...company, ...updatedData } : company)),
                     selectedCompany:
-                        state.selectedCompany?.uuid === uuid
-                            ? { ...state.selectedCompany, ...updatedData }
-                            : state.selectedCompany,
+                        state.selectedCompany?.uuid === uuid ? { ...state.selectedCompany, ...updatedData } : state.selectedCompany,
                 }))
             },
+
+            updateQueryParams: (params) =>
+                set((state) => ({
+                    queryParams: {
+                        ...state.queryParams,
+                        ...params,
+                    },
+                })),
         }),
         {
             name: "app-store",

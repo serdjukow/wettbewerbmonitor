@@ -36,8 +36,8 @@ function CompetitorEditPage() {
     const [editingCompetitor, setEditingCompetitor] = useState<Competitor | null>(null)
 
     useEffect(() => {
-        if (selectedCompany?.seo?.competitorsByKeyword && uuid) {
-            const competitor = selectedCompany.seo.competitorsByKeyword.find((c) => c.uuid === uuid)
+        if (selectedCompany?.seo?.competitors && uuid) {
+            const competitor = selectedCompany.seo.competitors.find((c) => c.uuid === uuid)
             if (competitor) {
                 reset(competitor)
                 setEditingCompetitor(competitor)
@@ -52,10 +52,10 @@ function CompetitorEditPage() {
         }
 
         try {
-            const updatedCompetitors = selectedCompany.seo?.competitorsByKeyword?.map((c) => (c.uuid === uuid ? { ...c, ...data } : c))
+            const updatedCompetitors = selectedCompany.seo?.competitors?.map((c) => (c.uuid === uuid ? { ...c, ...data } : c))
 
             await updateCompany(selectedCompany.uuid, {
-                seo: { competitorsByKeyword: updatedCompetitors },
+                seo: { competitors: updatedCompetitors },
             })
             router.back()
         } catch (error) {
@@ -70,9 +70,9 @@ function CompetitorEditPage() {
         }
 
         try {
-            const updatedCompetitors = selectedCompany.seo?.competitorsByKeyword?.filter((c) => c.uuid !== uuid)
+            const updatedCompetitors = selectedCompany.seo?.competitors?.filter((c) => c.uuid !== uuid)
             await updateCompany(selectedCompany.uuid, {
-                seo: { competitorsByKeyword: updatedCompetitors },
+                seo: { competitors: updatedCompetitors },
             })
             router.back()
         } catch (error) {

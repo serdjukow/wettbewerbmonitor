@@ -1,5 +1,6 @@
 export interface GeneralService {
-    title: string
+    title?: string
+    name?: string
     description?: string
     aiAnalysis?: string
     manualAnalysis?: string
@@ -16,6 +17,7 @@ export interface Competitor {
     domain: string
     url: string
     position?: number
+    match?: number
     keyword?: string
     address?: {
         street: string
@@ -64,14 +66,18 @@ export type Company = {
     seo?: {
         keywords?: Keyword[]
         competitors?: Competitor[]
-        competitorsByKeyword?: Competitor[]
-        competitorsByDomain?: Competitor[]
     }
     generalKeywords?: string[]
     generalServices?: {
         title: string
         description?: string
     }[]
+    generalDomains?: string[]
+}
+
+interface QueryParams {
+    limit: string
+    country: string
 }
 
 export type AppState = {
@@ -82,4 +88,6 @@ export type AppState = {
     fetchCompanies: () => Promise<void>
     removeCompany: (uuid: string) => Promise<void>
     updateCompany: (uuid: string, updatedData: Partial<Company>) => Promise<void>
+    queryParams: QueryParams
+    updateQueryParams: (params: Partial<QueryParams>) => void
 }

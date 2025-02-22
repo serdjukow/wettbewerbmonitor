@@ -6,120 +6,120 @@ import { DeleteForever as DeleteForeverIcon, Save as SaveIcon, Cancel as CancelI
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
 
-const GeneralKeyWordsEditor = () => {
+const GeneralDomainsEditor = () => {
     const { selectedCompany, updateCompany } = useAppStore()
-    const [keywords, setKeywords] = useState<string[]>([])
-    const [newKeyword, setNewKeyword] = useState("")
+    const [domains, setDomains] = useState<string[]>([])
+    const [newDomain, setNewDomain] = useState("")
 
     const [openEditDialog, setOpenEditDialog] = useState(false)
-    const [editKeywordValue, setEditKeywordValue] = useState("")
-    const [editKeywordIndex, setEditKeywordIndex] = useState<number | null>(null)
+    const [editDomainValue, setEditDomainValue] = useState("")
+    const [editDomainIndex, setEditDomainIndex] = useState<number | null>(null)
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-    const [deleteKeywordIndex, setDeleteKeywordIndex] = useState<number | null>(null)
+    const [deleteDomainIndex, setDeleteDomainIndex] = useState<number | null>(null)
 
     useEffect(() => {
         if (selectedCompany) {
-            setKeywords(selectedCompany.generalKeywords || [])
+            setDomains(selectedCompany.generalDomains || [])
         }
     }, [selectedCompany])
 
-    const handleAddKeyword = async () => {
-        const trimmed = newKeyword.trim()
+    const handleAddDomain = async () => {
+        const trimmed = newDomain.trim()
         if (!trimmed) return
-        if (keywords.includes(trimmed)) {
-            toast.error("Keyword already exists")
+        if (domains.includes(trimmed)) {
+            toast.error("Domain already exists")
             return
         }
-        const updatedKeywords = [...keywords, trimmed]
-        setKeywords(updatedKeywords)
-        setNewKeyword("")
+        const updatedDomains = [...domains, trimmed]
+        setDomains(updatedDomains)
+        setNewDomain("")
         if (selectedCompany?.uuid) {
-            await updateCompany(selectedCompany.uuid, { generalKeywords: updatedKeywords })
-            toast.success("Keyword added")
+            await updateCompany(selectedCompany.uuid, { generalDomains: updatedDomains })
+            toast.success("Domain added")
         }
     }
 
     const handleOpenEditDialog = (index: number) => {
-        setEditKeywordIndex(index)
-        setEditKeywordValue(keywords[index])
+        setEditDomainIndex(index)
+        setEditDomainValue(domains[index])
         setOpenEditDialog(true)
     }
 
     const handleCloseEditDialog = () => {
         setOpenEditDialog(false)
-        setEditKeywordValue("")
-        setEditKeywordIndex(null)
+        setEditDomainValue("")
+        setEditDomainIndex(null)
     }
 
     const handleSaveEdit = async () => {
-        if (editKeywordIndex === null) return
-        const trimmed = editKeywordValue.trim()
+        if (editDomainIndex === null) return
+        const trimmed = editDomainValue.trim()
         if (!trimmed) {
-            toast.error("Keyword cannot be empty")
+            toast.error("Domain cannot be empty")
             return
         }
-        const updatedKeywords = [...keywords]
-        updatedKeywords[editKeywordIndex] = trimmed
-        setKeywords(updatedKeywords)
+        const updatedDomains = [...domains]
+        updatedDomains[editDomainIndex] = trimmed
+        setDomains(updatedDomains)
         setOpenEditDialog(false)
-        setEditKeywordValue("")
-        setEditKeywordIndex(null)
+        setEditDomainValue("")
+        setEditDomainIndex(null)
         if (selectedCompany?.uuid) {
-            await updateCompany(selectedCompany.uuid, { generalKeywords: updatedKeywords })
-            toast.success("Keyword updated")
+            await updateCompany(selectedCompany.uuid, { generalDomains: updatedDomains })
+            toast.success("Domain updated")
         }
     }
 
     const handleOpenDeleteDialog = (index: number) => {
-        setDeleteKeywordIndex(index)
+        setDeleteDomainIndex(index)
         setOpenDeleteDialog(true)
     }
 
     const handleCloseDeleteDialog = () => {
         setOpenDeleteDialog(false)
-        setDeleteKeywordIndex(null)
+        setDeleteDomainIndex(null)
     }
 
     const handleConfirmDelete = async () => {
-        if (deleteKeywordIndex === null) return
-        const updatedKeywords = keywords.filter((_, i) => i !== deleteKeywordIndex)
-        setKeywords(updatedKeywords)
+        if (deleteDomainIndex === null) return
+        const updatedDomains = domains.filter((_, i) => i !== deleteDomainIndex)
+        setDomains(updatedDomains)
         setOpenDeleteDialog(false)
-        setDeleteKeywordIndex(null)
+        setDeleteDomainIndex(null)
         if (selectedCompany?.uuid) {
-            await updateCompany(selectedCompany.uuid, { generalKeywords: updatedKeywords })
-            toast.success("Keyword deleted")
+            await updateCompany(selectedCompany.uuid, { generalDomains: updatedDomains })
+            toast.success("Domain deleted")
         }
     }
 
     return (
         <Paper sx={{ p: 2, mt: 4 }}>
             <Typography variant="h6" gutterBottom>
-                General KeyWords
+                General Domains
             </Typography>
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 <TextField
-                    label="New Keyword"
-                    value={newKeyword}
-                    onChange={(e) => setNewKeyword(e.target.value)}
+                    label="New Domain"
+                    value={newDomain}
+                    onChange={(e) => setNewDomain(e.target.value)}
                     fullWidth
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             e.preventDefault()
-                            handleAddKeyword()
+                            handleAddDomain()
                         }
                     }}
                 />
-                <Button variant="contained" onClick={handleAddKeyword}>
+                <Button variant="contained" onClick={handleAddDomain}>
                     Add
                 </Button>
             </Box>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {keywords.map((kw, index) => (
+                {domains.map((domain, index) => (
                     <Chip
                         key={index}
-                        label={kw}
+                        label={domain}
                         color="primary"
                         sx={{ borderRadius: "16px", padding: "4px 8px", cursor: "pointer" }}
                         onClick={() => handleOpenEditDialog(index)}
@@ -130,32 +130,27 @@ const GeneralKeyWordsEditor = () => {
             </Box>
 
             <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
-                <DialogTitle>Edit Keyword</DialogTitle>
+                <DialogTitle>Edit Domain</DialogTitle>
                 <DialogContent>
                     <TextField
-                        label="Keyword"
-                        value={editKeywordValue}
-                        onChange={(e) => setEditKeywordValue(e.target.value)}
+                        label="Domain"
+                        value={editDomainValue}
+                        onChange={(e) => setEditDomainValue(e.target.value)}
                         fullWidth
                         sx={{ mt: 1 }}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error">
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSaveEdit}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
                                 e.preventDefault()
                                 handleSaveEdit()
                             }
                         }}
-                        startIcon={<SaveIcon />}
-                        color="primary"
-                        variant="contained"
-                    >
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSaveEdit} startIcon={<SaveIcon />} color="primary" variant="contained">
                         Save
                     </Button>
                 </DialogActions>
@@ -164,7 +159,7 @@ const GeneralKeyWordsEditor = () => {
             <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
                 <DialogTitle>Confirm Delete</DialogTitle>
                 <DialogContent>
-                    <Typography>Are you sure you want to delete this keyword?</Typography>
+                    <Typography>Are you sure you want to delete this domain?</Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
@@ -177,4 +172,4 @@ const GeneralKeyWordsEditor = () => {
     )
 }
 
-export default GeneralKeyWordsEditor
+export default GeneralDomainsEditor

@@ -209,7 +209,6 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
             <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} fullWidth maxWidth="sm">
                 <DialogTitle>Select Service to Add</DialogTitle>
                 <DialogContent dividers>
-                    {/* Поле поиска */}
                     <TextField
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
