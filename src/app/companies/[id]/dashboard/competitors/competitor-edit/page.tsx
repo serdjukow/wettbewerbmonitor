@@ -230,7 +230,7 @@ function CompetitorEditPage() {
             <ProductsDialog
                 open={openProductsDialog}
                 competitorName={editingCompetitor?.name}
-                products={(watch("products") as GeneralService[]).map((prod) => prod.title)}
+                products={(watch("products") as GeneralService[]).map((prod) => prod.title ?? "")}
                 onClose={handleCloseProductsDialog}
                 onSave={handleSaveProducts}
             />
