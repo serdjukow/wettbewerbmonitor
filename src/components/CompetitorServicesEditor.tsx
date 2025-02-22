@@ -53,16 +53,16 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
     }, [competitor])
 
     const availableServices = useMemo(() => {
-        const selectedTitles = selectedServices.map((s) => s.title)
+        const selectedTitles = selectedServices.map((s) => s.title).filter(Boolean)
         return generalServices
-            .filter((service) => !selectedTitles.includes(service.title))
-            .filter((service) => service.title.toLowerCase().includes(searchTerm.toLowerCase()))
-            .sort((a, b) => a.title.localeCompare(b.title))
+            .filter((service) => service.title && !selectedTitles.includes(service.title))
+            .filter((service) => service.title!.toLowerCase().includes(searchTerm.toLowerCase()))
+            .sort((a, b) => a.title!.localeCompare(b.title!))
     }, [generalServices, selectedServices, searchTerm])
 
     const groupedServices = useMemo(() => {
         return availableServices.reduce<Record<string, GeneralService[]>>((groups, service) => {
-            const letter = service.title.charAt(0).toUpperCase()
+            const letter = service.title!.charAt(0).toUpperCase()
             if (!groups[letter]) {
                 groups[letter] = []
             }
