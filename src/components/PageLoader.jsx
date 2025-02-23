@@ -1,9 +1,29 @@
-import { Box } from "@mui/material"
+"use client";
+
+import React from "react";
+import { Box, useTheme } from "@mui/material";
 
 const PageLoader = () => {
+	const theme = useTheme();
+
 	return (
-		<Box className="page-loader">
-			<svg className="ip" viewBox="0 0 256 128" width="256px" height="128px" xmlns="http://www.w3.org/2000/svg">
+		<Box
+			className="page-loader"
+			sx={{
+				backgroundColor: theme.palette.background.default,
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center",
+				height: "100vh",
+			}}
+		>
+			<svg
+				className="ip"
+				viewBox="0 0 256 128"
+				width="256px"
+				height="128px"
+				xmlns="http://www.w3.org/2000/svg"
+			>
 				<defs>
 					<linearGradient id="grad1" x1="0" y1="0" x2="1" y2="0">
 						<stop offset="0%" stopColor="#5ebd3e" />
@@ -24,13 +44,23 @@ const PageLoader = () => {
 						<path d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64" />
 					</g>
 					<g strokeDasharray="180 656">
-						<path className="ip__worm1" stroke="url(#grad1)" strokeDashoffset="0" d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56" />
-						<path className="ip__worm2" stroke="url(#grad2)" strokeDashoffset="358" d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64" />
+						<path
+							className="ip__worm1"
+							stroke="url(#grad1)"
+							strokeDashoffset="0"
+							d="M8,64s0-56,60-56,60,112,120,112,60-56,60-56"
+						/>
+						<path
+							className="ip__worm2"
+							stroke="url(#grad2)"
+							strokeDashoffset="358"
+							d="M248,64s0-56-60-56-60,112-120,112S8,64,8,64"
+						/>
 					</g>
 				</g>
 			</svg>
 		</Box>
-	)
-}
+	);
+};
 
-export default PageLoader
+export default PageLoader;

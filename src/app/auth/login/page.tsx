@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "react-toastify"
 import { useAuth } from "@/src/context/AuthContext"
@@ -22,7 +22,10 @@ function LoginPage() {
     const { user, error, signInWithEmail, signInWithGoogle } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const redirect = searchParams.get("redirect") || COMPANIES_ROUTE    
+    const redirect = searchParams.get("redirect") || COMPANIES_ROUTE
+    const [loading, setLoading] = useState(false)
+
+    console.log(loading)
 
     useEffect(() => {
         if (user) {
@@ -31,6 +34,7 @@ function LoginPage() {
     }, [user, redirect, router])
 
     const signIn: SignInPageProps["signIn"] = async (provider, formData) => {
+        setLoading(true)
         let result
         if (provider.id === "google") {
             result = await signInWithGoogle()
@@ -46,7 +50,7 @@ function LoginPage() {
         } else {
             toast.error(`Login failed. ${result.error}`)
         }
-
+        setLoading(false)
         return result
     }
 
@@ -54,6 +58,7 @@ function LoginPage() {
         return <p className="text-red-500">{error}</p>
     }
 
+    //if (loading) return "Loadong login page..."
     return (
         <AppTheme>
             <AppProvider theme={theme}>

@@ -14,7 +14,7 @@ export default function Home() {
 
     return (
         <AppTheme disableCustomTheme={disableCustomTheme}>
-            <CssBaseline enableColorScheme />
+           <CssBaseline enableColorScheme />
             <AppAppBar />
             <Box
                 id="hero"

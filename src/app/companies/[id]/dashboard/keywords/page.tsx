@@ -31,6 +31,7 @@ import RemainingCredits from "@/src/components/RemainingCredits"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import QueryParamsModal from "@/src/components/QueryParamsModal"
 import CustomOverlay from "@/src/components/CustomOverlay"
+import NoDataMessage from "@/src/components/NoDataMessage"
 
 interface SistrixCompetitorResult {
     uuid?: string
@@ -285,40 +286,44 @@ export default function CompetitorsManager() {
             <Box sx={{ p: 2 }}>
                 <Dialog open={openGeneralWordsModal} onClose={handleCloseGeneralWordsModal} fullWidth maxWidth="sm">
                     <DialogTitle>Select a General Keyword</DialogTitle>
-                    <DialogContent dividers>
-                        <TextField
-                            label="Search keywords"
-                            fullWidth
-                            value={generalSearchQuery}
-                            onChange={(e) => setGeneralSearchQuery(e.target.value)}
-                            sx={{ mb: 2 }}
-                        />
-                        {Object.keys(groupedGeneralKeywords)
-                            .sort()
-                            .map((letter) => {
-                                const filteredWords = groupedGeneralKeywords[letter].filter((word) =>
-                                    word.toLowerCase().includes(generalSearchQuery.toLowerCase())
-                                )
-                                if (filteredWords.length === 0) return null
-                                return (
-                                    <Box key={letter} sx={{ mb: 1 }}>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                            {letter}
-                                        </Typography>
-                                        <Divider sx={{ mb: 0 }} />
-                                        <List>
-                                            {filteredWords.map((word, index) => (
-                                                <ListItem key={index} disablePadding>
-                                                    <ListItemButton onClick={() => handleSelectGeneralWord(word)}>
-                                                        <ListItemText primary={word} />
-                                                    </ListItemButton>
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    </Box>
-                                )
-                            })}
-                    </DialogContent>
+                    {selectedCompany?.generalKeywords || selectedCompany?.generalKeywords?.length ? (
+                        <DialogContent dividers>
+                            <TextField
+                                label="Search keywords"
+                                fullWidth
+                                value={generalSearchQuery}
+                                onChange={(e) => setGeneralSearchQuery(e.target.value)}
+                                sx={{ mb: 2 }}
+                            />
+                            {Object.keys(groupedGeneralKeywords)
+                                .sort()
+                                .map((letter) => {
+                                    const filteredWords = groupedGeneralKeywords[letter].filter((word) =>
+                                        word.toLowerCase().includes(generalSearchQuery.toLowerCase())
+                                    )
+                                    if (filteredWords.length === 0) return null
+                                    return (
+                                        <Box key={letter} sx={{ mb: 1 }}>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                                {letter}
+                                            </Typography>
+                                            <Divider sx={{ mb: 0 }} />
+                                            <List>
+                                                {filteredWords.map((word, index) => (
+                                                    <ListItem key={index} disablePadding>
+                                                        <ListItemButton onClick={() => handleSelectGeneralWord(word)}>
+                                                            <ListItemText primary={word} />
+                                                        </ListItemButton>
+                                                    </ListItem>
+                                                ))}
+                                            </List>
+                                        </Box>
+                                    )
+                                })}
+                        </DialogContent>
+                    ) : (
+                        <NoDataMessage />
+                    )}
                     <DialogActions>
                         <Button variant="outlined" color="secondary" onClick={handleCloseGeneralWordsModal}>
                             Close

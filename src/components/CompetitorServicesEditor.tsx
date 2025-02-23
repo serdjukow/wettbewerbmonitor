@@ -28,6 +28,7 @@ import {
 } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
+import NoDataMessage from "@/src/components/NoDataMessage"
 
 interface CompetitorServicesEditorProps {
     open: boolean
@@ -209,45 +210,47 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
             <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} fullWidth maxWidth="sm">
                 <DialogTitle>Select Service to Add</DialogTitle>
                 <DialogContent dividers>
-                    <TextField
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        label="Search services"
-                        variant="outlined"
-                        fullWidth
-                        sx={{ mb: 2 }}
-                    />
                     {availableServices.length ? (
-                        <List>
-                            {sortedGroupKeys.map((letter) => (
-                                <Box key={letter}>
-                                    <Typography variant="subtitle1" sx={{ pl: 2, pt: 1 }}>
-                                        {letter}
-                                    </Typography>
-                                    {groupedServices[letter].map((service) => (
-                                        <ListItem key={service.title} disablePadding>
-                                            <ListItemButton onClick={() => handleAddService(service)}>
-                                                <ListItemText primary={service.title} />
-                                                <Box sx={{ marginLeft: "auto", pr: 2 }}>
-                                                    <Button
-                                                        variant="outlined"
-                                                        size="small"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            handleAddService(service)
-                                                        }}
-                                                    >
-                                                        Add
-                                                    </Button>
-                                                </Box>
-                                            </ListItemButton>
-                                        </ListItem>
-                                    ))}
-                                </Box>
-                            ))}
-                        </List>
+                        <>
+                            <TextField
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                label="Search services"
+                                variant="outlined"
+                                fullWidth
+                                sx={{ mb: 2 }}
+                            />
+                            <List>
+                                {sortedGroupKeys.map((letter) => (
+                                    <Box key={letter}>
+                                        <Typography variant="subtitle1" sx={{ pl: 2, pt: 1 }}>
+                                            {letter}
+                                        </Typography>
+                                        {groupedServices[letter].map((service) => (
+                                            <ListItem key={service.title} disablePadding>
+                                                <ListItemButton onClick={() => handleAddService(service)}>
+                                                    <ListItemText primary={service.title} />
+                                                    <Box sx={{ marginLeft: "auto", pr: 2 }}>
+                                                        <Button
+                                                            variant="outlined"
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                handleAddService(service)
+                                                            }}
+                                                        >
+                                                            Add
+                                                        </Button>
+                                                    </Box>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        ))}
+                                    </Box>
+                                ))}
+                            </List>
+                        </>
                     ) : (
-                        <Typography variant="body2">No matching services found or all services have been selected.</Typography>
+                        <NoDataMessage />
                     )}
                 </DialogContent>
                 <DialogActions>

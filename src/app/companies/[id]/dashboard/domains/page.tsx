@@ -31,6 +31,7 @@ import RemainingCredits from "@/src/components/RemainingCredits"
 import CustomOverlay from "@/src/components/CustomOverlay"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import QueryParamsModal from "@/src/components/QueryParamsModal"
+import NoDataMessage from "@/src/components/NoDataMessage"
 
 interface SistrixDomainResult {
     uuid?: string
@@ -256,7 +257,7 @@ export default function CompetitorsManager() {
             field: orderBy,
             sort: order,
         },
-    ] 
+    ]
 
     if (isError) return <Typography color="error">Error: {error?.message}</Typography>
 
@@ -265,40 +266,46 @@ export default function CompetitorsManager() {
             <Box sx={{ p: 2 }}>
                 <Dialog open={openGeneralDomainsModal} onClose={handleCloseGeneralDomainsModal} fullWidth maxWidth="sm">
                     <DialogTitle>Select a Domain</DialogTitle>
-                    <DialogContent dividers>
-                        <TextField
-                            label="Search domains"
-                            fullWidth
-                            value={generalSearchQuery}
-                            onChange={(e) => setGeneralSearchQuery(e.target.value)}
-                            sx={{ mb: 2 }}
-                        />
-                        {Object.keys(groupedGeneralDomains)
-                            .sort()
-                            .map((letter) => {
-                                const filteredWords = groupedGeneralDomains[letter].filter((word) =>
-                                    word.toLowerCase().includes(generalSearchQuery.toLowerCase())
-                                )
-                                if (filteredWords.length === 0) return null
-                                return (
-                                    <Box key={letter} sx={{ mb: 1 }}>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                            {letter}
-                                        </Typography>
-                                        <Divider sx={{ mb: 0 }} />
-                                        <List>
-                                            {filteredWords.map((word, index) => (
-                                                <ListItem key={index} disablePadding>
-                                                    <ListItemButton onClick={() => handleSelectGeneralDomain(word)}>
-                                                        <ListItemText primary={word} />
-                                                    </ListItemButton>
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    </Box>
-                                )
-                            })}
-                    </DialogContent>
+
+                    {selectedCompany?.generalDomains || selectedCompany?.generalDomains?.length ? (
+                        <DialogContent dividers>
+                            <TextField
+                                label="Search domains"
+                                fullWidth
+                                value={generalSearchQuery}
+                                onChange={(e) => setGeneralSearchQuery(e.target.value)}
+                                sx={{ mb: 2 }}
+                            />
+                            {Object.keys(groupedGeneralDomains)
+                                .sort()
+                                .map((letter) => {
+                                    const filteredWords = groupedGeneralDomains[letter].filter((word) =>
+                                        word.toLowerCase().includes(generalSearchQuery.toLowerCase())
+                                    )
+                                    if (filteredWords.length === 0) return null
+                                    return (
+                                        <Box key={letter} sx={{ mb: 1 }}>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                                {letter}
+                                            </Typography>
+                                            <Divider sx={{ mb: 0 }} />
+                                            <List>
+                                                {filteredWords.map((word, index) => (
+                                                    <ListItem key={index} disablePadding>
+                                                        <ListItemButton onClick={() => handleSelectGeneralDomain(word)}>
+                                                            <ListItemText primary={word} />
+                                                        </ListItemButton>
+                                                    </ListItem>
+                                                ))}
+                                            </List>
+                                        </Box>
+                                    )
+                                })}
+                        </DialogContent>
+                    ) : (
+                        <NoDataMessage />
+                    )}
+
                     <DialogActions>
                         <Button variant="outlined" color="secondary" onClick={handleCloseGeneralDomainsModal}>
                             Close
