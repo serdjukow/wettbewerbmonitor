@@ -11,11 +11,11 @@ import Link from "next/link"
 import { Box, Card, CardContent, Typography, CardActionArea, CardMedia, Container } from "@mui/material"
 import Grid from "@mui/material/Grid2"
 import AddIcon from "@mui/icons-material/Add"
-import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
+import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE } from "@/src/utils/consts"
 
 const CompaniesPage = () => {
     const router = useRouter()
-    const { setSelectedCompany, selectedCompany, companies, fetchCompanies } = useAppStore()
+    const { setSelectedCompany, selectedCompany, companies } = useAppStore()
     // const { user, loading } = useAuth()
 
     // useEffect(() => {
