@@ -10,7 +10,7 @@ import { useAppStore } from "@/src/store/appStore"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
 import ProductsDialog from "@/src/components/ProductsDialog"
 
-import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container, Alert } from "@mui/material"
+import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
 import { Save as SaveIcon, Cancel as CancelIcon, DeleteForever as DeleteForeverIcon } from "@mui/icons-material"
 
 const CompetitorEditPage = () => {
@@ -30,12 +30,18 @@ const CompetitorEditPage = () => {
             keyword: "",
             address: { street: "", houseNumber: "", postalCode: "", city: "" },
             contact: { phone: "", email: "" },
-            socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
+            socialNetworks: {
+                facebook: "",
+                instagram: "",
+                linkedin: "",
+                twitter: "",
+            },
         },
     })
 
     const [openProductsDialog, setOpenProductsDialog] = useState(false)
     const [editingCompetitor, setEditingCompetitor] = useState<Competitor | null>(null)
+    const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
 
     useEffect(() => {
         if (selectedCompany?.seo?.competitors && uuid) {
@@ -59,6 +65,7 @@ const CompetitorEditPage = () => {
             await updateCompany(selectedCompany.uuid, {
                 seo: { competitors: updatedCompetitors },
             })
+            toast.success(`Competitor was successfully updated.`)
             router.back()
         } catch (error) {
             toast.error(`Error updating competitor! ${error}`)
@@ -76,21 +83,32 @@ const CompetitorEditPage = () => {
             await updateCompany(selectedCompany.uuid, {
                 seo: { competitors: updatedCompetitors },
             })
+            toast.success(`Competitor was successfully deleted.`)
             router.back()
         } catch (error) {
-            toast.error(`Error when deleting a competitor! ${error}`)
+            toast.error(`Error deleting competitor! ${error}`)
         }
     }
 
     const handleOpenProductsDialog = () => {
         setOpenProductsDialog(true)
     }
+
     const handleCloseProductsDialog = () => {
         setOpenProductsDialog(false)
     }
+
     const handleSaveProducts = (products: string[]) => {
         const productsMapped = products.map((prod) => ({ title: prod }))
         reset({ ...watch(), products: productsMapped })
+    }
+
+    // Functions to handle confirmation dialog
+    const handleOpenConfirmDelete = () => setOpenConfirmDelete(true)
+    const handleCloseConfirmDelete = () => setOpenConfirmDelete(false)
+    const handleConfirmDelete = async () => {
+        await handleDeleteCompetitor()
+        setOpenConfirmDelete(false)
     }
 
     return (
@@ -99,84 +117,91 @@ const CompetitorEditPage = () => {
                 <CardContent>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={2}>
+                            {/* Competitor Name */}
                             <Controller
                                 name="name"
                                 control={control}
                                 render={({ field }) => (
-                                    <TextField fullWidth label="Competitor Name" variant="outlined" {...field} required />
+                                    <TextField fullWidth label="Competitor Name" variant="outlined" value={field.value ?? ""} onChange={field.onChange} required />
                                 )}
                             />
+
+                            {/* Contact Information */}
                             <Controller
                                 name="contact.email"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Email" variant="outlined" {...field} required />}
+                                render={({ field }) => <TextField fullWidth label="Email" variant="outlined" value={field.value ?? ""} onChange={field.onChange} required />}
                             />
                             <Controller
                                 name="contact.phone"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" {...field} />}
+                                render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
+
+                            {/* Address */}
                             <Typography variant="h6">Address</Typography>
                             <Controller
                                 name="address.street"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" {...field} />}
+                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
                             <Controller
                                 name="address.houseNumber"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" {...field} />}
+                                render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
                             <Stack direction="row" spacing={2}>
                                 <Controller
                                     name="address.city"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="address.postalCode"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
+
+                            {/* Website */}
                             <Typography variant="h6">Website</Typography>
                             <Controller
                                 name="domain"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />}
+                                render={({ field }) => <TextField fullWidth label="Website" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
+
+                            {/* Keyword */}
                             <Typography variant="h6">Keyword</Typography>
                             <Controller
                                 name="keyword"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" {...field} />}
+                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
+
+                            {/* Social Networks */}
                             <Typography variant="h6">Social Networks</Typography>
                             <Stack direction="row" spacing={2}>
                                 <Controller
                                     name="socialNetworks.facebook"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="socialNetworks.instagram"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
-                            <Stack direction="row" spacing={2}>
-                                <Controller
-                                    name="socialNetworks.linkedin"
-                                    control={control}
-                                    render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" {...field} />}
-                                />
-                                <Controller
-                                    name="socialNetworks.twitter"
-                                    control={control}
-                                    render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" {...field} />}
-                                />
-                            </Stack>
-                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+                            {/* Products */}
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                }}
+                            >
                                 <Typography variant="h6">Products / Services</Typography>
                                 <Button variant="outlined" onClick={handleOpenProductsDialog}>
                                     Edit Products
@@ -184,7 +209,7 @@ const CompetitorEditPage = () => {
                             </Box>
                             <Stack direction="row" spacing={1} flexWrap="wrap">
                                 {watch("products")?.length > 0 ? (
-                                    watch("products").map((prod, index: number) => (
+                                    watch("products").map((prod, index) => (
                                         <Box
                                             key={index}
                                             sx={{
@@ -206,6 +231,7 @@ const CompetitorEditPage = () => {
                                 )}
                             </Stack>
 
+                            {/* Actions */}
                             <Box
                                 sx={{
                                     display: "flex",
@@ -220,7 +246,8 @@ const CompetitorEditPage = () => {
                                 <Button onClick={() => router.back()} variant="outlined" startIcon={<CancelIcon />} color="warning">
                                     Cancel
                                 </Button>
-                                <Button onClick={handleDeleteCompetitor} variant="outlined" startIcon={<DeleteForeverIcon />} color="error">
+                                {/* Instead of directly calling handleDeleteCompetitor, open the confirmation dialog */}
+                                <Button onClick={handleOpenConfirmDelete} variant="outlined" startIcon={<DeleteForeverIcon />} color="error">
                                     Delete
                                 </Button>
                             </Box>
@@ -229,9 +256,26 @@ const CompetitorEditPage = () => {
                 </CardContent>
             </Card>
 
+            {/* Confirmation Dialog for Deletion */}
+            <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete}>
+                <DialogTitle>Confirm Deletion</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure you want to delete this competitor? This action cannot be undone.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseConfirmDelete} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Products Dialog */}
             <ProductsDialog
                 open={openProductsDialog}
-                competitorName={editingCompetitor?.name}
+                competitorName={editingCompetitor?.name ?? ""}
                 products={(watch("products") as GeneralService[]).map((prod) => prod.title ?? "")}
                 onClose={handleCloseProductsDialog}
                 onSave={handleSaveProducts}

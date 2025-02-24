@@ -172,9 +172,9 @@ const CompetitorsPage = () => {
         setCompetitorToDelete(null)
     }
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (competitorToDelete) {
-            handleDeleteCompetitor(competitorToDelete.uuid)
+            await handleDeleteCompetitor(competitorToDelete.uuid)
         }
         setOpenDeleteDialog(false)
         setCompetitorToDelete(null)

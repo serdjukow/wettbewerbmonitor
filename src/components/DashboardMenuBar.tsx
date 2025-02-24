@@ -30,8 +30,6 @@ const DashboardMenuBar = () => {
     const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null)
     const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
 
-    console.log(user)
-
     const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget)
     }

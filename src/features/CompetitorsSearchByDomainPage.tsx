@@ -22,6 +22,7 @@ import {
     Divider,
     Tooltip,
     Toolbar,
+    Alert,
 } from "@mui/material"
 import ListAltIcon from "@mui/icons-material/ListAlt"
 import SettingsInputComponentIcon from "@mui/icons-material/SettingsInputComponent"
@@ -34,6 +35,8 @@ import CustomOverlay from "@/src/components/CustomOverlay"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import QueryParamsModal from "@/src/components/QueryParamsModal"
 import NoDataMessage from "@/src/components/NoDataMessage"
+import { getSistrixApiKey } from "@/src/services/firebaseService"
+import { useAuth } from "@/src/context/AuthContext"
 
 interface SistrixDomainResult {
     uuid?: string
@@ -129,6 +132,8 @@ export default function CompetitorsSearchByDomainPage() {
     const [rowsPerPage, setRowsPerPage] = useState(100)
     const { updateCompany, selectedCompany, queryParams } = useAppStore()
     const [openModal, setOpenModal] = useState(false)
+    const { user } = useAuth()
+    const [apiKey, setApiKey] = useState("")
 
     const [openGeneralDomainsModal, setOpenGeneralDomainsModal] = useState(false)
     const handleOpenGeneralDomainsModal = () => setOpenGeneralDomainsModal(true)
@@ -157,9 +162,24 @@ export default function CompetitorsSearchByDomainPage() {
     const { data, isLoading, isError, error } = useSistrixDomainsData(
         searchTerm,
         queryParams.country,
-        { limit: queryParams.limit, history: "false" },
+        { apiKey, limit: queryParams.limit, history: "false" },
         { enabled: !!searchTerm }
     )
+
+    useEffect(() => {
+        const fetchApiKey = async () => {
+            if (user) {
+                const key = await getSistrixApiKey()
+                if (key) {
+                    setApiKey(key)
+                } else {
+                    setApiKey("")
+                }
+            }
+        }
+
+        fetchApiKey()
+    }, [user])
 
     useEffect(() => {
         if (data) {
@@ -261,60 +281,9 @@ export default function CompetitorsSearchByDomainPage() {
         },
     ]
 
-    if (isError) return <Typography color="error">Error: {error?.message}</Typography>
-
     return (
         <>
             <Box sx={{ p: 2 }}>
-                <Dialog open={openGeneralDomainsModal} onClose={handleCloseGeneralDomainsModal} fullWidth maxWidth="sm">
-                    <DialogTitle>Select a Domain</DialogTitle>
-
-                    {selectedCompany?.generalDomains || selectedCompany?.generalDomains?.length ? (
-                        <DialogContent dividers>
-                            <TextField
-                                label="Search domains"
-                                fullWidth
-                                value={generalSearchQuery}
-                                onChange={(e) => setGeneralSearchQuery(e.target.value)}
-                                sx={{ mb: 2 }}
-                            />
-                            {Object.keys(groupedGeneralDomains)
-                                .sort()
-                                .map((letter) => {
-                                    const filteredWords = groupedGeneralDomains[letter].filter((word) =>
-                                        word.toLowerCase().includes(generalSearchQuery.toLowerCase())
-                                    )
-                                    if (filteredWords.length === 0) return null
-                                    return (
-                                        <Box key={letter} sx={{ mb: 1 }}>
-                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                                {letter}
-                                            </Typography>
-                                            <Divider sx={{ mb: 0 }} />
-                                            <List>
-                                                {filteredWords.map((word, index) => (
-                                                    <ListItem key={index} disablePadding>
-                                                        <ListItemButton onClick={() => handleSelectGeneralDomain(word)}>
-                                                            <ListItemText primary={word} />
-                                                        </ListItemButton>
-                                                    </ListItem>
-                                                ))}
-                                            </List>
-                                        </Box>
-                                    )
-                                })}
-                        </DialogContent>
-                    ) : (
-                        <NoDataMessage />
-                    )}
-
-                    <DialogActions>
-                        <Button variant="outlined" color="secondary" onClick={handleCloseGeneralDomainsModal}>
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
                 <Box sx={{ mb: 2 }}>
                     <Paper sx={{ width: "100%" }}>
                         <Box
@@ -352,37 +321,83 @@ export default function CompetitorsSearchByDomainPage() {
                         </Box>
                         <DomainStatsTableToolbar domain={domainInput} />
                         <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
-                        <Box sx={{ height: "65vh", width: "100%" }}>
-                            <DataGrid
-                                rows={gridRows}
-                                columns={columns}
-                                checkboxSelection
-                                loading={isLoading}
-                                pagination
-                                paginationModel={{ page: page, pageSize: rowsPerPage }}
-                                onPaginationModelChange={(model) => {
-                                    setPage(model.page)
-                                    setRowsPerPage(model.pageSize)
-                                }}
-                                sortModel={sortModel}
-                                onSortModelChange={(model) => {
-                                    if (model.length) {
-                                        const field = model[0].field
-                                        if (field === "match" || field === "domain") {
-                                            setOrderBy(field as "match" | "domain")
-                                            setOrder(model[0].sort as Order)
+                        <Box sx={{ height: "55vh", width: "100%" }}>
+                            {isError ? (
+                                <Box sx={{ p:3 }}>
+                                    <Alert severity="error">Request error: {error?.message}. Please check your Sistrix API key settings.</Alert>
+                                </Box>
+                            ) : (
+                                <DataGrid
+                                    rows={gridRows}
+                                    columns={columns}
+                                    checkboxSelection
+                                    loading={isLoading}
+                                    pagination
+                                    paginationModel={{ page: page, pageSize: rowsPerPage }}
+                                    onPaginationModelChange={(model) => {
+                                        setPage(model.page)
+                                        setRowsPerPage(model.pageSize)
+                                    }}
+                                    sortModel={sortModel}
+                                    onSortModelChange={(model) => {
+                                        if (model.length) {
+                                            const field = model[0].field
+                                            if (field === "match" || field === "domain") {
+                                                setOrderBy(field as "match" | "domain")
+                                                setOrder(model[0].sort as Order)
+                                            }
                                         }
-                                    }
-                                }}
-                                rowSelectionModel={selected}
-                                onRowSelectionModelChange={(newSelection) => setSelected(newSelection as string[])}
-                                slots={{ noRowsOverlay: () => <CustomOverlay data={data ?? null} /> }}
-                            />
+                                    }}
+                                    rowSelectionModel={selected}
+                                    onRowSelectionModelChange={(newSelection) => setSelected(newSelection as string[])}
+                                    slots={{ noRowsOverlay: () => <CustomOverlay data={data ?? null} /> }}
+                                />
+                            )}
                         </Box>
                     </Paper>
                 </Box>
             </Box>
             <QueryParamsModal open={openModal} onClose={() => setOpenModal(false)} />
+            <Dialog open={openGeneralDomainsModal} onClose={handleCloseGeneralDomainsModal} fullWidth maxWidth="sm">
+                <DialogTitle>Select a Domain</DialogTitle>
+
+                {selectedCompany?.generalDomains || selectedCompany?.generalDomains?.length ? (
+                    <DialogContent dividers>
+                        <TextField label="Search domains" fullWidth value={generalSearchQuery} onChange={(e) => setGeneralSearchQuery(e.target.value)} sx={{ mb: 2 }} />
+                        {Object.keys(groupedGeneralDomains)
+                            .sort()
+                            .map((letter) => {
+                                const filteredWords = groupedGeneralDomains[letter].filter((word) => word.toLowerCase().includes(generalSearchQuery.toLowerCase()))
+                                if (filteredWords.length === 0) return null
+                                return (
+                                    <Box key={letter} sx={{ mb: 1 }}>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                            {letter}
+                                        </Typography>
+                                        <Divider sx={{ mb: 0 }} />
+                                        <List>
+                                            {filteredWords.map((word, index) => (
+                                                <ListItem key={index} disablePadding>
+                                                    <ListItemButton onClick={() => handleSelectGeneralDomain(word)}>
+                                                        <ListItemText primary={word} />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Box>
+                                )
+                            })}
+                    </DialogContent>
+                ) : (
+                    <NoDataMessage />
+                )}
+
+                <DialogActions>
+                    <Button variant="outlined" color="secondary" onClick={handleCloseGeneralDomainsModal}>
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

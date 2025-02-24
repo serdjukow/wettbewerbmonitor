@@ -13,8 +13,7 @@ export interface DomainSistrixResponse {
     credits: Array<{ used: number }>
 }
 
-export interface ExtendedUseQueryOptions<TQueryFnData, TError, TData, TQueryKey extends QueryKey = QueryKey>
-    extends UseQueryOptions<TQueryFnData, TError, TData, TQueryKey> {
+export interface ExtendedUseQueryOptions<TQueryFnData, TError, TData, TQueryKey extends QueryKey = QueryKey> extends UseQueryOptions<TQueryFnData, TError, TData, TQueryKey> {
     cacheTime?: number
     keepPreviousData?: boolean
 }

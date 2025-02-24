@@ -22,27 +22,14 @@ const CompetitorCreatePage = () => {
             uuid: uuidv4(),
             name: "",
             status: "not_checked",
-            products: [],
-            domain: "",
-            keyword: "",
-            url: "",
-            address: { street: "", houseNumber: "", city: "", postalCode: "" },
-            contact: { email: "", phone: "" },
-            socialNetworks: {
-                facebook: "",
-                instagram: "",
-                linkedin: "",
-                twitter: "",
-            },
         },
     })
 
     const handleSaveCompetitor = (data: Competitor) => {
         if (selectedCompany?.uuid) {
-            const currentCompetitors = selectedCompany?.seo?.competitors || []
+            const currentCompetitors = selectedCompany.seo?.competitors || []
 
             const formattedCompetitor: Competitor = {
-                ...data,
                 uuid: data.uuid || uuidv4(),
                 name: data.name || "",
                 status: data.status || "not_checked",
@@ -51,26 +38,27 @@ const CompetitorCreatePage = () => {
                 keyword: data.keyword || "",
                 url: data.url || "",
                 address: {
-                    street: data.address?.street || "",
-                    houseNumber: data.address?.houseNumber || "",
-                    postalCode: data.address?.postalCode || "",
-                    city: data.address?.city || "",
+                    street: data.address?.street ?? "",
+                    houseNumber: data.address?.houseNumber ?? "",
+                    postalCode: data.address?.postalCode ?? "",
+                    city: data.address?.city ?? "",
                 },
                 contact: {
-                    email: data.contact?.email || "",
-                    phone: data.contact?.phone || "",
+                    email: data.contact?.email ?? "",
+                    phone: data.contact?.phone ?? "",
                 },
                 socialNetworks: {
-                    facebook: data.socialNetworks?.facebook || "",
-                    instagram: data.socialNetworks?.instagram || "",
-                    linkedin: data.socialNetworks?.linkedin || "",
-                    twitter: data.socialNetworks?.twitter || "",
+                    facebook: data.socialNetworks?.facebook ?? "",
+                    instagram: data.socialNetworks?.instagram ?? "",
+                    linkedin: data.socialNetworks?.linkedin ?? "",
+                    twitter: data.socialNetworks?.twitter ?? "",
                 },
             }
 
             updateCompany(selectedCompany.uuid, {
                 seo: { competitors: [...currentCompetitors, formattedCompetitor] },
             })
+
             router.back()
             reset()
         }
@@ -82,6 +70,7 @@ const CompetitorCreatePage = () => {
                 <CardContent>
                     <form onSubmit={handleSubmit(handleSaveCompetitor)}>
                         <Stack spacing={2}>
+                            {/* Competitor Name */}
                             <Controller
                                 name="name"
                                 control={control}
@@ -91,7 +80,8 @@ const CompetitorCreatePage = () => {
                                         fullWidth
                                         label="Competitor Name"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.name}
                                         helperText={errors.name?.message}
                                         required
@@ -99,30 +89,32 @@ const CompetitorCreatePage = () => {
                                 )}
                             />
 
+                            {/* Address */}
                             <Typography variant="h6">Address</Typography>
                             <Controller
                                 name="address.street"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" {...field} required />}
+                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} required />}
                             />
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="address.houseNumber"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="address.postalCode"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
                             <Controller
                                 name="address.city"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />}
+                                render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
 
+                            {/* Contact */}
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="contact.phone"
@@ -139,7 +131,8 @@ const CompetitorCreatePage = () => {
                                             fullWidth
                                             label="Phone"
                                             variant="outlined"
-                                            {...field}
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
                                             error={!!errors.contact?.phone}
                                             helperText={errors.contact?.phone?.message}
                                             required
@@ -161,7 +154,8 @@ const CompetitorCreatePage = () => {
                                             fullWidth
                                             label="Email"
                                             variant="outlined"
-                                            {...field}
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
                                             error={!!errors.contact?.email}
                                             helperText={errors.contact?.email?.message}
                                             required
@@ -170,52 +164,56 @@ const CompetitorCreatePage = () => {
                                 />
                             </Stack>
 
+                            {/* Domain & URL */}
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="domain"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Website" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="url"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="URL" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="URL" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
 
+                            {/* Keyword */}
                             <Typography variant="h6">Keyword</Typography>
                             <Controller
                                 name="keyword"
                                 control={control}
-                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" {...field} />}
+                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
 
+                            {/* Social Networks */}
                             <Typography variant="h6">Social Networks</Typography>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="socialNetworks.facebook"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="socialNetworks.instagram"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="socialNetworks.linkedin"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="socialNetworks.twitter"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" {...field} />}
+                                    render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
 
+                            {/* Submit Button */}
                             <Box sx={{ marginTop: 2 }}>
                                 <Button type="submit" variant="contained" color="primary">
                                     Submit

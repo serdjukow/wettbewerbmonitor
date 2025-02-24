@@ -45,7 +45,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }, [])
 
     useEffect(() => {
-        if (user && pathname === "/login") {
+        if (user && pathname === "auth/login") {
             router.replace("/companies")
         }
     }, [user, pathname, router])

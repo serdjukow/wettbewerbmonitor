@@ -3,136 +3,22 @@
 export const dynamic = "force-dynamic"
 
 import React, { useState, useEffect } from "react"
-import { alpha } from "@mui/material/styles"
-import {
-    Box,
-    Button,
-    TextField,
-    Typography,
-    Paper,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    Divider,
-    Tooltip,
-    Toolbar,
-} from "@mui/material"
+import { Box, Button, TextField, Paper, IconButton, Alert } from "@mui/material"
 import ListAltIcon from "@mui/icons-material/ListAlt"
 import SettingsInputComponentIcon from "@mui/icons-material/SettingsInputComponent"
 import { v4 as uuidv4 } from "uuid"
 import { useSistrixData } from "@/src/hooks/useSistrixKwQuery"
 import { type Competitor } from "@/src/utils/types"
 import { useAppStore } from "@/src/store/appStore"
-import RemainingCredits from "@/src/components/RemainingCredits"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import QueryParamsModal from "@/src/components/QueryParamsModal"
 import CustomOverlay from "@/src/components/CustomOverlay"
-import NoDataMessage from "@/src/components/NoDataMessage"
-
-interface SistrixCompetitorResult {
-    uuid?: string
-    position: number
-    name?: string
-    url?: string
-    domain?: string
-}
-
-type Order = "asc" | "desc"
-
-interface EnhancedTableToolbarProps {
-    numSelected: number
-    onAddCompetitors?: () => void
-}
-
-interface KeywordStats {
-    intent_website?: number
-    intent_know?: number
-    intent_visit?: number
-    intent_do?: number
-}
-
-interface KeywordStatsTableToolbarProps {
-    keyword: string
-    keywordStats: KeywordStats
-}
-
-function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-    const { numSelected, onAddCompetitors } = props
-    return (
-        <Toolbar
-            sx={{
-                pl: { sm: 2 },
-                pr: { xs: 1, sm: 1 },
-                ...(numSelected > 0 && {
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-                }),
-            }}
-        >
-            {numSelected > 0 ? (
-                <>
-                    <Typography sx={{ flex: "1 1 100%" }} color="inherit" variant="subtitle1" component="div">
-                        {numSelected} selected
-                    </Typography>
-                    <Tooltip title="Add competitors">
-                        <Button
-                            onClick={onAddCompetitors}
-                            variant="contained"
-                            size="small"
-                            color="success"
-                            sx={{
-                                "&:hover": {
-                                    color: "white",
-                                },
-                            }}
-                        >
-                            Save competitors
-                        </Button>
-                    </Tooltip>
-                </>
-            ) : (
-                <Typography sx={{ flex: "1 1 100%" }} variant="h6" id="tableTitle" component="div">
-                    Competitors
-                </Typography>
-            )}
-        </Toolbar>
-    )
-}
-
-function KeywordStatsTableToolbar(props: KeywordStatsTableToolbarProps) {
-    const { keyword, keywordStats } = props
-    return (
-        <Toolbar
-            sx={{
-                pt: { sm: 2 },
-                pb: { sm: 2 },
-                pl: { sm: 2 },
-                pr: { xs: 1, sm: 1 },
-            }}
-        >
-            <Box sx={{ flex: "1 1 100%" }}>
-                <Typography variant="h6" id="tableTitle" component="div">
-                    Keyword:
-                    <span style={{ color: "#3498db", marginLeft: "5px" }}>{keyword}</span>
-                </Typography>
-                <Box sx={{ display: "flex", gap: 2, mt: 1, color: "text.secondary" }}>
-                    <Typography variant="body1">Website: {keywordStats.intent_website ?? 0}</Typography>
-                    <Typography variant="body1">Know: {keywordStats.intent_know ?? 0}</Typography>
-                    <Typography variant="body1">Visit: {keywordStats.intent_visit ?? 0}</Typography>
-                    <Typography variant="body1">Do: {keywordStats.intent_do ?? 0}</Typography>
-                </Box>
-            </Box>
-            <RemainingCredits />
-        </Toolbar>
-    )
-}
-
-type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
+import { getSistrixApiKey } from "@/src/services/firebaseService"
+import { useAuth } from "@/src/context/AuthContext"
+import { SistrixCompetitorResult, Order, ExtendedCompetitor } from "./KeywordPageTypes"
+import EnhancedTableToolbar from "./KeywordPageComponents/EnhancedTableToolbar"
+import KeywordStatsTableToolbar from "./KeywordPageComponents/KeywordStatsTableToolbar"
+import GeneralKeywordsDialog from "./KeywordPageComponents/GeneralKeywordsDialog"
 
 const CompetitorsSearchByKeywordPage = () => {
     const [keyword, setKeyword] = useState("")
@@ -145,6 +31,8 @@ const CompetitorsSearchByKeywordPage = () => {
     const [rowsPerPage, setRowsPerPage] = useState(100)
     const { updateCompany, selectedCompany, queryParams } = useAppStore()
     const [openModal, setOpenModal] = useState(false)
+    const { user } = useAuth()
+    const [apiKey, setApiKey] = useState("")
 
     const [openGeneralWordsModal, setOpenGeneralWordsModal] = useState(false)
     const handleOpenGeneralWordsModal = () => setOpenGeneralWordsModal(true)
@@ -173,9 +61,24 @@ const CompetitorsSearchByKeywordPage = () => {
     const { data, isLoading, isError, error } = useSistrixData(
         searchTerm,
         queryParams.country,
-        { limit: queryParams.limit, history: "false" },
-        { enabled: !!searchTerm }
+        { apiKey, limit: queryParams.limit, history: "false" },
+        { enabled: !!searchTerm && !!apiKey }
     )
+
+    useEffect(() => {
+        const fetchApiKey = async () => {
+            if (user) {
+                const key = await getSistrixApiKey()
+                if (key) {
+                    setApiKey(key)
+                } else {
+                    setApiKey("")
+                }
+            }
+        }
+
+        fetchApiKey()
+    }, [user])
 
     useEffect(() => {
         if (data) {
@@ -199,13 +102,9 @@ const CompetitorsSearchByKeywordPage = () => {
                     position: item.position,
                     url: item.url || "",
                     domain: item.domain || "",
-                    keyword: "",
                     name: item.name || "",
                     status: "not_checked",
                     products: [],
-                    address: { street: "", houseNumber: "", postalCode: "", city: "" },
-                    contact: { phone: "", email: "" },
-                    socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
                 }))
                 setCompetitors(fetchedCompetitors)
             }
@@ -281,58 +180,9 @@ const CompetitorsSearchByKeywordPage = () => {
         },
     ]
 
-    if (isError) return <Typography color="error">Error: {error?.message}</Typography>
-
     return (
         <>
             <Box sx={{ p: 2 }}>
-                <Dialog open={openGeneralWordsModal} onClose={handleCloseGeneralWordsModal} fullWidth maxWidth="sm">
-                    <DialogTitle>Select a General Keyword</DialogTitle>
-                    {selectedCompany?.generalKeywords || selectedCompany?.generalKeywords?.length ? (
-                        <DialogContent dividers>
-                            <TextField
-                                label="Search keywords"
-                                fullWidth
-                                value={generalSearchQuery}
-                                onChange={(e) => setGeneralSearchQuery(e.target.value)}
-                                sx={{ mb: 2 }}
-                            />
-                            {Object.keys(groupedGeneralKeywords)
-                                .sort()
-                                .map((letter) => {
-                                    const filteredWords = groupedGeneralKeywords[letter].filter((word) =>
-                                        word.toLowerCase().includes(generalSearchQuery.toLowerCase())
-                                    )
-                                    if (filteredWords.length === 0) return null
-                                    return (
-                                        <Box key={letter} sx={{ mb: 1 }}>
-                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                                {letter}
-                                            </Typography>
-                                            <Divider sx={{ mb: 0 }} />
-                                            <List>
-                                                {filteredWords.map((word, index) => (
-                                                    <ListItem key={index} disablePadding>
-                                                        <ListItemButton onClick={() => handleSelectGeneralWord(word)}>
-                                                            <ListItemText primary={word} />
-                                                        </ListItemButton>
-                                                    </ListItem>
-                                                ))}
-                                            </List>
-                                        </Box>
-                                    )
-                                })}
-                        </DialogContent>
-                    ) : (
-                        <NoDataMessage />
-                    )}
-                    <DialogActions>
-                        <Button variant="outlined" color="secondary" onClick={handleCloseGeneralWordsModal}>
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-
                 <Box sx={{ mb: 2 }}>
                     <Paper sx={{ width: "100%" }}>
                         <Box
@@ -370,37 +220,51 @@ const CompetitorsSearchByKeywordPage = () => {
                         </Box>
                         <KeywordStatsTableToolbar keyword={keyword} keywordStats={data?.keywordStats ?? {}} />
                         <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
-                        <Box sx={{ height: "65vh", width: "100%" }}>
-                            <DataGrid
-                                rows={gridRows}
-                                columns={columns}
-                                checkboxSelection
-                                loading={isLoading}
-                                pagination
-                                paginationModel={{ page: page, pageSize: rowsPerPage }}
-                                onPaginationModelChange={(model) => {
-                                    setPage(model.page)
-                                    setRowsPerPage(model.pageSize)
-                                }}
-                                sortModel={sortModel}
-                                onSortModelChange={(model) => {
-                                    if (model.length) {
-                                        const field = model[0].field
-                                        if (field === "position" || field === "domain" || field === "url") {
-                                            setOrderBy(field)
-                                            setOrder(model[0].sort as Order)
+                        <Box sx={{ height: "55vh", width: "100%" }}>
+                            {isError ? (
+                                <Box sx={{ p: 3 }}>
+                                    <Alert severity="error">Request error: {error?.message}. Please check your Sistrix API key settings.</Alert>
+                                </Box>
+                            ) : (
+                                <DataGrid
+                                    rows={gridRows}
+                                    columns={columns}
+                                    checkboxSelection
+                                    loading={isLoading}
+                                    pagination
+                                    paginationModel={{ page: page, pageSize: rowsPerPage }}
+                                    onPaginationModelChange={(model) => {
+                                        setPage(model.page)
+                                        setRowsPerPage(model.pageSize)
+                                    }}
+                                    sortModel={sortModel}
+                                    onSortModelChange={(model) => {
+                                        if (model.length) {
+                                            const field = model[0].field
+                                            if (field === "position" || field === "domain" || field === "url") {
+                                                setOrderBy(field)
+                                                setOrder(model[0].sort as Order)
+                                            }
                                         }
-                                    }
-                                }}
-                                rowSelectionModel={selected}
-                                onRowSelectionModelChange={(newSelection) => setSelected(newSelection as string[])}
-                                slots={{ noRowsOverlay: () => <CustomOverlay data={data ?? null} /> }}
-                            />
+                                    }}
+                                    rowSelectionModel={selected}
+                                    onRowSelectionModelChange={(newSelection) => setSelected(newSelection as string[])}
+                                    slots={{ noRowsOverlay: () => <CustomOverlay data={data ?? null} /> }}
+                                />
+                            )}
                         </Box>
                     </Paper>
                 </Box>
             </Box>
             <QueryParamsModal open={openModal} onClose={() => setOpenModal(false)} />
+            <GeneralKeywordsDialog
+                open={openGeneralWordsModal}
+                onClose={handleCloseGeneralWordsModal}
+                searchQuery={generalSearchQuery}
+                onSearchQueryChange={setGeneralSearchQuery}
+                groupedGeneralKeywords={groupedGeneralKeywords}
+                onSelectKeyword={handleSelectGeneralWord}
+            />
         </>
     )
 }
