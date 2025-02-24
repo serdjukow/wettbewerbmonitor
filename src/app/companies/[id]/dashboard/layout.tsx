@@ -44,9 +44,9 @@ function PageHeader({ title }: { title: string }) {
     )
 }
 
-export default function DashboardLayout({ children }: CompaniesLayoutProps) {
+const DashboardLayout = ({ children }: CompaniesLayoutProps) => {
     const pathname = usePathname()
-    const lastSegment = pathname.split("/").pop()
+    const lastSegment = pathname?.split("/").pop()
     const title = getPageTitle(lastSegment || "")
 
     return (
@@ -74,3 +74,5 @@ export default function DashboardLayout({ children }: CompaniesLayoutProps) {
         </Box>
     )
 }
+
+export default DashboardLayout

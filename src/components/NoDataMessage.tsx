@@ -19,7 +19,7 @@ const NoDataMessage: React.FC<NoDataMessageProps> = ({
     const pathname = usePathname()
 
     let editProfileUrl = "/edit-profile"
-    if (pathname.includes("/dashboard")) {
+    if (pathname?.includes("/dashboard")) {
         if (pathname.includes("/dashboard/edit-profile")) {
             editProfileUrl = pathname
         } else {

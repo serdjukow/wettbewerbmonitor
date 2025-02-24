@@ -10,7 +10,6 @@ import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
 import CardMedia from "@mui/material/CardMedia"
-import EmptyBoxImg from "@/src/assets/images/empty-box.svg"
 import { KEYWORDS_ROUTE, DOMAINS_ROUTE, COMPANIES_ROUTE } from "@/src/utils/consts"
 
 function NoCompetitorsFound() {
@@ -45,7 +44,7 @@ function NoCompetitorsFound() {
                         justifyContent: "center",
                         mb: "20px",
                     }}
-                    image={EmptyBoxImg.src}
+                    image={"/empty-box.svg"}
                     title="Empty Box"
                 />
                 <Typography variant="h5" component="div">
