@@ -1,12 +1,13 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
 import Link from "next/link"
 import PageLoader from "@/src/components/PageLoader"
 import { useAuth } from "@/src/context/AuthContext"
-
 import { Box, Card, CardContent, Typography, CardActionArea, CardMedia, Container } from "@mui/material"
 import Grid from "@mui/material/Grid2"
 import AddIcon from "@mui/icons-material/Add"
@@ -18,9 +19,9 @@ const CompaniesPage = () => {
     const { user, loading } = useAuth()
 
     useEffect(() => {
-        if (!user) {
+        if (!user && !loading) {
             router.push(LOGIN_PAGE_ROUTE)
-        } else {
+        } else if (user) {
             fetchCompanies()
         }
     }, [user, router, fetchCompanies, loading])
@@ -57,7 +58,7 @@ const CompaniesPage = () => {
                                     },
                                 }}
                             >
-                                <CardMedia component="img" height="140" image={"/company.png"} alt="green iguana" />
+                                <CardMedia component="img" height="140" image={"/company.png"} alt="Company Image" />
                                 <CardContent>
                                     <Typography gutterBottom variant="h5" component="div">
                                         {company.name}
