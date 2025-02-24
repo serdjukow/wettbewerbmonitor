@@ -9,8 +9,13 @@ import { StyledEngineProvider } from "@mui/material/styles"
 import { ToastContainer } from "react-toastify"
 import "@/src/globals.css"
 
-interface ExtendedQueryObserverOptions<TQueryFnData = unknown, TError = Error, TData = TQueryFnData, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey>
-    extends QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey> {
+interface ExtendedQueryObserverOptions<
+    TQueryFnData = unknown,
+    TError = Error,
+    TData = TQueryFnData,
+    TQueryData = TQueryFnData,
+    TQueryKey extends QueryKey = QueryKey,
+> extends QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey> {
     cacheTime?: number
     keepPreviousData?: boolean
 }
@@ -30,6 +35,8 @@ const queryClientConfig: QueryClientConfig = {
 }
 
 function createLocalStoragePersister() {
+    if (typeof window === "undefined") return null
+
     return {
         persistClient: async (client: unknown) => {
             localStorage.setItem("REACT_QUERY_OFFLINE_CACHE", JSON.stringify(client))
@@ -48,12 +55,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const [queryClient] = useState(() => new QueryClient(queryClientConfig))
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const persister = createLocalStoragePersister()
+        const persister = createLocalStoragePersister()
+        if (persister) {
             persistQueryClient({
                 queryClient,
                 persister,
-                maxAge: 1000 * 60 * 60 * 24,
+                maxAge: 1000 * 60 * 60 * 24, // 24 часа
             })
         }
     }, [queryClient])
