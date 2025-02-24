@@ -5,8 +5,6 @@ export const metadata = {
     description: "Overview of competitors",
 }
 
-function page() {
-    return <CompetitorsPage />
-}
+const page = () => <CompetitorsPage />
 
 export default page

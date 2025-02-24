@@ -5,6 +5,6 @@ export const metadata = {
     description: "Search by domain",
 }
 
-export const page = () => <CompetitorsSearchByDomainPage />
+const page = () => <CompetitorsSearchByDomainPage />
 
 export default page
