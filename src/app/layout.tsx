@@ -60,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             persistQueryClient({
                 queryClient,
                 persister,
-                maxAge: 1000 * 60 * 60 * 24, // 24 часа
+                maxAge: 1000 * 60 * 60 * 24,
             })
         }
     }, [queryClient])

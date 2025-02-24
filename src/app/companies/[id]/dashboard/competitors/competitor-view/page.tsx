@@ -1,4 +1,4 @@
-import CompetitorViewPage from "@/src/pages/CompetitorViewPage"
+import CompetitorViewPage from "@/src/features/CompetitorViewPage"
 
 export const metadata = {
     title: "Competitor view",

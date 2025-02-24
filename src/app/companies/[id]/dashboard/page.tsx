@@ -1,4 +1,4 @@
-import DashboardPage from "@/src//pages/DashboardPage"
+import DashboardPage from "@/src/features/DashboardPage"
 
 export const metadata = {
     title: "Dashboard",

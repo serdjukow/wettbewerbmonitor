@@ -1,4 +1,4 @@
-import AddCompanyPage from "@/src/pages/AddCompanyPage"
+import AddCompanyPage from "@/src/features/AddCompanyPage"
 
 export const metadata = {
     title: "Add company",

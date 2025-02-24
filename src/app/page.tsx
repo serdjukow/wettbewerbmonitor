@@ -1,4 +1,4 @@
-import HomePage from "../pages/HomePage"
+import HomePage from "../features/HomePage"
 
 export const metadata = {
     title: "Home",

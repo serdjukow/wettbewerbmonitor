@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import AppTheme from "@/src/theme/AppTheme"
 import DashboardMenuBar from "@/src/components/DashboardMenuBar"

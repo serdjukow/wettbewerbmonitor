@@ -1,4 +1,4 @@
-import CompetitorsSearchByDomainPage from "@/src/pages/CompetitorsSearchByDomainPage"
+import CompetitorsSearchByDomainPage from "@/src/features/CompetitorsSearchByDomainPage"
 
 export const metadata = {
     title: "Search by domain",

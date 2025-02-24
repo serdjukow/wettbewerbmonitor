@@ -2,29 +2,29 @@
 
 export const dynamic = "force-dynamic"
 
-// import { useEffect } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
 import Link from "next/link"
-// import PageLoader from "@/src/components/PageLoader"
-// import { useAuth } from "@/src/context/AuthContext"
+import PageLoader from "@/src/components/PageLoader"
+import { useAuth } from "@/src/context/AuthContext"
 import { Box, Card, CardContent, Typography, CardActionArea, CardMedia, Container } from "@mui/material"
 import Grid from "@mui/material/Grid2"
 import AddIcon from "@mui/icons-material/Add"
-import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE } from "@/src/utils/consts"
+import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
 
 const CompaniesPage = () => {
     const router = useRouter()
-    const { setSelectedCompany, selectedCompany, companies } = useAppStore()
-    // const { user, loading } = useAuth()
+    const { setSelectedCompany, selectedCompany, companies, fetchCompanies } = useAppStore()
+    const { user, loading } = useAuth()
 
-    // useEffect(() => {
-    //     if (!user && !loading) {
-    //         router.push(LOGIN_PAGE_ROUTE)
-    //     } else if (user) {
-    //         fetchCompanies()
-    //     }
-    // }, [user, router, fetchCompanies, loading])
+    useEffect(() => {
+        if (!user && !loading) {
+            router.push(LOGIN_PAGE_ROUTE)
+        } else if (user) {
+            fetchCompanies()
+        }
+    }, [user, router, fetchCompanies, loading])
 
     const handleSelectCompany = (company: { uuid?: string; name: string }) => {
         setSelectedCompany(company)
@@ -33,11 +33,11 @@ const CompaniesPage = () => {
         }
     }
 
-    // if (loading) return <PageLoader />
+    if (loading) return <PageLoader />
 
-    // if (!user) {
-    //     return null
-    // }
+    if (!user) {
+        return null
+    }
 
     return (
         <Container sx={{ display: "flex", alignItems: "center", minHeight: "calc(100vh - 68px)", pt: 3, pb: 3 }}>

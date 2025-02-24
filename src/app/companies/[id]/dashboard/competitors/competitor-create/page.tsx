@@ -1,4 +1,4 @@
-import CompetitorCreatePage from "@/src/pages/CompetitorCreatePage"
+import CompetitorCreatePage from "@/src/features/CompetitorCreatePage"
 
 export const metadata = {
     title: "Create competitor",

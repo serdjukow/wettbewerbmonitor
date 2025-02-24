@@ -1,4 +1,4 @@
-import EditProfilePage from "@/src/pages/EditProfilePage"
+import EditProfilePage from "@/src/features/EditProfilePage"
 
 export const metadata = {
     title: "Edit profile",

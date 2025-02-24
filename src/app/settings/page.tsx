@@ -1,4 +1,4 @@
-import SettingsPage from "@/src/pages/SettingsPage"
+import SettingsPage from "@/src/features/SettingsPage"
 
 export const metadata = {
     title: "Settings",
