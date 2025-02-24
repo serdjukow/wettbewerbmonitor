@@ -5,6 +5,6 @@ export const metadata = {
     description: "Competitor view",
 }
 
-export const page = () => <CompetitorViewPage />
+const page = () => <CompetitorViewPage />
 
 export default page
