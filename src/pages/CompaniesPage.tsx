@@ -23,7 +23,7 @@ const CompaniesPage = () => {
         } else {
             fetchCompanies()
         }
-    }, [user, router, fetchCompanies])
+    }, [user, router, fetchCompanies, loading])
 
     const handleSelectCompany = (company: { uuid?: string; name: string }) => {
         setSelectedCompany(company)
@@ -33,6 +33,10 @@ const CompaniesPage = () => {
     }
 
     if (loading) return <PageLoader />
+
+    if (!user) {
+        return null
+    }
 
     return (
         <Container sx={{ display: "flex", alignItems: "center", minHeight: "calc(100vh - 68px)", pt: 3, pb: 3 }}>
