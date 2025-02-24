@@ -70,20 +70,24 @@ const Sidebar = () => {
 
         setSelectedCompany(selected)
 
-        const segments = pathname.split("/")
-        const companyIndex = segments.indexOf("companies")
+        if (pathname) {
+            const segments = pathname.split("/")
+            const companyIndex = segments.indexOf("companies")
 
-        if (companyIndex !== -1 && segments[companyIndex + 1]) {
-            segments[companyIndex + 1] = id
+            if (companyIndex !== -1 && segments[companyIndex + 1]) {
+                segments[companyIndex + 1] = id
+            }
+
+            const dashboardIndex = segments.indexOf(DASHBOARD_ROUTE.replace("/", ""))
+            if (dashboardIndex !== -1 && segments.length > dashboardIndex + 2) {
+                segments.splice(dashboardIndex + 2)
+            }
+
+            const newPath = segments.join("/")
+            router.push(newPath)
+        } else {
+            console.error("Pathname is null")
         }
-
-        const dashboardIndex = segments.indexOf(DASHBOARD_ROUTE.replace("/", ""))
-        if (dashboardIndex !== -1 && segments.length > dashboardIndex + 2) {
-            segments.splice(dashboardIndex + 2)
-        }
-
-        const newPath = segments.join("/")
-        router.push(newPath)
     }
 
     return (
@@ -119,7 +123,7 @@ const Sidebar = () => {
 
 const MenuItemComponent = ({ item }: { item: MenuItem }) => {
     const pathname = usePathname()
-    const path = getPagePath(pathname)
+    const path = getPagePath(pathname ?? "")
     const isActive = path === item.path
 
     const { selectedCompany } = useAppStore()
