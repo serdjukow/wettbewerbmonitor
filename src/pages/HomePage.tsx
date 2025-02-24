@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import React from "react"
 import CssBaseline from "@mui/material/CssBaseline"
 import Container from "@mui/material/Container"

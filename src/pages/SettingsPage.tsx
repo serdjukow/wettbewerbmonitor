@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import { useEffect, useState } from "react"
 import { addSistrixApiKey, getSistrixApiKey } from "@/src/services/firebaseService"
 import { useAuth } from "@/src/context/AuthContext"

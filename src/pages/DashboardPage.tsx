@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import React, { useState, useEffect } from "react"
 import { useAppStore } from "@/src/store/appStore"
 import { Box, Container, Chip, Typography, Divider, Paper } from "@mui/material"
