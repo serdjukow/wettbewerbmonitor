@@ -55,7 +55,7 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
         if (isSelected) {
             setSelectedServices((prev) => prev.filter((s) => s.title !== service.title))
         } else {
-            setSelectedServices((prev) => [...prev, { ...service, analysisType: "" }])
+            setSelectedServices((prev) => [...prev, { ...service, analysisType: "not_processed" }])
         }
     }
 
@@ -123,7 +123,7 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                                                                         s.title === service.title
                                                                             ? {
                                                                                   ...s,
-                                                                                  analysisType: e.target.value as "" | "manual" | "ai",
+                                                                                  analysisType: e.target.value as "not_processed" | "manual" | "ai",
                                                                               }
                                                                             : s
                                                                     )
