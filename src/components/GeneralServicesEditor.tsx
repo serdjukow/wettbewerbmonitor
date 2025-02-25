@@ -5,16 +5,7 @@ import { Box, TextField, Button, Chip, Typography, Paper, Tooltip, Dialog, Dialo
 import { Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
-
-// Расширенный интерфейс сервиса с дополнительными полями для анализа и сопоставления.
-// Пока что эти поля будут сохраняться пустыми, но в дальнейшем их можно заполнить вручную или через ИИ.
-export interface GeneralService {
-    title: string
-    description?: string
-    aiAnalysis?: string // Результат анализа с использованием ИИ (пока пустое)
-    manualAnalysis?: string // Ручной анализ (пока пустой)
-    competitorMapping?: { [competitorId: string]: boolean } // Сопоставление с конкурентами (пока пустое)
-}
+import { type GeneralService } from "@/src/utils/types"
 
 const GeneralServicesEditor = () => {
     const { selectedCompany, updateCompany } = useAppStore()
@@ -51,9 +42,7 @@ const GeneralServicesEditor = () => {
         const newService: GeneralService = {
             title: titleTrimmed,
             description: newServiceDescription.trim() || "",
-            aiAnalysis: "", // пока пустое
-            manualAnalysis: "", // пока пустое
-            competitorMapping: {}, // пока пустое
+            analysisType: "not_processed",
         }
         const updatedServices = [...services, newService]
         setServices(updatedServices)
@@ -90,7 +79,6 @@ const GeneralServicesEditor = () => {
             ...updatedServices[editIndex],
             title: titleTrimmed,
             description: editDescription.trim() || "",
-            // Дополнительные поля остаются без изменений (пока пустые)
         }
         setServices(updatedServices)
         setOpenEditDialog(false)

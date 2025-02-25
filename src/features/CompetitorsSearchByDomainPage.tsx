@@ -35,8 +35,6 @@ import CustomOverlay from "@/src/components/CustomOverlay"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import QueryParamsModal from "@/src/components/QueryParamsModal"
 import NoDataMessage from "@/src/components/NoDataMessage"
-import { getSistrixApiKey } from "@/src/services/firebaseService"
-import { useAuth } from "@/src/context/AuthContext"
 
 interface SistrixDomainResult {
     uuid?: string
@@ -132,8 +130,6 @@ export default function CompetitorsSearchByDomainPage() {
     const [rowsPerPage, setRowsPerPage] = useState(100)
     const { updateCompany, selectedCompany, queryParams } = useAppStore()
     const [openModal, setOpenModal] = useState(false)
-    const { user } = useAuth()
-    const [apiKey, setApiKey] = useState("")
 
     const [openGeneralDomainsModal, setOpenGeneralDomainsModal] = useState(false)
     const handleOpenGeneralDomainsModal = () => setOpenGeneralDomainsModal(true)
@@ -162,24 +158,9 @@ export default function CompetitorsSearchByDomainPage() {
     const { data, isLoading, isError, error } = useSistrixDomainsData(
         searchTerm,
         queryParams.country,
-        { apiKey, limit: queryParams.limit, history: "false" },
+        { limit: queryParams.limit, history: "false" },
         { enabled: !!searchTerm }
     )
-
-    useEffect(() => {
-        const fetchApiKey = async () => {
-            if (user) {
-                const key = await getSistrixApiKey()
-                if (key) {
-                    setApiKey(key)
-                } else {
-                    setApiKey("")
-                }
-            }
-        }
-
-        fetchApiKey()
-    }, [user])
 
     useEffect(() => {
         if (data) {
@@ -324,7 +305,7 @@ export default function CompetitorsSearchByDomainPage() {
                         <Box sx={{ height: "55vh", width: "100%" }}>
                             {isError ? (
                                 <Box sx={{ p:3 }}>
-                                    <Alert severity="error">Request error: {error?.message}. Please check your Sistrix API key settings.</Alert>
+                                    <Alert severity="error">Request error: {error?.message}</Alert>
                                 </Box>
                             ) : (
                                 <DataGrid

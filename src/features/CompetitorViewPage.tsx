@@ -43,10 +43,7 @@ const CompetitorViewPage: React.FC = () => {
 
     useEffect(() => {
         if (selectedCompany && uuid) {
-            const comp =
-                selectedCompany?.seo?.competitors?.find((c: ExtendedCompetitor) => c.uuid === uuid) ||
-                selectedCompany?.seo?.competitors?.find((c: ExtendedCompetitor) => c.uuid === uuid) ||
-                null
+            const comp = selectedCompany?.seo?.competitors?.find((c: ExtendedCompetitor) => c.uuid === uuid) || null
             setCompetitor(comp)
         }
     }, [selectedCompany, uuid])

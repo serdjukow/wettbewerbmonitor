@@ -1,11 +1,14 @@
 "use client"
+
+import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { useRouter } from "next/navigation"
-import { type Company } from "@/src/utils/types"
+import { type Company, type TrackedCountry } from "@/src/utils/types"
 import { addCompanyToDB } from "@/src/services/firebaseService"
 
 import { TextField, Button, Stack, Box, Typography, Container, Card, CardContent } from "@mui/material"
 import { COMPANIES_ROUTE } from "@/src/utils/consts"
+import CountrySelect from "@/src/components/CountrySelect"
 
 const AddCompanyPage = () => {
     const router = useRouter()
@@ -14,10 +17,14 @@ const AddCompanyPage = () => {
         control,
         handleSubmit,
         reset,
+        setValue,
+        trigger,
+        watch,
         formState: { errors },
     } = useForm<Company>({
         defaultValues: {
             name: "",
+            country: { country: "", country_name: "" },
             contact: { email: "", phone: "" },
             address: { street: "", houseNumber: "", city: "", postalCode: "" },
             socialNetworks: {
@@ -29,14 +36,65 @@ const AddCompanyPage = () => {
         },
     })
 
+    const selectedCountry = watch("country")
+
+    useEffect(() => {
+        const fetchCountry = async () => {
+            try {
+                const response = await fetch("https://ipinfo.io/json/")
+                const data = await response.json()
+
+                console.log("Fetched country data:", data)
+
+                if (data && data.country && data.country_name && !selectedCountry.country) {
+                    const autoDetectedCountry: TrackedCountry = {
+                        country: data.country.toLowerCase(),
+                        country_name: data.country_name,
+                    }
+                    console.log("Auto-detected country:", autoDetectedCountry)
+
+                    setValue("country", autoDetectedCountry)
+                    await trigger("country")
+                }
+            } catch (error) {
+                console.error("Error detecting country:", error)
+            }
+        }
+
+        fetchCountry()
+    }, [setValue, trigger, selectedCountry])
+
     const onSubmit = async (data: Company) => {
-        await addCompanyToDB(data)
+        console.log("Data being submitted:", data)
+
+        if (!data.country || !data.country.country || !data.country.country_name) {
+            console.error("Country data is incomplete", data.country)
+            return
+        }
+
+        // Отправка данных в базу
+        await addCompanyToDB({
+            ...data,
+            country: {
+                country: data.country.country,
+                country_name: data.country.country_name,
+            },
+        })
+
         reset()
         router.push(COMPANIES_ROUTE)
     }
 
     return (
-        <Container sx={{ display: "flex", alignItems: "center", justifyContent: "center", pt: 2, minHeight: "calc(100vh - 68px)" }}>
+        <Container
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                pt: 2,
+                minHeight: "calc(100vh - 68px)",
+            }}
+        >
             <Card sx={{ padding: 1 }}>
                 <CardContent>
                     <Typography variant="h4" gutterBottom>
@@ -44,7 +102,7 @@ const AddCompanyPage = () => {
                     </Typography>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={2}>
-                            {/* Company Name */}
+                            {/* Название компании */}
                             <Controller
                                 name="name"
                                 control={control}
@@ -62,6 +120,25 @@ const AddCompanyPage = () => {
                                 )}
                             />
 
+                            {/* Страна */}
+                            <Typography variant="h6">Country</Typography>
+                            <Controller
+                                name="country"
+                                control={control}
+                                rules={{ required: "Country is required" }}
+                                render={({ field }) => (
+                                    <CountrySelect
+                                        value={field.value}
+                                        onChange={(selected) => {
+                                            console.log("Country selected from dropdown:", selected)
+                                            setValue("country", selected)
+                                            trigger("country")
+                                        }}
+                                    />
+                                )}
+                            />
+
+                            {/* Адрес */}
                             <Typography variant="h6">Address</Typography>
                             <Controller
                                 name="address.street"
@@ -86,6 +163,8 @@ const AddCompanyPage = () => {
                                 render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />}
                             />
 
+                            {/* Контактные данные */}
+                            <Typography variant="h6">Contact</Typography>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="contact.phone"
@@ -133,13 +212,15 @@ const AddCompanyPage = () => {
                                 />
                             </Stack>
 
-                            {/* Website Field */}
+                            {/* Веб-сайт */}
+                            <Typography variant="h6">Website</Typography>
                             <Controller
                                 name="website"
                                 control={control}
                                 render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />}
                             />
 
+                            {/* Социальные сети */}
                             <Typography variant="h6">Social Networks</Typography>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
@@ -153,19 +234,8 @@ const AddCompanyPage = () => {
                                     render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" {...field} />}
                                 />
                             </Stack>
-                            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                                <Controller
-                                    name="socialNetworks.linkedin"
-                                    control={control}
-                                    render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" {...field} />}
-                                />
-                                <Controller
-                                    name="socialNetworks.twitter"
-                                    control={control}
-                                    render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" {...field} />}
-                                />
-                            </Stack>
 
+                            {/* Кнопка отправки */}
                             <Box sx={{ marginTop: 2 }}>
                                 <Button type="submit" variant="contained" color="primary">
                                     Submit

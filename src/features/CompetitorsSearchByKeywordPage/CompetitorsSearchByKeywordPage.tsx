@@ -13,8 +13,6 @@ import { useAppStore } from "@/src/store/appStore"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import QueryParamsModal from "@/src/components/QueryParamsModal"
 import CustomOverlay from "@/src/components/CustomOverlay"
-import { getSistrixApiKey } from "@/src/services/firebaseService"
-import { useAuth } from "@/src/context/AuthContext"
 import { SistrixCompetitorResult, Order, ExtendedCompetitor } from "./KeywordPageTypes"
 import EnhancedTableToolbar from "./KeywordPageComponents/EnhancedTableToolbar"
 import KeywordStatsTableToolbar from "./KeywordPageComponents/KeywordStatsTableToolbar"
@@ -31,8 +29,6 @@ const CompetitorsSearchByKeywordPage = () => {
     const [rowsPerPage, setRowsPerPage] = useState(100)
     const { updateCompany, selectedCompany, queryParams } = useAppStore()
     const [openModal, setOpenModal] = useState(false)
-    const { user } = useAuth()
-    const [apiKey, setApiKey] = useState("")
 
     const [openGeneralWordsModal, setOpenGeneralWordsModal] = useState(false)
     const handleOpenGeneralWordsModal = () => setOpenGeneralWordsModal(true)
@@ -61,24 +57,9 @@ const CompetitorsSearchByKeywordPage = () => {
     const { data, isLoading, isError, error } = useSistrixData(
         searchTerm,
         queryParams.country,
-        { apiKey, limit: queryParams.limit, history: "false" },
-        { enabled: !!searchTerm && !!apiKey }
+        { limit: queryParams.limit, history: "false" },
+        { enabled: !!searchTerm}
     )
-
-    useEffect(() => {
-        const fetchApiKey = async () => {
-            if (user) {
-                const key = await getSistrixApiKey()
-                if (key) {
-                    setApiKey(key)
-                } else {
-                    setApiKey("")
-                }
-            }
-        }
-
-        fetchApiKey()
-    }, [user])
 
     useEffect(() => {
         if (data) {
@@ -223,7 +204,7 @@ const CompetitorsSearchByKeywordPage = () => {
                         <Box sx={{ height: "55vh", width: "100%" }}>
                             {isError ? (
                                 <Box sx={{ p: 3 }}>
-                                    <Alert severity="error">Request error: {error?.message}. Please check your Sistrix API key settings.</Alert>
+                                    <Alert severity="error">Request error: {error?.message}</Alert>
                                 </Box>
                             ) : (
                                 <DataGrid

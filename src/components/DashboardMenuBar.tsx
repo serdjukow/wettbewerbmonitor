@@ -98,10 +98,7 @@ const DashboardMenuBar = () => {
                         <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
                             <Link href={COMPANIES_ROUTE} style={{ color: "inherit", textDecoration: "none" }}>
                                 <Button sx={{ my: 2, color: "white", display: "block" }}>My Companies</Button>
-                            </Link>
-                            <Link href="/settings" style={{ color: "inherit", textDecoration: "none" }}>
-                                <Button sx={{ my: 2, color: "white", display: "block" }}>Settings</Button>
-                            </Link>
+                            </Link>           
                         </Box>
                     </Toolbar>
                 </Container>

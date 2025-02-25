@@ -1,12 +1,7 @@
 export interface GeneralService {
-    title?: string
-    name?: string
+    title: string
     description?: string
-    aiAnalysis?: string
-    manualAnalysis?: string
-    competitorMapping?: { [competitorId: string]: boolean }
-    isCompetitor?: boolean
-    analysisType?: "" | "manual" | "ai"
+    analysisType: "not_processed" | "manual" | "ai"
 }
 
 export interface Competitor {
@@ -42,10 +37,15 @@ type Keyword = {
     keyword: string
 }
 
+export interface TrackedCountry {
+    country: string
+    country_name: string
+}
+
 export type Company = {
-    id?: string
-    uuid?: string
+    uuid: string
     name: string
+    country: TrackedCountry
     address?: {
         street: string
         houseNumber: string
@@ -68,11 +68,9 @@ export type Company = {
         competitors?: Competitor[]
     }
     generalKeywords?: string[]
-    generalServices?: {
-        title: string
-        description?: string
-    }[]
+    generalServices?: GeneralService[]
     generalDomains?: string[]
+    trackedCountries?: TrackedCountry[]
 }
 
 interface QueryParams {
