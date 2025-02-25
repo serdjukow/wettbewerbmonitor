@@ -80,10 +80,10 @@ const DashboardPage = () => {
                                 chipColor = "primary"
                             } else if (service.analysisType === "ai") {
                                 chipColor = "success"
-                            } else if (service.analysisType === "") {
+                            } else if (service.analysisType === "not_processed") {
                                 chipColor = "default"
                             }
-                            return <Chip key={index} label={service.title || service.name || "Unknown"} color={chipColor} size="small" />
+                            return <Chip key={index} label={service.title  || "Not processed"} color={chipColor} size="small" />
                         })}
                     </Box>
                 )
