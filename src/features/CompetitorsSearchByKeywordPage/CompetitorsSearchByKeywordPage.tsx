@@ -1,7 +1,5 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
 import React, { useState, useEffect } from "react"
 import { Box, Button, TextField, Paper, IconButton, Alert } from "@mui/material"
 import ListAltIcon from "@mui/icons-material/ListAlt"
@@ -37,11 +35,12 @@ const CompetitorsSearchByKeywordPage = () => {
         setGeneralSearchQuery("")
     }
     const handleSelectGeneralWord = (word: string) => {
-        setKeyword(word)
+        setKeyword(word.trim())
         setOpenGeneralWordsModal(false)
         setGeneralSearchQuery("")
     }
     const [generalSearchQuery, setGeneralSearchQuery] = useState("")
+
     const groupedGeneralKeywords = React.useMemo(() => {
         const words = (selectedCompany?.generalKeywords || []).slice()
         words.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
@@ -54,12 +53,7 @@ const CompetitorsSearchByKeywordPage = () => {
         return groups
     }, [selectedCompany])
 
-    const { data, isLoading, isError, error } = useSistrixData(
-        searchTerm,
-        queryParams.country,
-        { limit: queryParams.limit, history: "false" },
-        { enabled: !!searchTerm}
-    )
+    const { data, isLoading, isError, error } = useSistrixData(searchTerm, queryParams.country, { limit: queryParams.limit, history: "false" }, { enabled: !!searchTerm })
 
     useEffect(() => {
         if (data) {
@@ -87,13 +81,16 @@ const CompetitorsSearchByKeywordPage = () => {
                     status: "not_checked",
                     products: [],
                 }))
-                setCompetitors(fetchedCompetitors)
+
+                setCompetitors(fetchedCompetitors)           
             }
         }
-    }, [data, selectedCompany])
+    }, [data, selectedCompany, updateCompany])
 
     const handleSearch = () => {
-        setSearchTerm(keyword)
+        const trimmedKeyword = keyword.trim()
+        setSearchTerm(trimmedKeyword)
+        setKeyword(trimmedKeyword)
     }
 
     const handleSaveCompetitors = (competitors: Competitor[]) => {
@@ -108,22 +105,6 @@ const CompetitorsSearchByKeywordPage = () => {
                 domain: comp.domain || "",
                 url: comp.url || "",
                 position: comp.position !== undefined ? comp.position : 0,
-                address: {
-                    street: comp.address?.street || "",
-                    houseNumber: comp.address?.houseNumber || "",
-                    postalCode: comp.address?.postalCode || "",
-                    city: comp.address?.city || "",
-                },
-                contact: {
-                    phone: comp.contact?.phone || "",
-                    email: comp.contact?.email || "",
-                },
-                socialNetworks: {
-                    facebook: comp.socialNetworks?.facebook || "",
-                    instagram: comp.socialNetworks?.instagram || "",
-                    linkedin: comp.socialNetworks?.linkedin || "",
-                    twitter: comp.socialNetworks?.twitter || "",
-                },
             }))
 
             updateCompany(selectedCompany.uuid, {

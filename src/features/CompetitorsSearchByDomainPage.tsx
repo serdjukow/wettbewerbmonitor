@@ -138,7 +138,7 @@ export default function CompetitorsSearchByDomainPage() {
         setGeneralSearchQuery("")
     }
     const handleSelectGeneralDomain = (word: string) => {
-        setDomainInput(word)
+        setDomainInput(word.trim())
         setOpenGeneralDomainsModal(false)
         setGeneralSearchQuery("")
     }
@@ -155,12 +155,7 @@ export default function CompetitorsSearchByDomainPage() {
         return groups
     }, [selectedCompany])
 
-    const { data, isLoading, isError, error } = useSistrixDomainsData(
-        searchTerm,
-        queryParams.country,
-        { limit: queryParams.limit, history: "false" },
-        { enabled: !!searchTerm }
-    )
+    const { data, isLoading, isError, error } = useSistrixDomainsData(searchTerm, queryParams.country, { limit: queryParams.limit, history: "false" }, { enabled: !!searchTerm })
 
     useEffect(() => {
         if (data) {
@@ -197,7 +192,9 @@ export default function CompetitorsSearchByDomainPage() {
     }, [data, selectedCompany])
 
     const handleSearch = () => {
-        setSearchTerm(domainInput)
+        const trimmedDomainInput = domainInput.trim()
+        setSearchTerm(trimmedDomainInput)
+        setDomainInput(trimmedDomainInput)
     }
 
     const handleSaveCompetitors = (competitors: Competitor[]) => {
@@ -304,7 +301,7 @@ export default function CompetitorsSearchByDomainPage() {
                         <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
                         <Box sx={{ height: "55vh", width: "100%" }}>
                             {isError ? (
-                                <Box sx={{ p:3 }}>
+                                <Box sx={{ p: 3 }}>
                                     <Alert severity="error">Request error: {error?.message}</Alert>
                                 </Box>
                             ) : (
