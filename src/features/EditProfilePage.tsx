@@ -32,6 +32,7 @@ const EditProfilePage = () => {
             country: { country: "", country_name: "" },
             contact: { email: "", phone: "" },
             address: { street: "", houseNumber: "", city: "", postalCode: "" },
+            website: "",
             socialNetworks: {
                 facebook: "",
                 instagram: "",
@@ -128,15 +129,7 @@ const EditProfilePage = () => {
                             <Controller
                                 name="contact.phone"
                                 control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Phone"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
 
                             {/* Address Section */}
@@ -144,55 +137,23 @@ const EditProfilePage = () => {
                             <Controller
                                 name="address.street"
                                 control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Street"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
                             <Controller
                                 name="address.houseNumber"
                                 control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="House Number"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
                             <Stack direction="row" spacing={2}>
                                 <Controller
                                     name="address.city"
                                     control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            label="City"
-                                            variant="outlined"
-                                            value={field.value ?? ""}
-                                            onChange={field.onChange}
-                                        />
-                                    )}
+                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="address.postalCode"
                                     control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            label="Postal Code"
-                                            variant="outlined"
-                                            value={field.value ?? ""}
-                                            onChange={field.onChange}
-                                        />
-                                    )}
+                                    render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
 
@@ -201,15 +162,7 @@ const EditProfilePage = () => {
                             <Controller
                                 name="website"
                                 control={control}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Website"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="Website" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                             />
 
                             {/* Social Networks */}
@@ -218,28 +171,12 @@ const EditProfilePage = () => {
                                 <Controller
                                     name="socialNetworks.facebook"
                                     control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            label="Facebook"
-                                            variant="outlined"
-                                            value={field.value ?? ""}
-                                            onChange={field.onChange}
-                                        />
-                                    )}
+                                    render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="socialNetworks.instagram"
                                     control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            label="Instagram"
-                                            variant="outlined"
-                                            value={field.value ?? ""}
-                                            onChange={field.onChange}
-                                        />
-                                    )}
+                                    render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
 
@@ -247,28 +184,12 @@ const EditProfilePage = () => {
                                 <Controller
                                     name="socialNetworks.linkedin"
                                     control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            label="LinkedIn"
-                                            variant="outlined"
-                                            value={field.value ?? ""}
-                                            onChange={field.onChange}
-                                        />
-                                    )}
+                                    render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="socialNetworks.twitter"
                                     control={control}
-                                    render={({ field }) => (
-                                        <TextField
-                                            fullWidth
-                                            label="Twitter"
-                                            variant="outlined"
-                                            value={field.value ?? ""}
-                                            onChange={field.onChange}
-                                        />
-                                    )}
+                                    render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
 
@@ -281,7 +202,7 @@ const EditProfilePage = () => {
                                     paddingTop: 4,
                                 }}
                             >
-                                <Button type="submit" variant="outlined" startIcon={<SaveIcon />} color="success">
+                                <Button type="submit" variant="contained" startIcon={<SaveIcon />} color="success">
                                     Save Changes
                                 </Button>
                                 <CompanyDeleteButton />

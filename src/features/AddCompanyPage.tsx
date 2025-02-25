@@ -27,6 +27,7 @@ const AddCompanyPage = () => {
             country: { country: "", country_name: "" },
             contact: { email: "", phone: "" },
             address: { street: "", houseNumber: "", city: "", postalCode: "" },
+            website: "",
             socialNetworks: {
                 facebook: "",
                 instagram: "",
@@ -41,17 +42,13 @@ const AddCompanyPage = () => {
     useEffect(() => {
         const fetchCountry = async () => {
             try {
-                const response = await fetch("https://ipinfo.io/json/")
+                const response = await fetch("https://get.geojs.io/v1/ip/geo.json")
                 const data = await response.json()
-
-                console.log("Fetched country data:", data)
-
-                if (data && data.country && data.country_name && !selectedCountry.country) {
+                if (data && data.country && !selectedCountry.country) {
                     const autoDetectedCountry: TrackedCountry = {
-                        country: data.country.toLowerCase(),
-                        country_name: data.country_name,
+                        country: data.country_code.toLowerCase(),
+                        country_name: data.country.toLowerCase(),
                     }
-                    console.log("Auto-detected country:", autoDetectedCountry)
 
                     setValue("country", autoDetectedCountry)
                     await trigger("country")
@@ -65,19 +62,31 @@ const AddCompanyPage = () => {
     }, [setValue, trigger, selectedCountry])
 
     const onSubmit = async (data: Company) => {
-        console.log("Data being submitted:", data)
-
-        if (!data.country || !data.country.country || !data.country.country_name) {
-            console.error("Country data is incomplete", data.country)
+        if (!data.country || !data.country.country_name || !data.country.country) {
+            console.error("Country code is missing", data.country)
             return
         }
 
-        // Отправка данных в базу
+        const countrySelectInput = data.country.country_name || selectedCountry.country_name
+
+        if (!countrySelectInput) {
+            console.error("Country name is missing")
+            return
+        }
+
         await addCompanyToDB({
             ...data,
             country: {
                 country: data.country.country,
-                country_name: data.country.country_name,
+                country_name: countrySelectInput,
+            },
+        })
+
+        console.log("Submitted data:", {
+            ...data,
+            country: {
+                country: data.country.country,
+                country_name: countrySelectInput,
             },
         })
 
@@ -102,25 +111,15 @@ const AddCompanyPage = () => {
                     </Typography>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={2}>
-                            {/* Название компании */}
                             <Controller
                                 name="name"
                                 control={control}
                                 rules={{ required: "Company name is required" }}
                                 render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Company Name"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.name}
-                                        helperText={errors.name?.message}
-                                        required
-                                    />
+                                    <TextField fullWidth label="Company Name" variant="outlined" {...field} error={!!errors.name} helperText={errors.name?.message} required />
                                 )}
                             />
 
-                            {/* Страна */}
                             <Typography variant="h6">Country</Typography>
                             <Controller
                                 name="country"
@@ -130,7 +129,6 @@ const AddCompanyPage = () => {
                                     <CountrySelect
                                         value={field.value}
                                         onChange={(selected) => {
-                                            console.log("Country selected from dropdown:", selected)
                                             setValue("country", selected)
                                             trigger("country")
                                         }}
@@ -138,7 +136,6 @@ const AddCompanyPage = () => {
                                 )}
                             />
 
-                            {/* Адрес */}
                             <Typography variant="h6">Address</Typography>
                             <Controller
                                 name="address.street"
@@ -157,13 +154,8 @@ const AddCompanyPage = () => {
                                     render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" {...field} />}
                                 />
                             </Stack>
-                            <Controller
-                                name="address.city"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />}
-                            />
+                            <Controller name="address.city" control={control} render={({ field }) => <TextField fullWidth label="City" variant="outlined" {...field} />} />
 
-                            {/* Контактные данные */}
                             <Typography variant="h6">Contact</Typography>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
@@ -212,15 +204,9 @@ const AddCompanyPage = () => {
                                 />
                             </Stack>
 
-                            {/* Веб-сайт */}
                             <Typography variant="h6">Website</Typography>
-                            <Controller
-                                name="website"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />}
-                            />
+                            <Controller name="website" control={control} render={({ field }) => <TextField fullWidth label="Website" variant="outlined" {...field} />} />
 
-                            {/* Социальные сети */}
                             <Typography variant="h6">Social Networks</Typography>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
@@ -235,7 +221,6 @@ const AddCompanyPage = () => {
                                 />
                             </Stack>
 
-                            {/* Кнопка отправки */}
                             <Box sx={{ marginTop: 2 }}>
                                 <Button type="submit" variant="contained" color="primary">
                                     Submit

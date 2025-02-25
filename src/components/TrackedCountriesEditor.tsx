@@ -1,21 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import {
-    Box,
-    Button,
-    Chip,
-    Typography,
-    Paper,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-} from "@mui/material"
+import { Box, Button, Chip, Typography, Paper, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem } from "@mui/material"
 import { DeleteForever as DeleteForeverIcon } from "@mui/icons-material"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
@@ -86,38 +72,16 @@ const TrackedCountriesEditor = () => {
     const [deleteCountryIndex, setDeleteCountryIndex] = useState<number | null>(null)
 
     useEffect(() => {
-        const fetchDefaultCountry = async () => {
-            try {
-                const response = await fetch("https://ipinfo.io/json/")
-                const data = await response.json()
-
-                if (data && data.country) {
-                    const detectedCountry: TrackedCountry = {
-                        country: data.country.toLowerCase(),
-                        country_name: data.country_name,
-                    }
-
-                    if (!trackedCountries.some((c) => c.country === detectedCountry.country)) {
-                        setTrackedCountries([detectedCountry])
-                    }
-                }
-            } catch (error) {
-                console.error("Error detecting country:", error)
+        if (selectedCompany) {
+            if (selectedCompany.trackedCountries && selectedCompany.trackedCountries.length > 0) {
+                setTrackedCountries(selectedCompany.trackedCountries)
+            } else {
+                setTrackedCountries([selectedCompany.country])
             }
-        }
-
-        if (trackedCountries.length === 0) {
-            fetchDefaultCountry()
-        }
-    }, [trackedCountries])
-
-    useEffect(() => {
-        if (selectedCompany && selectedCompany.trackedCountries) {
-            setTrackedCountries(selectedCompany.trackedCountries)
         }
     }, [selectedCompany])
 
-    const handleAddCountry = () => {
+    const handleAddCountry = async () => {
         const selectedCountry = countryOptions.find((c) => c.country === newCountry)
 
         if (!selectedCountry) {
@@ -135,8 +99,14 @@ const TrackedCountriesEditor = () => {
             return
         }
 
-        setTrackedCountries([...trackedCountries, selectedCountry])
+        const updatedCountries = [...trackedCountries, selectedCountry]
+        setTrackedCountries(updatedCountries)
         setNewCountry("")
+
+        if (selectedCompany?.uuid) {
+            await updateCompany(selectedCompany.uuid, { trackedCountries: updatedCountries })
+            toast.success("Country successfully added")
+        }
     }
 
     const handleOpenDeleteDialog = (index: number) => {
@@ -171,12 +141,7 @@ const TrackedCountriesEditor = () => {
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 <FormControl fullWidth>
                     <InputLabel id="country-select-label">Select Country</InputLabel>
-                    <Select
-                        labelId="country-select-label"
-                        value={newCountry}
-                        label="Select Country"
-                        onChange={(e) => setNewCountry(e.target.value)}
-                    >
+                    <Select labelId="country-select-label" value={newCountry} label="Select Country" onChange={(e) => setNewCountry(e.target.value)}>
                         {countryOptions.map((country) => (
                             <MenuItem key={country.country} value={country.country}>
                                 {country.country_name}

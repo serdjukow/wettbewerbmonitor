@@ -30,7 +30,7 @@ const CompanyDeleteButton = () => {
 
     return (
         <>
-            <Button onClick={handleOpenCompanyDeleteDialog} variant="outlined" startIcon={<DeleteForeverIcon />} color="error">
+            <Button onClick={handleOpenCompanyDeleteDialog} variant="contained" startIcon={<DeleteForeverIcon />} color="error">
                 Delete
             </Button>
 
@@ -40,7 +40,9 @@ const CompanyDeleteButton = () => {
                     <Typography>Are you sure you want to delete this company?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseCompanyDeleteDialog}>Cancel</Button>
+                    <Button onClick={handleCloseCompanyDeleteDialog} variant="contained">
+                        Cancel
+                    </Button>
                     <Button onClick={handleConfirmCompanyDelete} color="error" variant="contained">
                         Delete
                     </Button>
