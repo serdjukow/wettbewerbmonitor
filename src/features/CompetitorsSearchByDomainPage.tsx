@@ -35,6 +35,7 @@ import CustomOverlay from "@/src/components/CustomOverlay"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import QueryParamsModal from "@/src/components/QueryParamsModal"
 import NoDataMessage from "@/src/components/NoDataMessage"
+import CompetitorStats from "@/src/components/CompetitorStats"
 
 interface SistrixDomainResult {
     uuid?: string
@@ -130,6 +131,9 @@ export default function CompetitorsSearchByDomainPage() {
     const [rowsPerPage, setRowsPerPage] = useState(100)
     const { updateCompany, selectedCompany, queryParams } = useAppStore()
     const [openModal, setOpenModal] = useState(false)
+    const [totalResultsCount, setTotalResultsCount] = useState(0)
+    const [filteredResultsCount, setFilteredResultsCount] = useState(0)
+    const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
 
     const [openGeneralDomainsModal, setOpenGeneralDomainsModal] = useState(false)
     const handleOpenGeneralDomainsModal = () => setOpenGeneralDomainsModal(true)
@@ -161,17 +165,32 @@ export default function CompetitorsSearchByDomainPage() {
         if (data) {
             if ("status" in data && data.status === "fail") {
                 setCompetitors([])
+                setTotalResultsCount(0)
+                setFilteredResultsCount(0)
+                setHiddenResultsCount(0)
             } else if ("answer" in data && data.answer?.[0]?.result) {
                 const competitorResults = data.answer[0].result as SistrixDomainResult[]
                 const validResults = competitorResults.filter((item) => Boolean(item.domain))
+                setTotalResultsCount(validResults.length)
                 const addedCompetitors = selectedCompany?.seo?.competitors || []
 
+                let hiddenCount = 0
+
                 const filteredResults = validResults.filter((item) => {
-                    return !addedCompetitors.some((comp) => {
+                    const isAlreadyAdded = addedCompetitors.some((comp) => {
                         const compDomain = (comp as ExtendedCompetitor).domain || ""
                         return compDomain === item.domain
                     })
+
+                    if (isAlreadyAdded) {
+                        hiddenCount++
+                    }
+
+                    return !isAlreadyAdded
                 })
+
+                setFilteredResultsCount(filteredResults.length)
+                setHiddenResultsCount(hiddenCount)
 
                 const fetchedCompetitors: Competitor[] = filteredResults.map((item) => ({
                     uuid: item.uuid || uuidv4(),
@@ -345,8 +364,8 @@ export default function CompetitorsSearchByDomainPage() {
                         {Object.keys(groupedGeneralDomains)
                             .sort()
                             .map((letter) => {
-                                const filteredWords = groupedGeneralDomains[letter].filter((word) => word.toLowerCase().includes(generalSearchQuery.toLowerCase()))
-                                if (filteredWords.length === 0) return null
+                                const filteredDomains = groupedGeneralDomains[letter].filter((word) => word.toLowerCase().includes(generalSearchQuery.toLowerCase()))
+                                if (filteredDomains.length === 0) return null
                                 return (
                                     <Box key={letter} sx={{ mb: 1 }}>
                                         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
@@ -354,7 +373,7 @@ export default function CompetitorsSearchByDomainPage() {
                                         </Typography>
                                         <Divider sx={{ mb: 0 }} />
                                         <List>
-                                            {filteredWords.map((word, index) => (
+                                            {filteredDomains.map((word, index) => (
                                                 <ListItem key={index} disablePadding>
                                                     <ListItemButton onClick={() => handleSelectGeneralDomain(word)}>
                                                         <ListItemText primary={word} />
