@@ -103,20 +103,14 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                                         return (
                                             <TableRow key={service.title}>
                                                 <TableCell align="center">
-                                                    <Checkbox
-                                                        size="small"
-                                                        checked={isSelected}
-                                                        onChange={() => handleToggleService(service)}
-                                                    />
+                                                    <Checkbox size="small" checked={isSelected} onChange={() => handleToggleService(service)} />
                                                 </TableCell>
                                                 <TableCell>{service.title}</TableCell>
                                                 <TableCell align="center">
                                                     {isSelected && (
                                                         <Select
                                                             size="small"
-                                                            value={
-                                                                selectedServices.find((s) => s.title === service.title)?.analysisType || ""
-                                                            }
+                                                            value={selectedServices.find((s) => s.title === service.title)?.analysisType}
                                                             onChange={(e) => {
                                                                 setSelectedServices((prev) =>
                                                                     prev.map((s) =>
@@ -132,12 +126,12 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                                                             displayEmpty
                                                             sx={{ minWidth: 120 }}
                                                         >
-                                                            <MenuItem value="">Not Processed</MenuItem>
+                                                            <MenuItem value="not_processed">Not Processed</MenuItem>
                                                             <MenuItem value="manual">Manual</MenuItem>
                                                             <MenuItem value="ai">AI</MenuItem>
                                                         </Select>
                                                     )}
-                                                </TableCell>                    
+                                                </TableCell>
                                             </TableRow>
                                         )
                                     })
