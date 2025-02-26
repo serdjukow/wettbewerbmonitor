@@ -32,6 +32,8 @@ interface CompetitorServicesEditorProps {
     onSave: (selectedServices: GeneralService[]) => void
 }
 
+
+
 const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ open, onClose, competitor, generalServices, onSave }) => {
     const [selectedServices, setSelectedServices] = useState<GeneralService[]>([])
     const [searchTerm, setSearchTerm] = useState("")
@@ -88,6 +90,7 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                     />
 
                     <TableContainer component={Paper}>
+                    
                         <Table size="small">
                             <TableHead>
                                 <TableRow>

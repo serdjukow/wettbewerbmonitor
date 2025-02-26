@@ -159,7 +159,12 @@ export default function CompetitorsSearchByDomainPage() {
         return groups
     }, [selectedCompany])
 
-    const { data, isLoading, isError, error } = useSistrixDomainsData(searchTerm, queryParams.country, { limit: queryParams.limit, history: "false" }, { enabled: !!searchTerm })
+    const { data, isLoading, isError, error } = useSistrixDomainsData(
+        searchTerm,
+        queryParams.country,
+        { limit: queryParams.limit, history: "false" },
+        { enabled: !!searchTerm }
+    )
 
     useEffect(() => {
         if (data) {
@@ -317,7 +322,13 @@ export default function CompetitorsSearchByDomainPage() {
                             </Button>
                         </Box>
                         <DomainStatsTableToolbar domain={domainInput} />
+                        <CompetitorStats
+                            totalResultsCount={totalResultsCount}
+                            filteredResultsCount={filteredResultsCount}
+                            hiddenResultsCount={hiddenResultsCount}
+                        />
                         <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
+
                         <Box sx={{ height: "55vh", width: "100%" }}>
                             {isError ? (
                                 <Box sx={{ p: 3 }}>
@@ -360,11 +371,19 @@ export default function CompetitorsSearchByDomainPage() {
 
                 {selectedCompany?.generalDomains || selectedCompany?.generalDomains?.length ? (
                     <DialogContent dividers>
-                        <TextField label="Search domains" fullWidth value={generalSearchQuery} onChange={(e) => setGeneralSearchQuery(e.target.value)} sx={{ mb: 2 }} />
+                        <TextField
+                            label="Search domains"
+                            fullWidth
+                            value={generalSearchQuery}
+                            onChange={(e) => setGeneralSearchQuery(e.target.value)}
+                            sx={{ mb: 2 }}
+                        />
                         {Object.keys(groupedGeneralDomains)
                             .sort()
                             .map((letter) => {
-                                const filteredDomains = groupedGeneralDomains[letter].filter((word) => word.toLowerCase().includes(generalSearchQuery.toLowerCase()))
+                                const filteredDomains = groupedGeneralDomains[letter].filter((word) =>
+                                    word.toLowerCase().includes(generalSearchQuery.toLowerCase())
+                                )
                                 if (filteredDomains.length === 0) return null
                                 return (
                                     <Box key={letter} sx={{ mb: 1 }}>
