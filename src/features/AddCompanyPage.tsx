@@ -80,15 +80,7 @@ const AddCompanyPage = () => {
                 country: data.country.country,
                 country_name: countrySelectInput,
             },
-        })
-
-        console.log("Submitted data:", {
-            ...data,
-            country: {
-                country: data.country.country,
-                country_name: countrySelectInput,
-            },
-        })
+        })    
 
         reset()
         router.push(COMPANIES_ROUTE)

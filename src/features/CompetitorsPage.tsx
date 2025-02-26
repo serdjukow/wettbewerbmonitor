@@ -9,32 +9,16 @@ import { toast } from "react-toastify"
 import {
     Box,
     Button,
-    Card,
-    CardActions,
-    CardContent,
-    CardHeader,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControl,
-    IconButton,
-    InputLabel,
-    MenuItem,
     Paper,
-    Select,
-    SelectChangeEvent,
     Stack,
-    Tab,
-    Tabs,
     Typography,
-    Alert,
-    Badge,
 } from "@mui/material"
-import { Delete as DeleteIcon, Edit as EditIcon, RemoveRedEye as RemoveRedEyeIcon, ListAlt as ListAltIcon } from "@mui/icons-material"
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
 import CompetitorServicesEditor from "@/src/components/CompetitorServicesEditor"
+import DeleteDialog from "../components/DeleteDialog"
+import CompetitorTabs from "../components/CompetinorTabs"
+import CompetitorCard from "@/src/components/CompetitorCard"
 
 type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
 type TabValue = "not_checked" | "competitor" | "not_competitor" | "products_not_selected"
@@ -95,8 +79,8 @@ const CompetitorsPage = () => {
         }
     }, [selectedCompany])
 
-    const handleTabChange = (_: React.SyntheticEvent, newValue: TabValue) => {
-        setTab(newValue)
+    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+        setTab(newValue as TabValue)
     }
 
     const tabFilters = useMemo(
@@ -209,10 +193,6 @@ const CompetitorsPage = () => {
 
     const generalServices: GeneralService[] = selectedCompany?.generalServices || []
 
-    function shortNumber(num: number): string | number {
-        return num > 99 ? "99+" : num || "0"
-    }
-
     return (
         <Box sx={{ p: 2 }}>
             <Paper sx={{ width: "100%", mb: 3, p: 2 }}>
@@ -222,250 +202,19 @@ const CompetitorsPage = () => {
                     </Button>
                 </Stack>
             </Paper>
-            <Paper sx={{ width: "100%", mb: 2, p: 1 }}>
-                <Tabs value={tab} onChange={handleTabChange} indicatorColor="primary" textColor="primary" variant="scrollable">
-                    <Tab
-                        sx={{ pr: 4 }}
-                        value="not_checked"
-                        label={
-                            <Badge
-                                badgeContent={shortNumber(counts.not_checked)}
-                                color="default"
-                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                sx={{
-                                    "& .MuiBadge-badge": {
-                                        transform: "translate(100%, -60%)",
-                                        minWidth: "22px",
-                                        height: "22px",
-                                        borderRadius: "50%",
-                                        padding: "0 4px",
-                                        backgroundColor: "grey",
-                                        color: "white",
-                                    },
-                                }}
-                            >
-                                NOT CHECKED
-                            </Badge>
-                        }
-                    />
-                    <Tab
-                        sx={{ pr: 4 }}
-                        value="competitor"
-                        label={
-                            <Badge
-                                badgeContent={shortNumber(counts.competitor)}
-                                color="success"
-                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                sx={{
-                                    "& .MuiBadge-badge": {
-                                        transform: "translate(100%, -60%)",
-                                        minWidth: "22px",
-                                        height: "22px",
-                                        borderRadius: "50%",
-                                        padding: "0 4px",
-                                        color: "white",
-                                    },
-                                }}
-                            >
-                                COMPETITOR
-                            </Badge>
-                        }
-                    />
-                    <Tab
-                        sx={{ pr: 4 }}
-                        value="not_competitor"
-                        label={
-                            <Badge
-                                badgeContent={shortNumber(counts.not_competitor)}
-                                color="warning"
-                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                sx={{
-                                    "& .MuiBadge-badge": {
-                                        transform: "translate(100%, -60%)",
-                                        minWidth: "22px",
-                                        height: "22px",
-                                        borderRadius: "50%",
-                                        padding: "0 4px",
-                                        color: "white",
-                                    },
-                                }}
-                            >
-                                NOT COMPETITOR
-                            </Badge>
-                        }
-                    />
-                    <Tab
-                        sx={{ pr: 4 }}
-                        value="products_not_selected"
-                        label={
-                            <Badge
-                                badgeContent={shortNumber(counts.products_not_selected)}
-                                color="info"
-                                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                sx={{
-                                    "& .MuiBadge-badge": {
-                                        transform: "translate(100%, -60%)",
-                                        minWidth: "22px",
-                                        height: "22px",
-                                        borderRadius: "50%",
-                                        padding: "0 4px",
-                                        color: "white",
-                                    },
-                                }}
-                            >
-                                PRODUCTS NOT SELECTED
-                            </Badge>
-                        }
-                    />
-                </Tabs>
-            </Paper>
+            <CompetitorTabs value={tab} onChange={handleTabChange} counts={counts} />
             {filteredRows.length > 0 ? (
                 <Box>
                     {filteredRows.map((row) => (
-                        <Box key={row.uuid} sx={{ mb: 2 }}>
-                            <Card variant="outlined">
-                                <CardHeader
-                                    sx={{ bgcolor: "primary.main", color: "primary.contrastText" }}
-                                    title={row.domain}
-                                    subheader={row.name}
-                                    action={
-                                        <FormControl variant="standard" size="small" sx={{ minWidth: 120 }}>
-                                            <InputLabel id={`status-label-${row.uuid}`} sx={{ color: "primary.contrastText" }}>
-                                                Status
-                                            </InputLabel>
-                                            <Select
-                                                labelId={`status-label-${row.uuid}`}
-                                                value={row.status}
-                                                onChange={(e: SelectChangeEvent) =>
-                                                    handleStatusChange(
-                                                        row.uuid,
-                                                        e.target.value as "not_checked" | "competitor" | "not_competitor"
-                                                    )
-                                                }
-                                                label="Status"
-                                                sx={{ color: "primary.contrastText" }}
-                                            >
-                                                <MenuItem value="not_checked">Not checked</MenuItem>
-                                                <MenuItem value="competitor">Competitor</MenuItem>
-                                                <MenuItem value="not_competitor">Not competitor</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    }
-                                />
-                                <CardContent>
-                                    <Stack spacing={1}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            URL: {row.url}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Keyword: {row.keyword}
-                                        </Typography>
-                                        {row.products && row.products.length > 0 ? (
-                                            <>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    Services / Products:
-                                                </Typography>
-                                                <Stack direction="row" spacing={2} flexWrap="wrap" sx={{ mb: 1 }}>
-                                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                        <Box
-                                                            sx={{
-                                                                width: 12,
-                                                                height: 12,
-                                                                border: 1,
-                                                                borderColor: "grey.400",
-                                                                borderRadius: "50%",
-                                                                mr: 0.5,
-                                                            }}
-                                                        />
-                                                        <Typography variant="caption">Not Processed</Typography>
-                                                    </Box>
-                                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                        <Box
-                                                            sx={{
-                                                                width: 12,
-                                                                height: 12,
-                                                                border: 1,
-                                                                borderColor: "success.main",
-                                                                borderRadius: "50%",
-                                                                mr: 0.5,
-                                                            }}
-                                                        />
-                                                        <Typography variant="caption">Manual</Typography>
-                                                    </Box>
-                                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                                        <Box
-                                                            sx={{
-                                                                width: 12,
-                                                                height: 12,
-                                                                border: 1,
-                                                                borderColor: "primary.main",
-                                                                borderRadius: "50%",
-                                                                mr: 0.5,
-                                                            }}
-                                                        />
-                                                        <Typography variant="caption">AI</Typography>
-                                                    </Box>
-                                                </Stack>
-                                                <Stack direction="row" spacing={1} flexWrap="wrap">
-                                                    {row.products.map((prod, index) => {
-                                                        let borderColor = "grey.400"
-                                                        let textColor = "grey.600"
-                                                        if (prod.analysisType === "manual") {
-                                                            borderColor = "success.main"
-                                                            textColor = "success.main"
-                                                        } else if (prod.analysisType === "ai") {
-                                                            borderColor = "primary.main"
-                                                            textColor = "primary.main"
-                                                        }
-                                                        return (
-                                                            <Box
-                                                                key={prod.title || index}
-                                                                sx={{
-                                                                    border: 1,
-                                                                    borderColor: borderColor,
-                                                                    borderRadius: 1,
-                                                                    px: 1,
-                                                                    py: 0.5,
-                                                                    mb: 0.5,
-                                                                    backgroundColor: "transparent",
-                                                                    color: textColor,
-                                                                    fontWeight: "bold",
-                                                                }}
-                                                            >
-                                                                <Typography variant="caption">{prod.title}</Typography>
-                                                            </Box>
-                                                        )
-                                                    })}
-                                                </Stack>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    Services / Products:
-                                                </Typography>
-                                                <Alert severity="warning" sx={{ mt: 2 }}>
-                                                    Services / Products not filled
-                                                </Alert>
-                                            </>
-                                        )}
-                                    </Stack>
-                                </CardContent>
-                                <CardActions sx={{ justifyContent: "flex-end" }}>
-                                    <IconButton onClick={() => handleOpenServicesDialog(row)} color="info">
-                                        <ListAltIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleViewCompetitor(row.uuid)} color="success">
-                                        <RemoveRedEyeIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleEditCompetitor(row.uuid)} color="primary">
-                                        <EditIcon />
-                                    </IconButton>
-                                    <IconButton onClick={() => handleOpenDeleteDialog(row)} color="error">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </CardActions>
-                            </Card>
-                        </Box>
+                        <CompetitorCard
+                            key={row.uuid}
+                            row={row}
+                            handleStatusChange={handleStatusChange}
+                            handleOpenServicesDialog={handleOpenServicesDialog}
+                            handleViewCompetitor={handleViewCompetitor}
+                            handleEditCompetitor={handleEditCompetitor}
+                            handleOpenDeleteDialog={handleOpenDeleteDialog}
+                        />
                     ))}
                 </Box>
             ) : (
@@ -480,21 +229,7 @@ const CompetitorsPage = () => {
                     {rows.length > 0 ? <NoProcessedCompetitorsCard /> : <NoCompetitorsFoundCard />}
                 </Box>
             )}
-            <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>Confirm deletion</DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        Are you sure you want to remove the competitor -{" "}
-                        {competitorToDelete?.domain ? `"${competitorToDelete.domain}"` : ""}?
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <DeleteDialog open={openDeleteDialog} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />
             {openServicesDialog && editingCompetitor && (
                 <CompetitorServicesEditor
                     open={openServicesDialog}

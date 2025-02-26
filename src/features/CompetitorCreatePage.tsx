@@ -214,9 +214,12 @@ const CompetitorCreatePage = () => {
                             </Stack>
 
                             {/* Submit Button */}
-                            <Box sx={{ marginTop: 2 }}>
-                                <Button type="submit" variant="contained" color="primary">
+                            <Box sx={{ marginTop: 2, display: "flex", gap: 1 }}>
+                                <Button type="submit" variant="contained" color="success">
                                     Submit
+                                </Button>
+                                <Button type="submit" variant="contained" onClick={() => router.back()} color="primary">
+                                    Cancel
                                 </Button>
                             </Box>
                         </Stack>

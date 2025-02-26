@@ -6,6 +6,7 @@ import { Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
 import { type GeneralService } from "@/src/utils/types"
+import DeleteDialog from "./DeleteDialog"
 
 const GeneralServicesEditor = () => {
     const { selectedCompany, updateCompany } = useAppStore()
@@ -29,8 +30,12 @@ const GeneralServicesEditor = () => {
 
     const handleAddService = async () => {
         const titleTrimmed = newServiceTitle.trim()
+        const descriptionTrimmed = newServiceDescription.trim()
         if (!titleTrimmed) {
             toast.error("Title is required")
+            return
+        } else if (!descriptionTrimmed) {
+            toast.error("Description is required")
             return
         }
 
@@ -41,7 +46,7 @@ const GeneralServicesEditor = () => {
         }
         const newService: GeneralService = {
             title: titleTrimmed,
-            description: newServiceDescription.trim() || "",
+            description: descriptionTrimmed,
             analysisType: "not_processed",
         }
         const updatedServices = [...services, newService]
@@ -64,8 +69,12 @@ const GeneralServicesEditor = () => {
     const handleSaveEdit = async () => {
         if (editIndex === null) return
         const titleTrimmed = editTitle.trim()
+        const descriptionTrimmed = editDescription.trim()
         if (!titleTrimmed) {
             toast.error("Title is required")
+            return
+        } else if (!descriptionTrimmed) {
+            toast.error("Description is required")
             return
         }
 
@@ -78,7 +87,7 @@ const GeneralServicesEditor = () => {
         updatedServices[editIndex] = {
             ...updatedServices[editIndex],
             title: titleTrimmed,
-            description: editDescription.trim() || "",
+            description: descriptionTrimmed,
         }
         setServices(updatedServices)
         setOpenEditDialog(false)
@@ -140,7 +149,7 @@ const GeneralServicesEditor = () => {
                     fullWidth
                     multiline
                     rows={3}
-                    placeholder="Optional description"
+                    required
                 />
                 <Button variant="contained" onClick={handleAddService}>
                     Add Service
@@ -164,27 +173,10 @@ const GeneralServicesEditor = () => {
             <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
                 <DialogTitle>Edit Service</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        label="Service Title"
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        fullWidth
-                        required
-                        sx={{ mb: 2, mt: 1 }}
-                    />
-                    <TextField
-                        label="Service Description"
-                        value={editDescription}
-                        onChange={(e) => setEditDescription(e.target.value)}
-                        fullWidth
-                        multiline
-                        rows={3}
-                    />
+                    <TextField label="Service Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} fullWidth required sx={{ mb: 2, mt: 1 }} />
+                    <TextField label="Service Description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)} fullWidth multiline required rows={3} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenEditDialog(false)} startIcon={<CancelIcon />} color="error">
-                        Cancel
-                    </Button>
                     <Button
                         onClick={handleSaveEdit}
                         onKeyDown={(e) => {
@@ -199,21 +191,12 @@ const GeneralServicesEditor = () => {
                     >
                         Save
                     </Button>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
-                <DialogTitle>Confirm Delete</DialogTitle>
-                <DialogContent>
-                    <Typography>Are you sure you want to delete this service?</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                        Delete
+                    <Button onClick={() => setOpenEditDialog(false)} startIcon={<CancelIcon />} color="error" variant="contained">
+                        Cancel
                     </Button>
                 </DialogActions>
             </Dialog>
+            <DeleteDialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)} onConfirm={handleConfirmDelete} />
         </Paper>
     )
 }

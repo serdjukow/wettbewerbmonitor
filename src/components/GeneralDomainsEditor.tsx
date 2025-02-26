@@ -5,6 +5,7 @@ import { Box, TextField, Button, Chip, Typography, Paper, Dialog, DialogTitle, D
 import { DeleteForever as DeleteForeverIcon, Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
+import DeleteDialog from "./DeleteDialog"
 
 const GeneralDomainsEditor = () => {
     const { selectedCompany, updateCompany } = useAppStore()
@@ -154,20 +155,8 @@ const GeneralDomainsEditor = () => {
                         Save
                     </Button>
                 </DialogActions>
-            </Dialog>
-
-            <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>Confirm Delete</DialogTitle>
-                <DialogContent>
-                    <Typography>Are you sure you want to delete this domain?</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            </Dialog>    
+            <DeleteDialog open={openDeleteDialog} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />
         </Paper>
     )
 }

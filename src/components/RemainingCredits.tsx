@@ -1,12 +1,9 @@
-import * as React from "react"
-import { useState, useEffect } from "react"
-import {
-    Box,
-    Typography,
-} from "@mui/material"
+import { useState, useEffect, useRef } from "react"
+import { Box, Typography } from "@mui/material"
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney"
 import Skeleton from "@mui/material/Skeleton"
 import { fetchCredits } from "@/src/utils/functions"
+import { motion, animate } from "framer-motion"
 
 const RemainingCredits = () => {
     const [credits, setCredits] = useState<string | number>("")
@@ -18,6 +15,25 @@ const RemainingCredits = () => {
         }
         getCredits()
     }, [])
+
+    const AnimatedNumber = ({ value }: { value: number }) => {
+        const [displayValue, setDisplayValue] = useState(0)
+        const displayValueRef = useRef(0)
+
+        useEffect(() => {
+            const controls = animate(displayValueRef.current, value, {
+                duration: 1,
+                onUpdate: (latest) => {
+                    const rounded = Math.round(latest)
+                    setDisplayValue(rounded)
+                    displayValueRef.current = rounded
+                },
+            })
+            return () => controls.stop()
+        }, [value])
+
+        return <motion.span>{displayValue}</motion.span>
+    }
 
     return !!credits ? (
         <Box
@@ -31,7 +47,7 @@ const RemainingCredits = () => {
         >
             <AttachMoneyIcon sx={{ color: "#ffca05" }} />
             <Typography variant="h6" sx={{ color: "text.secondary" }}>
-                {credits}
+                <AnimatedNumber value={+credits} />
             </Typography>
         </Box>
     ) : (
@@ -40,7 +56,7 @@ const RemainingCredits = () => {
             height={30}
             sx={{
                 flex: "0 0 80px",
-                marginRight: 1
+                marginRight: 1,
             }}
         />
     )

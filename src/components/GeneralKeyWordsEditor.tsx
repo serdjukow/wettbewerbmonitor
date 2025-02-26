@@ -5,6 +5,7 @@ import { Box, TextField, Button, Chip, Typography, Paper, Dialog, DialogTitle, D
 import { DeleteForever as DeleteForeverIcon, Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
+import DeleteDialog from "./DeleteDialog"
 
 const GeneralKeyWordsEditor = () => {
     const { selectedCompany, updateCompany } = useAppStore()
@@ -132,13 +133,7 @@ const GeneralKeyWordsEditor = () => {
             <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
                 <DialogTitle>Edit Keyword</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        label="Keyword"
-                        value={editKeywordValue}
-                        onChange={(e) => setEditKeywordValue(e.target.value)}
-                        fullWidth
-                        sx={{ mt: 1 }}
-                    />
+                    <TextField label="Keyword" value={editKeywordValue} onChange={(e) => setEditKeywordValue(e.target.value)} fullWidth sx={{ mt: 1 }} />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error">
@@ -160,19 +155,7 @@ const GeneralKeyWordsEditor = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>Confirm Delete</DialogTitle>
-                <DialogContent>
-                    <Typography>Are you sure you want to delete this keyword?</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <DeleteDialog open={openDeleteDialog} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />
         </Paper>
     )
 }

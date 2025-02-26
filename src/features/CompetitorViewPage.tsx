@@ -12,7 +12,7 @@ import TableContainer from "@mui/material/TableContainer"
 import TableHead from "@mui/material/TableHead"
 import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
-import { Container, Typography, ButtonGroup, Button } from "@mui/material"
+import { Container, Typography, Button, Box } from "@mui/material"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
 import { type Competitor } from "@/src/utils/types"
@@ -117,8 +117,7 @@ const CompetitorViewPage: React.FC = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <ButtonGroup variant="contained" sx={{ mt: 4 }}>
-                <Button onClick={() => router.back()}>Back</Button>
+            <Box sx={{ mt: 4, display: "flex", gap:1 }}>
                 <Button
                     data-uuid={competitor.uuid}
                     color="success"
@@ -126,10 +125,14 @@ const CompetitorViewPage: React.FC = () => {
                         const competitorUuid = e.currentTarget.dataset.uuid
                         if (competitorUuid) handleEditCompetitor(competitorUuid)
                     }}
+                    variant="contained"
                 >
                     Edit
                 </Button>
-            </ButtonGroup>
+                <Button onClick={() => router.back()} variant="contained">
+                    Back
+                </Button>
+            </Box>
         </Container>
     )
 }

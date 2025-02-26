@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { Box, Button, Chip, Typography, Paper, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem } from "@mui/material"
+import { Box, Button, Chip, Typography, Paper, FormControl, InputLabel, Select, MenuItem } from "@mui/material"
 import { DeleteForever as DeleteForeverIcon } from "@mui/icons-material"
 import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
 import { type TrackedCountry } from "@/src/utils/types"
+import DeleteDialog from "./DeleteDialog"
 
 const countryOptions: TrackedCountry[] = [
     { country: "de", country_name: "Germany" },
@@ -166,20 +167,8 @@ const TrackedCountriesEditor = () => {
                         deleteIcon={<DeleteForeverIcon />}
                     />
                 ))}
-            </Box>
-
-            <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>Confirm Deletion</DialogTitle>
-                <DialogContent>
-                    <Typography>Are you sure you want to remove this country from tracking?</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            </Box>     
+            <DeleteDialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />
         </Paper>
     )
 }

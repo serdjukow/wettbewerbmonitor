@@ -23,3 +23,7 @@ export const fetchCredits = async () => {
         return "No data"
     }
 }
+
+export function shortNumber(num: number): string | number {
+    return num > 99 ? "99+" : num || "0"
+}

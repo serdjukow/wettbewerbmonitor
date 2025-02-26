@@ -7,11 +7,11 @@ import { useForm, Controller } from "react-hook-form"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "react-toastify"
 import { useAppStore } from "@/src/store/appStore"
-import { type Competitor, type GeneralService } from "@/src/utils/types"
-import ProductsDialog from "@/src/components/ProductsDialog"
+import { type Competitor } from "@/src/utils/types"
 
-import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
+import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container } from "@mui/material"
 import { Save as SaveIcon, Cancel as CancelIcon, DeleteForever as DeleteForeverIcon } from "@mui/icons-material"
+import DeleteDialog from "../components/DeleteDialog"
 
 const CompetitorEditPage = () => {
     const router = useRouter()
@@ -19,7 +19,7 @@ const CompetitorEditPage = () => {
     const uuid = searchParams?.get("uuid")
     const { selectedCompany, updateCompany } = useAppStore()
 
-    const { control, handleSubmit, reset, watch } = useForm<Competitor>({
+    const { control, handleSubmit, reset } = useForm<Competitor>({
         defaultValues: {
             uuid: "",
             name: "",
@@ -39,8 +39,6 @@ const CompetitorEditPage = () => {
         },
     })
 
-    const [openProductsDialog, setOpenProductsDialog] = useState(false)
-    const [editingCompetitor, setEditingCompetitor] = useState<Competitor | null>(null)
     const [openConfirmDelete, setOpenConfirmDelete] = useState(false)
 
     useEffect(() => {
@@ -48,7 +46,6 @@ const CompetitorEditPage = () => {
             const competitor = selectedCompany.seo.competitors.find((c) => c.uuid === uuid)
             if (competitor) {
                 reset(competitor)
-                setEditingCompetitor(competitor)
             }
         }
     }, [selectedCompany, uuid, reset])
@@ -90,20 +87,6 @@ const CompetitorEditPage = () => {
         }
     }
 
-    const handleOpenProductsDialog = () => {
-        setOpenProductsDialog(true)
-    }
-
-    const handleCloseProductsDialog = () => {
-        setOpenProductsDialog(false)
-    }
-
-    const handleSaveProducts = (products: string[]) => {
-        const productsMapped = products.map((prod) => ({ title: prod }))
-        reset({ ...watch(), products: productsMapped })
-    }
-
-    // Functions to handle confirmation dialog
     const handleOpenConfirmDelete = () => setOpenConfirmDelete(true)
     const handleCloseConfirmDelete = () => setOpenConfirmDelete(false)
     const handleConfirmDelete = async () => {
@@ -194,43 +177,6 @@ const CompetitorEditPage = () => {
                                 />
                             </Stack>
 
-                            {/* Products */}
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Typography variant="h6">Products / Services</Typography>
-                                <Button variant="outlined" onClick={handleOpenProductsDialog}>
-                                    Edit Products
-                                </Button>
-                            </Box>
-                            <Stack direction="row" spacing={1} flexWrap="wrap">
-                                {watch("products")?.length > 0 ? (
-                                    watch("products").map((prod, index) => (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                border: "1px solid",
-                                                borderColor: "grey.400",
-                                                borderRadius: 1,
-                                                px: 1,
-                                                py: 0.5,
-                                                mb: 0.5,
-                                            }}
-                                        >
-                                            <Typography variant="caption">{prod.title}</Typography>
-                                        </Box>
-                                    ))
-                                ) : (
-                                    <Alert severity="warning" sx={{ mt: 2 }}>
-                                        Services / Products not filled
-                                    </Alert>
-                                )}
-                            </Stack>
-
                             {/* Actions */}
                             <Box
                                 sx={{
@@ -240,14 +186,14 @@ const CompetitorEditPage = () => {
                                     paddingTop: 4,
                                 }}
                             >
-                                <Button type="submit" variant="outlined" startIcon={<SaveIcon />} color="success">
+                                <Button type="submit" variant="contained" startIcon={<SaveIcon />} color="success">
                                     Save Changes
                                 </Button>
-                                <Button onClick={() => router.back()} variant="outlined" startIcon={<CancelIcon />} color="warning">
+                                <Button onClick={() => router.back()} variant="contained" startIcon={<CancelIcon />} color="warning">
                                     Cancel
                                 </Button>
                                 {/* Instead of directly calling handleDeleteCompetitor, open the confirmation dialog */}
-                                <Button onClick={handleOpenConfirmDelete} variant="outlined" startIcon={<DeleteForeverIcon />} color="error">
+                                <Button onClick={handleOpenConfirmDelete} variant="contained" startIcon={<DeleteForeverIcon />} color="error">
                                     Delete
                                 </Button>
                             </Box>
@@ -255,31 +201,7 @@ const CompetitorEditPage = () => {
                     </form>
                 </CardContent>
             </Card>
-
-            {/* Confirmation Dialog for Deletion */}
-            <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete}>
-                <DialogTitle>Confirm Deletion</DialogTitle>
-                <DialogContent>
-                    <Typography>Are you sure you want to delete this competitor? This action cannot be undone.</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseConfirmDelete} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Products Dialog */}
-            <ProductsDialog
-                open={openProductsDialog}
-                competitorName={editingCompetitor?.name ?? ""}
-                products={(watch("products") as GeneralService[]).map((prod) => prod.title ?? "")}
-                onClose={handleCloseProductsDialog}
-                onSave={handleSaveProducts}
-            />
+            <DeleteDialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} onConfirm={handleConfirmDelete} />
         </Container>
     )
 }
