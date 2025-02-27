@@ -7,7 +7,13 @@ import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
 import DeleteDialog from "./DeleteDialog"
 
-const GeneralKeyWordsEditor = () => {
+const MIN_KEYWORD_LENGTH = 3
+
+const isValidKeyword = (value: string): boolean => value.trim().length >= MIN_KEYWORD_LENGTH
+
+const getKeywordHelperText = (value: string): string => (value.trim().length > 0 && !isValidKeyword(value) ? `Minimum ${MIN_KEYWORD_LENGTH} characters required` : "")
+
+const GeneralKeyWordsEditor: React.FC = () => {
     const { selectedCompany, updateCompany } = useAppStore()
     const [keywords, setKeywords] = useState<string[]>([])
     const [newKeyword, setNewKeyword] = useState("")
@@ -28,6 +34,10 @@ const GeneralKeyWordsEditor = () => {
     const handleAddKeyword = async () => {
         const trimmed = newKeyword.trim()
         if (!trimmed) return
+        if (!isValidKeyword(newKeyword)) {
+            toast.error(`Keyword must be at least ${MIN_KEYWORD_LENGTH} characters long`)
+            return
+        }
         if (keywords.includes(trimmed)) {
             toast.error("Keyword already exists")
             return
@@ -58,6 +68,10 @@ const GeneralKeyWordsEditor = () => {
         const trimmed = editKeywordValue.trim()
         if (!trimmed) {
             toast.error("Keyword cannot be empty")
+            return
+        }
+        if (!isValidKeyword(editKeywordValue)) {
+            toast.error(`Keyword must be at least ${MIN_KEYWORD_LENGTH} characters long`)
             return
         }
         const updatedKeywords = [...keywords]
@@ -105,6 +119,8 @@ const GeneralKeyWordsEditor = () => {
                     value={newKeyword}
                     onChange={(e) => setNewKeyword(e.target.value)}
                     fullWidth
+                    error={newKeyword.trim().length > 0 && !isValidKeyword(newKeyword)}
+                    helperText={getKeywordHelperText(newKeyword)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             e.preventDefault()
@@ -133,12 +149,23 @@ const GeneralKeyWordsEditor = () => {
             <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
                 <DialogTitle>Edit Keyword</DialogTitle>
                 <DialogContent>
-                    <TextField label="Keyword" value={editKeywordValue} onChange={(e) => setEditKeywordValue(e.target.value)} fullWidth sx={{ mt: 1 }} />
+                    <TextField
+                        label="Keyword"
+                        value={editKeywordValue}
+                        onChange={(e) => setEditKeywordValue(e.target.value)}
+                        fullWidth
+                        error={editKeywordValue.trim().length > 0 && !isValidKeyword(editKeywordValue)}
+                        helperText={getKeywordHelperText(editKeywordValue)}
+                        sx={{ mt: 1 }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault()
+                                handleSaveEdit()
+                            }
+                        }}
+                    />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error">
-                        Cancel
-                    </Button>
                     <Button
                         onClick={handleSaveEdit}
                         onKeyDown={(e) => {
@@ -152,6 +179,9 @@ const GeneralKeyWordsEditor = () => {
                         variant="contained"
                     >
                         Save
+                    </Button>
+                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error" variant="contained">
+                        Cancel
                     </Button>
                 </DialogActions>
             </Dialog>

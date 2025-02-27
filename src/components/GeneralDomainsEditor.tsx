@@ -7,7 +7,16 @@ import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
 import DeleteDialog from "./DeleteDialog"
 
-const GeneralDomainsEditor = () => {
+// Регулярное выражение для проверки корректного домена
+const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/
+
+const isValidDomain = (domain: string): boolean => {
+    return domainRegex.test(domain)
+}
+
+const getDomainHelperText = (domain: string): string => (domain.trim().length > 0 && !isValidDomain(domain.trim()) ? "Invalid domain format" : "")
+
+const GeneralDomainsEditor: React.FC = () => {
     const { selectedCompany, updateCompany } = useAppStore()
     const [domains, setDomains] = useState<string[]>([])
     const [newDomain, setNewDomain] = useState("")
@@ -19,6 +28,7 @@ const GeneralDomainsEditor = () => {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [deleteDomainIndex, setDeleteDomainIndex] = useState<number | null>(null)
 
+    // Синхронизируем локальное состояние с данными компании
     useEffect(() => {
         if (selectedCompany) {
             setDomains(selectedCompany.generalDomains || [])
@@ -28,6 +38,10 @@ const GeneralDomainsEditor = () => {
     const handleAddDomain = async () => {
         const trimmed = newDomain.trim()
         if (!trimmed) return
+        if (!isValidDomain(trimmed)) {
+            toast.error("Invalid domain format")
+            return
+        }
         if (domains.includes(trimmed)) {
             toast.error("Domain already exists")
             return
@@ -58,6 +72,10 @@ const GeneralDomainsEditor = () => {
         const trimmed = editDomainValue.trim()
         if (!trimmed) {
             toast.error("Domain cannot be empty")
+            return
+        }
+        if (!isValidDomain(trimmed)) {
+            toast.error("Invalid domain format")
             return
         }
         const updatedDomains = [...domains]
@@ -105,6 +123,8 @@ const GeneralDomainsEditor = () => {
                     value={newDomain}
                     onChange={(e) => setNewDomain(e.target.value)}
                     fullWidth
+                    error={newDomain.trim().length > 0 && !isValidDomain(newDomain)}
+                    helperText={getDomainHelperText(newDomain)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             e.preventDefault()
@@ -138,6 +158,8 @@ const GeneralDomainsEditor = () => {
                         value={editDomainValue}
                         onChange={(e) => setEditDomainValue(e.target.value)}
                         fullWidth
+                        error={editDomainValue.trim().length > 0 && !isValidDomain(editDomainValue)}
+                        helperText={getDomainHelperText(editDomainValue)}
                         sx={{ mt: 1 }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -148,14 +170,14 @@ const GeneralDomainsEditor = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error">
-                        Cancel
-                    </Button>
                     <Button onClick={handleSaveEdit} startIcon={<SaveIcon />} color="primary" variant="contained">
                         Save
                     </Button>
+                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error" variant="contained">
+                        Cancel
+                    </Button>
                 </DialogActions>
-            </Dialog>    
+            </Dialog>
             <DeleteDialog open={openDeleteDialog} onClose={handleCloseDeleteDialog} onConfirm={handleConfirmDelete} />
         </Paper>
     )

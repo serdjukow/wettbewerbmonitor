@@ -40,7 +40,6 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                 }
             } catch (error) {
                 console.error("Error detecting country:", error)
-                // Если ошибка, устанавливаем Германию по умолчанию
                 const defaultCountry: TrackedCountry = { country: "de", country_name: "Germany" }
                 setValue("country", defaultCountry)
                 await trigger("country")
@@ -100,8 +99,8 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                             />
                         </Grid>
 
-                        {/* Address */}
-                        <Grid item xs={12}>
+                        {/* Address – улица и город в одной строке */}
+                        <Grid item xs={12} sm={6}>
                             <Controller
                                 name="address.street"
                                 control={control}
@@ -119,6 +118,25 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                 )}
                             />
                         </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Controller
+                                name="address.city"
+                                control={control}
+                                rules={{ required: "City is required" }}
+                                render={({ field }) => (
+                                    <TextField
+                                        fullWidth
+                                        label="City"
+                                        variant="outlined"
+                                        {...field}
+                                        error={!!errors.address?.city}
+                                        helperText={errors.address?.city?.message}
+                                        required
+                                    />
+                                )}
+                            />
+                        </Grid>
+                        {/* Address – номер дома и почтовый индекс в одной строке */}
                         <Grid item xs={6}>
                             <Controller
                                 name="address.houseNumber"
@@ -150,24 +168,6 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         {...field}
                                         error={!!errors.address?.postalCode}
                                         helperText={errors.address?.postalCode?.message}
-                                        required
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name="address.city"
-                                control={control}
-                                rules={{ required: "City is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="City"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.address?.city}
-                                        helperText={errors.address?.city?.message}
                                         required
                                     />
                                 )}

@@ -6,7 +6,7 @@ import { toast } from "react-toastify"
 import { useAppStore } from "@/src/store/appStore"
 import { type Company } from "@/src/utils/types"
 
-import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container } from "@mui/material"
+import { TextField, Button, Stack, Box, Card, CardContent, Container } from "@mui/material"
 import { Save as SaveIcon } from "@mui/icons-material"
 
 import GeneralKeyWordsEditor from "@/src/components/GeneralKeyWordsEditor"
@@ -86,123 +86,232 @@ const EditProfilePage = () => {
                                     />
                                 )}
                             />
-
-                            {/* Email */}
-                            <Controller
-                                name="contact.email"
-                                control={control}
-                                rules={{ required: "Email is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Email"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                        error={!!errors.contact?.email}
-                                        helperText={errors.contact?.email?.message}
-                                        required
-                                    />
-                                )}
-                            />
-
-                            {/* Country Selection */}
-                            <Controller
-                                name="country"
-                                control={control}
-                                rules={{ required: "Country is required" }}
-                                render={({ field }) => (
-                                    <CountrySelect
-                                        value={field.value}
-                                        onChange={(selectedCountry) => {
-                                            setValue("country", {
-                                                country: selectedCountry.country,
-                                                country_name: selectedCountry.country_name,
-                                            })
-                                            trigger("country")
-                                        }}
-                                    />
-                                )}
-                            />
-
-                            {/* Phone */}
-                            <Controller
-                                name="contact.phone"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
-
-                            {/* Address Section */}
-                            <Typography variant="h6">Address</Typography>
-                            <Controller
-                                name="address.street"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
-                            <Controller
-                                name="address.houseNumber"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
                             <Stack direction="row" spacing={2}>
+                                {/* Country Selection */}
+                                <Controller
+                                    name="country"
+                                    control={control}
+                                    rules={{ required: "Country is required" }}
+                                    render={({ field }) => (
+                                        <CountrySelect
+                                            value={field.value}
+                                            onChange={(selectedCountry) => {
+                                                setValue("country", {
+                                                    country: selectedCountry.country,
+                                                    country_name: selectedCountry.country_name,
+                                                })
+                                                trigger("country")
+                                            }}
+                                        />
+                                    )}
+                                />
+                                {/* Website */}
+                                <Controller
+                                    name="website"
+                                    control={control}
+                                    rules={{ required: "Website is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Website"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.website}
+                                            helperText={errors.website?.message}
+                                            required
+                                        />
+                                    )}
+                                />
+                            </Stack>
+                            <Stack direction="row" spacing={2}>
+                                {/* Address: Street & City */}
+                                <Controller
+                                    name="address.street"
+                                    control={control}
+                                    rules={{ required: "Street is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Street"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.address?.street}
+                                            helperText={errors.address?.street?.message}
+                                            required
+                                        />
+                                    )}
+                                />
                                 <Controller
                                     name="address.city"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                    rules={{ required: "City is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="City"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.address?.city}
+                                            helperText={errors.address?.city?.message}
+                                            required
+                                        />
+                                    )}
+                                />
+                            </Stack>
+                            <Stack direction="row" spacing={2}>
+                                {/* Address: House Number & Postal Code */}
+                                <Controller
+                                    name="address.houseNumber"
+                                    control={control}
+                                    rules={{ required: "House Number is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="House Number"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.address?.houseNumber}
+                                            helperText={errors.address?.houseNumber?.message}
+                                            required
+                                        />
+                                    )}
                                 />
                                 <Controller
                                     name="address.postalCode"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                    rules={{ required: "Postal Code is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Postal Code"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.address?.postalCode}
+                                            helperText={errors.address?.postalCode?.message}
+                                            required
+                                        />
+                                    )}
                                 />
                             </Stack>
-
-                            {/* Website */}
-                            <Typography variant="h6">Website</Typography>
-                            <Controller
-                                name="website"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Website" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
-
+                            <Stack direction="row" spacing={2}>
+                                {/* Phone */}
+                                <Controller
+                                    name="contact.phone"
+                                    control={control}
+                                    rules={{ required: "Phone number is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Phone"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.contact?.phone}
+                                            helperText={errors.contact?.phone?.message}
+                                            required
+                                        />
+                                    )}
+                                />
+                                {/* Email */}
+                                <Controller
+                                    name="contact.email"
+                                    control={control}
+                                    rules={{ required: "Email is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Email"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.contact?.email}
+                                            helperText={errors.contact?.email?.message}
+                                            required
+                                        />
+                                    )}
+                                />
+                            </Stack>
                             {/* Social Networks */}
-                            <Typography variant="h6">Social Networks</Typography>
                             <Stack direction="row" spacing={2}>
                                 <Controller
                                     name="socialNetworks.facebook"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                    rules={{ required: "Facebook profile is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Facebook"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.socialNetworks?.facebook}
+                                            helperText={errors.socialNetworks?.facebook?.message}
+                                            required
+                                        />
+                                    )}
                                 />
                                 <Controller
                                     name="socialNetworks.instagram"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                    rules={{ required: "Instagram profile is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Instagram"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.socialNetworks?.instagram}
+                                            helperText={errors.socialNetworks?.instagram?.message}
+                                            required
+                                        />
+                                    )}
                                 />
                             </Stack>
-
                             <Stack direction="row" spacing={2}>
                                 <Controller
                                     name="socialNetworks.linkedin"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                    rules={{ required: "LinkedIn profile is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="LinkedIn"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.socialNetworks?.linkedin}
+                                            helperText={errors.socialNetworks?.linkedin?.message}
+                                            required
+                                        />
+                                    )}
                                 />
                                 <Controller
                                     name="socialNetworks.twitter"
                                     control={control}
-                                    render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                    rules={{ required: "Twitter profile is required" }}
+                                    render={({ field }) => (
+                                        <TextField
+                                            fullWidth
+                                            label="Twitter"
+                                            variant="outlined"
+                                            value={field.value ?? ""}
+                                            onChange={field.onChange}
+                                            error={!!errors.socialNetworks?.twitter}
+                                            helperText={errors.socialNetworks?.twitter?.message}
+                                            required
+                                        />
+                                    )}
                                 />
                             </Stack>
-
-                            {/* Save Button */}
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    gap: "10px",
-                                    paddingTop: 4,
-                                }}
-                            >
-                                <Button type="submit" variant="contained" startIcon={<SaveIcon />} color="success">
+                            {/* Save & Delete Buttons */}
+                            <Box sx={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+                                <Button type="submit" variant="contained" startIcon={<SaveIcon />} color="success" sx={{ color: "#fff" }}>
                                     Save Changes
                                 </Button>
                                 <CompanyDeleteButton />
@@ -212,7 +321,6 @@ const EditProfilePage = () => {
                 </CardContent>
             </Card>
 
-            {/* Country Tracker and Editors */}
             <TrackedCountriesEditor />
             <GeneralKeyWordsEditor />
             <GeneralServicesEditor />

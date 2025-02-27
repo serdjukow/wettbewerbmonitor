@@ -23,6 +23,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
 import NoDataMessage from "@/src/components/NoDataMessage"
+import { useAppStore } from "../store/appStore"
 
 interface CompetitorServicesEditorProps {
     open: boolean
@@ -35,6 +36,7 @@ interface CompetitorServicesEditorProps {
 const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ open, onClose, competitor, generalServices, onSave }) => {
     const [selectedServices, setSelectedServices] = useState<GeneralService[]>([])
     const [searchTerm, setSearchTerm] = useState("")
+    const { selectedCompany, updateCompany } = useAppStore()
 
     useEffect(() => {
         if (competitor) {
@@ -57,8 +59,20 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
         }
     }
 
-    const handleSave = () => {
-        onSave(selectedServices)
+    const handleSave = async () => {
+        const validServiceTitles = new Set(generalServices.map((s) => s.title))
+        const filteredSelectedServices = selectedServices.filter((s) => validServiceTitles.has(s.title))
+
+        onSave(filteredSelectedServices)
+
+        if (competitor && competitor.uuid && selectedCompany?.uuid) {
+            const updatedCompetitors = (selectedCompany.seo?.competitors || []).map((comp: Competitor) =>
+                comp.uuid === competitor.uuid ? { ...comp, products: filteredSelectedServices } : comp
+            )
+
+            await updateCompany(selectedCompany.uuid, { seo: { competitors: updatedCompetitors } })
+        }
+
         onClose()
     }
 

@@ -192,6 +192,7 @@ const CompetitorsPage = () => {
     }
 
     const generalServices: GeneralService[] = selectedCompany?.generalServices || []
+    
 
     return (
         <Box sx={{ p: 2 }}>
