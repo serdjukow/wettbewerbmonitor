@@ -46,6 +46,7 @@ export type Company = {
     uuid: string
     name: string
     country: TrackedCountry
+    surveyType?: string
     address?: {
         street: string
         houseNumber: string

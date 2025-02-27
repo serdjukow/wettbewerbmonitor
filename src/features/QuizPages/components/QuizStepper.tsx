@@ -74,14 +74,15 @@ const ColorlibConnector = styled(StepConnector)(() => ({
 interface QuizStepperProps {
     activeStep: number
     steps?: string[]
+    onStepClick?: (stepIndex: number) => void
 }
 
-const QuizStepper: React.FC<QuizStepperProps> = ({ activeStep, steps = ["Step 1", "Step 2", "Step 3"] }) => {
+const QuizStepper: React.FC<QuizStepperProps> = ({ activeStep, steps = ["Step 1", "Step 2", "Step 3"], onStepClick }) => {
     return (
         <Stack sx={{ width: "100%" }} spacing={4}>
             <Stepper alternativeLabel activeStep={activeStep} connector={<ColorlibConnector />}>
-                {steps.map((label) => (
-                    <Step key={label}>
+                {steps.map((label, index) => (
+                    <Step key={label} onClick={() => onStepClick && onStepClick(index)} sx={{ cursor: "pointer" }}>
                         <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
                     </Step>
                 ))}

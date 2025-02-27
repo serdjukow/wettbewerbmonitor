@@ -2,62 +2,26 @@ import React from "react"
 import { useForm, Controller } from "react-hook-form"
 import { TextField, Button, Grid, Card, CardContent, Box } from "@mui/material"
 import CountrySelect from "@/src/components/CountrySelect"
-import { type TrackedCountry } from "@/src/utils/types"
+import { type TrackedCountry, Company } from "@/src/utils/types"
 
-interface CompanyFormValues {
-    name: string
-    country: TrackedCountry
-    address: {
-        street: string
-        houseNumber: string
-        postalCode: string
-        city: string
-    }
-    contact: {
-        phone: string
-        email: string
-    }
-    website: string
-    socialNetworks: {
-        facebook: string
-        instagram: string
-        linkedin: string
-        twitter: string
-    }
+interface CompanyFormProps {
+    initialData: Company
+    onSave: (companyData: Company) => void
 }
 
-const CompanyForm: React.FC = () => {
+const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
     const {
         handleSubmit,
         control,
         trigger,
         formState: { errors },
-    } = useForm<CompanyFormValues>({
-        defaultValues: {
-            name: "",
-            country: { country: "", country_name: "" },
-            address: {
-                street: "",
-                houseNumber: "",
-                postalCode: "",
-                city: "",
-            },
-            contact: {
-                phone: "",
-                email: "",
-            },
-            website: "",
-            socialNetworks: {
-                facebook: "",
-                instagram: "",
-                linkedin: "",
-                twitter: "",
-            },
-        },
+    } = useForm<Company>({
+        defaultValues: initialData,
     })
 
-    const onSubmit = (data: CompanyFormValues) => {
+    const onSubmit = (data: Company) => {
         console.log("Submitted Data:", data)
+        onSave(data)
         // Здесь реализуйте логику сохранения данных (например, отправку на сервер)
     }
 
@@ -73,7 +37,15 @@ const CompanyForm: React.FC = () => {
                                 control={control}
                                 rules={{ required: "Company name is required" }}
                                 render={({ field }) => (
-                                    <TextField fullWidth label="Company Name" variant="outlined" {...field} error={!!errors.name} helperText={errors.name?.message} required />
+                                    <TextField
+                                        fullWidth
+                                        label="Company Name"
+                                        variant="outlined"
+                                        {...field}
+                                        error={!!errors.name}
+                                        helperText={errors.name?.message}
+                                        required
+                                    />
                                 )}
                             />
                         </Grid>
@@ -101,7 +73,15 @@ const CompanyForm: React.FC = () => {
                                 control={control}
                                 rules={{ required: "Website is required" }}
                                 render={({ field }) => (
-                                    <TextField fullWidth label="Website" variant="outlined" {...field} error={!!errors.website} helperText={errors.website?.message} required />
+                                    <TextField
+                                        fullWidth
+                                        label="Website"
+                                        variant="outlined"
+                                        {...field}
+                                        error={!!errors.website}
+                                        helperText={errors.website?.message}
+                                        required
+                                    />
                                 )}
                             />
                         </Grid>
