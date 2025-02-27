@@ -1,16 +1,32 @@
 "use client"
 
-import { Box, Button } from "@mui/material"
+import { Box, Button, styled, Paper, Typography } from "@mui/material"
 import { useState } from "react"
 import QuizStepper from "@/src/features/QuizPages/components/QuizStepper"
 import CompanyForm from "@/src/features/QuizPages/components/CompanyForm"
 import SurveyStart, { SurveyType } from "./components/SurveyStart"
-import { Company } from "@/src/utils/types" // предполагается, что тип Company экспортируется отсюда
+import { Company, GeneralService, TrackedCountry } from "@/src/utils/types" // предполагается, что тип Company экспортируется отсюда
+import QuizGeneralKeyWordsEditor from "./components/QuizGeneralKeyWordsEditor"
+import QuizGeneralServicesEditor from "./components/QuizGeneralServicesEditor"
+import QuizGeneralDomainsEditor from "./components/QuizGeneralDomainsEditor"
+import Grid from "@mui/material/Grid2"
+import QuizTrackedCountriesEditor from "./components/QuizTrackedCountriesEditor"
 
 interface QuizData {
     currentStep: number
     company: Company
 }
+
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: "#fff",
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+    ...theme.applyStyles("dark", {
+        backgroundColor: "#1A2027",
+    }),
+}))
 
 const QuizPages: React.FC = () => {
     const [quizData, setQuizData] = useState<QuizData>({
@@ -54,7 +70,6 @@ const QuizPages: React.FC = () => {
 
     const totalSteps = 4
 
-    // Функция для обновления данных компании в состоянии
     const updateCompanyData = (newData: Partial<Company>) => {
         setQuizData((prev) => ({
             ...prev,
@@ -80,37 +95,86 @@ const QuizPages: React.FC = () => {
         switch (quizData.currentStep) {
             case 0:
                 return (
-                    <SurveyStart
-                        onSelect={(surveyType: SurveyType) => {
-                            updateCompanyData({ surveyType })
-                            goToNextStep()
-                        }}
-                    />
+                    <Box>
+                        <SurveyStart
+                            onSelect={(surveyType: SurveyType) => {
+                                updateCompanyData({ surveyType })
+                                goToNextStep()
+                            }}
+                        />
+                    </Box>
                 )
             case 1:
                 return (
-                    <CompanyForm
-                        initialData={quizData.company}
-                        onSave={(companyData: Company) => {
-                            updateCompanyData(companyData)
-                            goToNextStep()
-                        }}
-                    />
+                    <Box sx={{ textAlign: "center" }}>
+                        <Typography variant="h4" gutterBottom>
+                            Creating and editing a profile
+                        </Typography>
+                        <CompanyForm
+                            initialData={quizData.company}
+                            onSave={(companyData: Company) => {
+                                updateCompanyData(companyData)
+                                goToNextStep()
+                            }}
+                        />
+                    </Box>
                 )
             case 2:
                 return (
                     <Box>
-                        <h2>Step 3: Additional Data</h2>
-                        {/* Здесь можно добавить сбор дополнительных данных */}
+                        <Typography variant="h4" gutterBottom>
+                            Please choose tracked countries (Max 3)
+                        </Typography>
+                        <Item>
+                            <QuizTrackedCountriesEditor
+                                trackedCountries={quizData.company.trackedCountries || []}
+                                defaultCountry={quizData.company.country}
+                                onTrackedCountriesChange={(newCountries: TrackedCountry[]) => updateCompanyData({ trackedCountries: newCountries })}
+                            />
+                        </Item>
                     </Box>
                 )
             case 3:
                 return (
-                    <Box>
-                        <h2>Step 4: Final Details</h2>
-                        {/* Здесь можно добавить финальные настройки */}
+                    <Box sx={{ flexGrow: 1 }}>
+                        <Grid
+                            container
+                            direction="row"
+                            spacing={{ xs: 2, md: 3 }}
+                            columns={{ xs: 4, sm: 8, md: 12 }}
+                            sx={{
+                                justifyContent: "center",
+                                alignItems: "stretch",
+                            }}
+                        >
+                            <Grid size={{ xs: 4, sm: 4, md: 8 }}>
+                                <Item>
+                                    <QuizGeneralKeyWordsEditor
+                                        generalKeywords={quizData.company.generalKeywords || []}
+                                        onKeywordsChange={(newKeywords: string[]) => updateCompanyData({ generalKeywords: newKeywords })}
+                                    />
+                                </Item>
+                            </Grid>
+                            <Grid size={{ xs: 4, sm: 4, md: 8 }}>
+                                <Item>
+                                    <QuizGeneralServicesEditor
+                                        generalServices={quizData.company.generalServices || []}
+                                        onServicesChange={(newServices: GeneralService[]) => updateCompanyData({ generalServices: newServices })}
+                                    />
+                                </Item>
+                            </Grid>
+                            <Grid size={{ xs: 4, sm: 4, md: 8 }}>
+                                <Item>
+                                    <QuizGeneralDomainsEditor
+                                        generalDomains={quizData.company.generalDomains || []}
+                                        onDomainsChange={(newDomains: string[]) => updateCompanyData({ generalDomains: newDomains })}
+                                    />
+                                </Item>
+                            </Grid>
+                        </Grid>
                     </Box>
                 )
+
             default:
                 return (
                     <Box>
@@ -125,18 +189,24 @@ const QuizPages: React.FC = () => {
         <Box>
             <Box
                 sx={{
+                    maxWidth: 1200,
+                    margin: "0 auto",
+                    p: 2,
+                    pt: 3,
+                }}
+            >
+                <QuizStepper activeStep={quizData.currentStep} steps={["Search target", "Company data", "Search terms", "Request for Proposals"]} onStepClick={handleStepClick} />
+            </Box>
+
+            <Box
+                sx={{
                     display: "flex",
                     flexDirection: "column",
-                    height: "calc(100vh - 68px)",
+                    height: "calc(100vh - 68px - 130px)",
                     overflowY: "auto",
                     pt: 3,
                 }}
             >
-                <QuizStepper
-                    activeStep={quizData.currentStep}
-                    steps={["Search target", "Company data", "Search terms", "Request for Proposals"]}
-                    onStepClick={handleStepClick}
-                />
                 <Box
                     sx={{
                         display: "flex",

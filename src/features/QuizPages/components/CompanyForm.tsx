@@ -1,4 +1,6 @@
-import React from "react"
+"use client"
+
+import React, { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { TextField, Button, Grid, Card, CardContent, Box } from "@mui/material"
 import CountrySelect from "@/src/components/CountrySelect"
@@ -14,15 +16,43 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
         handleSubmit,
         control,
         trigger,
+        setValue,
+        watch,
         formState: { errors },
     } = useForm<Company>({
         defaultValues: initialData,
     })
 
+    const selectedCountry = watch("country")
+
+    useEffect(() => {
+        const fetchCountry = async () => {
+            try {
+                const response = await fetch("https://get.geojs.io/v1/ip/geo.json")
+                const data = await response.json()
+                if (data && data.country && (!selectedCountry || !selectedCountry.country)) {
+                    const autoDetectedCountry: TrackedCountry = {
+                        country: data.country_code ? data.country_code.toLowerCase() : "de",
+                        country_name: data.country ? data.country : "Germany",
+                    }
+                    setValue("country", autoDetectedCountry)
+                    await trigger("country")
+                }
+            } catch (error) {
+                console.error("Error detecting country:", error)
+                // Если ошибка, устанавливаем Германию по умолчанию
+                const defaultCountry: TrackedCountry = { country: "de", country_name: "Germany" }
+                setValue("country", defaultCountry)
+                await trigger("country")
+            }
+        }
+
+        fetchCountry()
+    }, [setValue, trigger, selectedCountry])
+
     const onSubmit = (data: Company) => {
         console.log("Submitted Data:", data)
         onSave(data)
-        // Здесь реализуйте логику сохранения данных (например, отправку на сервер)
     }
 
     return (
@@ -37,20 +67,12 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                 control={control}
                                 rules={{ required: "Company name is required" }}
                                 render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Company Name"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.name}
-                                        helperText={errors.name?.message}
-                                        required
-                                    />
+                                    <TextField fullWidth label="Company Name" variant="outlined" {...field} error={!!errors.name} helperText={errors.name?.message} required />
                                 )}
                             />
                         </Grid>
 
-                        {/* Country и Website в одну строку */}
+                        {/* Country и Website */}
                         <Grid item xs={12} sm={6}>
                             <Controller
                                 name="country"
@@ -73,15 +95,7 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                 control={control}
                                 rules={{ required: "Website is required" }}
                                 render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Website"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.website}
-                                        helperText={errors.website?.message}
-                                        required
-                                    />
+                                    <TextField fullWidth label="Website" variant="outlined" {...field} error={!!errors.website} helperText={errors.website?.message} required />
                                 )}
                             />
                         </Grid>
