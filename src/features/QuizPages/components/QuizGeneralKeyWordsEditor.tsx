@@ -11,6 +11,12 @@ interface QuizGeneralKeyWordsEditorProps {
     onKeywordsChange: (keywords: string[]) => void
 }
 
+const MIN_KEYWORD_LENGTH = 3
+
+const isKeywordValid = (keyword: string): boolean => keyword.trim().length >= MIN_KEYWORD_LENGTH
+
+const getKeywordHelperText = (keyword: string): string => (keyword.length > 0 && !isKeywordValid(keyword) ? `Minimum ${MIN_KEYWORD_LENGTH} characters required` : "")
+
 const QuizGeneralKeyWordsEditor: React.FC<QuizGeneralKeyWordsEditorProps> = ({ generalKeywords, onKeywordsChange }) => {
     const [keywords, setKeywords] = useState<string[]>(generalKeywords)
     const [newKeyword, setNewKeyword] = useState("")
@@ -29,8 +35,8 @@ const QuizGeneralKeyWordsEditor: React.FC<QuizGeneralKeyWordsEditorProps> = ({ g
     const handleAddKeyword = () => {
         const trimmed = newKeyword.trim()
         if (!trimmed) return
-        if (trimmed.trim().length < 3) {
-            toast.error("Keyword must be at least 3 characters long")
+        if (!isKeywordValid(newKeyword)) {
+            toast.error(`Keyword must be at least ${MIN_KEYWORD_LENGTH} characters long`)
             return
         }
         if (keywords.includes(trimmed)) {
@@ -63,8 +69,8 @@ const QuizGeneralKeyWordsEditor: React.FC<QuizGeneralKeyWordsEditorProps> = ({ g
             toast.error("Keyword cannot be empty")
             return
         }
-        if (trimmed.trim().length < 3) {
-            toast.error("Keyword must be at least 3 characters long")
+        if (!isKeywordValid(editKeywordValue)) {
+            toast.error(`Keyword must be at least ${MIN_KEYWORD_LENGTH} characters long`)
             return
         }
         const updatedKeywords = [...keywords]
@@ -108,8 +114,8 @@ const QuizGeneralKeyWordsEditor: React.FC<QuizGeneralKeyWordsEditorProps> = ({ g
                     value={newKeyword}
                     onChange={(e) => setNewKeyword(e.target.value)}
                     fullWidth
-                    error={newKeyword.length > 0 && newKeyword.length < 3}
-                    helperText={newKeyword.length > 0 && newKeyword.length < 3 ? "Minimum 3 characters required" : ""}
+                    error={newKeyword.length > 0 && !isKeywordValid(newKeyword)}
+                    helperText={getKeywordHelperText(newKeyword)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             e.preventDefault()
@@ -142,8 +148,8 @@ const QuizGeneralKeyWordsEditor: React.FC<QuizGeneralKeyWordsEditorProps> = ({ g
                         label="Keyword"
                         value={editKeywordValue}
                         onChange={(e) => setEditKeywordValue(e.target.value)}
-                        error={editKeywordValue.length > 0 && editKeywordValue.length < 3}
-                        helperText={editKeywordValue.length > 0 && editKeywordValue.length < 3 ? "Minimum 3 characters required" : ""}
+                        error={editKeywordValue.length > 0 && !isKeywordValid(editKeywordValue)}
+                        helperText={getKeywordHelperText(editKeywordValue)}
                         fullWidth
                         sx={{ mt: 1 }}
                     />

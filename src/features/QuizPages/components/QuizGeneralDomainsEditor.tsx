@@ -11,6 +11,14 @@ interface QuizGeneralDomainsEditorProps {
     onDomainsChange: (domains: string[]) => void
 }
 
+const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/
+
+const isValidDomain = (domain: string): boolean => {
+    return domainRegex.test(domain)
+}
+
+const getDomainHelperText = (domain: string): string => (domain.length > 0 && !isValidDomain(domain) ? "Invalid domain format" : "")
+
 const QuizGeneralDomainsEditor: React.FC<QuizGeneralDomainsEditorProps> = ({ generalDomains, onDomainsChange }) => {
     const [domains, setDomains] = useState<string[]>(generalDomains)
     const [newDomain, setNewDomain] = useState("")
@@ -22,7 +30,6 @@ const QuizGeneralDomainsEditor: React.FC<QuizGeneralDomainsEditorProps> = ({ gen
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [deleteDomainIndex, setDeleteDomainIndex] = useState<number | null>(null)
 
-    // Синхронизируем локальный state с переданным пропсом
     useEffect(() => {
         setDomains(generalDomains)
     }, [generalDomains])
@@ -30,6 +37,10 @@ const QuizGeneralDomainsEditor: React.FC<QuizGeneralDomainsEditorProps> = ({ gen
     const handleAddDomain = () => {
         const trimmed = newDomain.trim()
         if (!trimmed) return
+        if (!isValidDomain(trimmed)) {
+            toast.error("Invalid domain format")
+            return
+        }
         if (domains.includes(trimmed)) {
             toast.error("Domain already exists")
             return
@@ -58,6 +69,10 @@ const QuizGeneralDomainsEditor: React.FC<QuizGeneralDomainsEditorProps> = ({ gen
         const trimmed = editDomainValue.trim()
         if (!trimmed) {
             toast.error("Domain cannot be empty")
+            return
+        }
+        if (!isValidDomain(trimmed)) {
+            toast.error("Invalid domain format")
             return
         }
         const updatedDomains = [...domains]
@@ -101,6 +116,8 @@ const QuizGeneralDomainsEditor: React.FC<QuizGeneralDomainsEditorProps> = ({ gen
                     value={newDomain}
                     onChange={(e) => setNewDomain(e.target.value)}
                     fullWidth
+                    error={newDomain.trim().length > 0 && !isValidDomain(newDomain.trim())}
+                    helperText={getDomainHelperText(newDomain.trim())}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             e.preventDefault()
@@ -134,6 +151,8 @@ const QuizGeneralDomainsEditor: React.FC<QuizGeneralDomainsEditorProps> = ({ gen
                         value={editDomainValue}
                         onChange={(e) => setEditDomainValue(e.target.value)}
                         fullWidth
+                        error={editDomainValue.trim().length > 0 && !isValidDomain(editDomainValue.trim())}
+                        helperText={getDomainHelperText(editDomainValue.trim())}
                         sx={{ mt: 1 }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -144,11 +163,11 @@ const QuizGeneralDomainsEditor: React.FC<QuizGeneralDomainsEditorProps> = ({ gen
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error">
-                        Cancel
-                    </Button>
                     <Button onClick={handleSaveEdit} startIcon={<SaveIcon />} color="primary" variant="contained">
                         Save
+                    </Button>
+                    <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error" variant="contained">
+                        Cancel
                     </Button>
                 </DialogActions>
             </Dialog>

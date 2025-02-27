@@ -12,6 +12,13 @@ interface QuizGeneralServicesEditorProps {
     onServicesChange: (services: GeneralService[]) => void
 }
 
+const MIN_SERVICE_TITLE_LENGTH = 3
+const MIN_SERVICE_DESCRIPTION_LENGTH = 30
+
+const isValid = (value: string, minLength: number): boolean => value.trim().length >= minLength
+
+const getHelperText = (value: string, minLength: number): string => (value.length > 0 && !isValid(value, minLength) ? `Minimum ${minLength} characters required` : "")
+
 const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ generalServices, onServicesChange }) => {
     const [services, setServices] = useState<GeneralService[]>(generalServices)
     const [newServiceTitle, setNewServiceTitle] = useState("")
@@ -25,7 +32,6 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [deleteIndex, setDeleteIndex] = useState<number | null>(null)
 
-    // Синхронизируем локальный state с переданным пропсом
     useEffect(() => {
         setServices(generalServices)
     }, [generalServices])
@@ -33,11 +39,13 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
     const handleAddService = () => {
         const titleTrimmed = newServiceTitle.trim()
         const descriptionTrimmed = newServiceDescription.trim()
-        if (titleTrimmed.length < 3) {
-            toast.error("Title must be at least 3 characters long")
+
+        if (!isValid(newServiceTitle, MIN_SERVICE_TITLE_LENGTH)) {
+            toast.error(`Title must be at least ${MIN_SERVICE_TITLE_LENGTH} characters long`)
             return
-        } else if (descriptionTrimmed.length < 30) {
-            toast.error("Description must be at least 30 characters long")
+        }
+        if (!isValid(newServiceDescription, MIN_SERVICE_DESCRIPTION_LENGTH)) {
+            toast.error(`Description must be at least ${MIN_SERVICE_DESCRIPTION_LENGTH} characters long`)
             return
         }
         const duplicate = services.some((service) => service.title.toLowerCase() === titleTrimmed.toLowerCase())
@@ -45,11 +53,13 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
             toast.error("Service with this title already exists")
             return
         }
+
         const newService: GeneralService = {
             title: titleTrimmed,
             description: descriptionTrimmed,
             analysisType: "not_processed",
         }
+
         const updatedServices = [...services, newService]
         setServices(updatedServices)
         setNewServiceTitle("")
@@ -69,11 +79,13 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
         if (editIndex === null) return
         const titleTrimmed = editTitle.trim()
         const descriptionTrimmed = editDescription.trim()
-        if (titleTrimmed.length < 3) {
-            toast.error("Title must be at least 3 characters long")
+
+        if (!isValid(editTitle, MIN_SERVICE_TITLE_LENGTH)) {
+            toast.error(`Title must be at least ${MIN_SERVICE_TITLE_LENGTH} characters long`)
             return
-        } else if (descriptionTrimmed.length < 30) {
-            toast.error("Description must be at least 30 characters long")
+        }
+        if (!isValid(editDescription, MIN_SERVICE_DESCRIPTION_LENGTH)) {
+            toast.error(`Description must be at least ${MIN_SERVICE_DESCRIPTION_LENGTH} characters long`)
             return
         }
         const duplicate = services.some((service, i) => i !== editIndex && service.title.toLowerCase() === titleTrimmed.toLowerCase())
@@ -81,12 +93,14 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
             toast.error("Service with this title already exists")
             return
         }
+
         const updatedServices = [...services]
         updatedServices[editIndex] = {
             ...updatedServices[editIndex],
             title: titleTrimmed,
             description: descriptionTrimmed,
         }
+
         setServices(updatedServices)
         setOpenEditDialog(false)
         setEditIndex(null)
@@ -127,8 +141,8 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
                             handleAddService()
                         }
                     }}
-                    error={newServiceTitle.length > 0 && newServiceTitle.length < 3}
-                    helperText={newServiceTitle.length > 0 && newServiceTitle.length < 3 ? "Minimum 3 characters required" : ""}
+                    error={newServiceTitle.length > 0 && !isValid(newServiceTitle, MIN_SERVICE_TITLE_LENGTH)}
+                    helperText={getHelperText(newServiceTitle, MIN_SERVICE_TITLE_LENGTH)}
                     fullWidth
                     required
                 />
@@ -142,8 +156,8 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
                             handleAddService()
                         }
                     }}
-                    error={newServiceDescription.length > 0 && newServiceDescription.length < 30}
-                    helperText={newServiceDescription.length > 0 && newServiceDescription.length < 30 ? "Minimum 30 characters required" : ""}
+                    error={newServiceDescription.length > 0 && !isValid(newServiceDescription, MIN_SERVICE_DESCRIPTION_LENGTH)}
+                    helperText={getHelperText(newServiceDescription, MIN_SERVICE_DESCRIPTION_LENGTH)}
                     fullWidth
                     multiline
                     rows={3}
@@ -175,8 +189,8 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
                         label="Service Title"
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        error={editTitle.length > 0 && editTitle.length < 3}
-                        helperText={editTitle.length > 0 && editTitle.length < 3 ? "Minimum 3 characters required" : ""}
+                        error={editTitle.length > 0 && !isValid(editTitle, MIN_SERVICE_TITLE_LENGTH)}
+                        helperText={getHelperText(editTitle, MIN_SERVICE_TITLE_LENGTH)}
                         fullWidth
                         required
                         sx={{ mb: 2, mt: 1 }}
@@ -185,8 +199,8 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
                         label="Service Description"
                         value={editDescription}
                         onChange={(e) => setEditDescription(e.target.value)}
-                        error={editDescription.length > 0 && editDescription.length < 30}
-                        helperText={editDescription.length > 0 && editDescription.length < 30 ? "Minimum 30 characters required" : ""}
+                        error={editDescription.length > 0 && !isValid(editDescription, MIN_SERVICE_DESCRIPTION_LENGTH)}
+                        helperText={getHelperText(editDescription, MIN_SERVICE_DESCRIPTION_LENGTH)}
                         fullWidth
                         multiline
                         required
