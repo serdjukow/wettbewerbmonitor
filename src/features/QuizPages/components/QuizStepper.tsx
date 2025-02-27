@@ -10,6 +10,7 @@ import { StepIconProps } from "@mui/material/StepIcon"
 import TravelExploreIcon from "@mui/icons-material/TravelExplore"
 import ExploreIcon from "@mui/icons-material/Explore"
 import ApartmentIcon from "@mui/icons-material/Apartment"
+import KeyIcon from "@mui/icons-material/Key"
 
 const ColorlibStepIconRoot = styled("div")<{
     ownerState: { completed?: boolean; active?: boolean }
@@ -39,7 +40,8 @@ function ColorlibStepIcon(props: StepIconProps) {
         1: <ExploreIcon />,
         2: <ApartmentIcon />,
         3: <TravelExploreIcon />,
-        4: <SettingsIcon />,
+        4: <KeyIcon />,
+        5: <SettingsIcon />,
     }
 
     return (

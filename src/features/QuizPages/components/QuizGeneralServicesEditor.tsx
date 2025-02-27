@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Box, TextField, Button, Chip, Typography, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
+import { Box, TextField, Button, Chip, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
 import { Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import DeleteDialog from "../../../components/DeleteDialog"
 import { toast } from "react-toastify"
@@ -127,9 +127,6 @@ const QuizGeneralServicesEditor: React.FC<QuizGeneralServicesEditorProps> = ({ g
 
     return (
         <>
-            <Typography variant="h6" gutterBottom>
-                What services do you want to offer to your target group?
-            </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}>
                 <TextField
                     label="Service Title"

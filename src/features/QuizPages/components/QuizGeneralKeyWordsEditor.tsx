@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Box, TextField, Button, Chip, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
+import { Box, TextField, Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
 import { DeleteForever as DeleteForeverIcon, Save as SaveIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import DeleteDialog from "../../../components/DeleteDialog"
 import { toast } from "react-toastify"
@@ -105,9 +105,6 @@ const QuizGeneralKeyWordsEditor: React.FC<QuizGeneralKeyWordsEditorProps> = ({ g
 
     return (
         <>
-            <Typography variant="h6" gutterBottom>
-                What kind of companies should we look for with offers?
-            </Typography>
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 <TextField
                     label="New Keyword"

@@ -8,8 +8,6 @@ import SurveyStart, { SurveyType } from "./components/SurveyStart"
 import { Company, GeneralService, TrackedCountry } from "@/src/utils/types" // предполагается, что тип Company экспортируется отсюда
 import QuizGeneralKeyWordsEditor from "./components/QuizGeneralKeyWordsEditor"
 import QuizGeneralServicesEditor from "./components/QuizGeneralServicesEditor"
-import QuizGeneralDomainsEditor from "./components/QuizGeneralDomainsEditor"
-import Grid from "@mui/material/Grid2"
 import QuizTrackedCountriesEditor from "./components/QuizTrackedCountriesEditor"
 
 interface QuizData {
@@ -20,7 +18,7 @@ interface QuizData {
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: "#fff",
     ...theme.typography.body2,
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
     textAlign: "center",
     color: theme.palette.text.secondary,
     ...theme.applyStyles("dark", {
@@ -69,7 +67,7 @@ const QuizPages: React.FC = () => {
         }))
     }
 
-    const totalSteps = 4
+    const totalSteps = 5
 
     const updateCompanyData = (newData: Partial<Company>) => {
         setQuizData((prev) => ({
@@ -139,41 +137,29 @@ const QuizPages: React.FC = () => {
             case 3:
                 return (
                     <Box sx={{ flexGrow: 1 }}>
-                        <Grid
-                            container
-                            direction="row"
-                            spacing={{ xs: 2, md: 3 }}
-                            columns={{ xs: 4, sm: 8, md: 12 }}
-                            sx={{
-                                justifyContent: "center",
-                                alignItems: "stretch",
-                            }}
-                        >
-                            <Grid size={{ xs: 4, sm: 4, md: 8 }}>
-                                <Item>
-                                    <QuizGeneralKeyWordsEditor
-                                        generalKeywords={quizData.company.generalKeywords || []}
-                                        onKeywordsChange={(newKeywords: string[]) => updateCompanyData({ generalKeywords: newKeywords })}
-                                    />
-                                </Item>
-                            </Grid>
-                            <Grid size={{ xs: 4, sm: 4, md: 8 }}>
-                                <Item>
-                                    <QuizGeneralServicesEditor
-                                        generalServices={quizData.company.generalServices || []}
-                                        onServicesChange={(newServices: GeneralService[]) => updateCompanyData({ generalServices: newServices })}
-                                    />
-                                </Item>
-                            </Grid>
-                            <Grid size={{ xs: 4, sm: 4, md: 8 }}>
-                                <Item>
-                                    <QuizGeneralDomainsEditor
-                                        generalDomains={quizData.company.generalDomains || []}
-                                        onDomainsChange={(newDomains: string[]) => updateCompanyData({ generalDomains: newDomains })}
-                                    />
-                                </Item>
-                            </Grid>
-                        </Grid>
+                        <Typography variant="h4" gutterBottom>
+                            What kind of companies should we look for with offers?
+                        </Typography>
+                        <Item>
+                            <QuizGeneralKeyWordsEditor
+                                generalKeywords={quizData.company.generalKeywords || []}
+                                onKeywordsChange={(newKeywords: string[]) => updateCompanyData({ generalKeywords: newKeywords })}
+                            />
+                        </Item>
+                    </Box>
+                )
+            case 4:
+                return (
+                    <Box>
+                        <Typography variant="h4" gutterBottom>
+                            What kind of companies should we look for with offers?
+                        </Typography>
+                        <Item>
+                            <QuizGeneralServicesEditor
+                                generalServices={quizData.company.generalServices || []}
+                                onServicesChange={(newServices: GeneralService[]) => updateCompanyData({ generalServices: newServices })}
+                            />
+                        </Item>
                     </Box>
                 )
 
@@ -197,7 +183,11 @@ const QuizPages: React.FC = () => {
                     pt: 3,
                 }}
             >
-                <QuizStepper activeStep={quizData.currentStep} steps={["Search target", "Company data", "Search terms", "Request for Proposals"]} onStepClick={handleStepClick} />
+                <QuizStepper
+                    activeStep={quizData.currentStep}
+                    steps={["Search target", "Company data", "Search terms", "Keys", "Request for Proposals"]}
+                    onStepClick={handleStepClick}
+                />
             </Box>
 
             <Box
