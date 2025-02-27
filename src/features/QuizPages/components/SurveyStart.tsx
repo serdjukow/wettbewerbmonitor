@@ -8,10 +8,11 @@ import PersonSearchIcon from "@mui/icons-material/PersonSearch"
 export type SurveyType = "competitors" | "clients"
 
 interface SurveyStartProps {
+    selectedSurveyType: SurveyType | null
     onSelect: (type: SurveyType) => void
 }
 
-const SurveyStart: React.FC<SurveyStartProps> = ({ onSelect }) => {
+const SurveyStart: React.FC<SurveyStartProps> = ({ selectedSurveyType, onSelect }) => {
     return (
         <Box
             sx={{
@@ -26,10 +27,22 @@ const SurveyStart: React.FC<SurveyStartProps> = ({ onSelect }) => {
                 Please choose your survey type
             </Typography>
             <Stack spacing={3} direction="row">
-                <Button variant="contained" color="primary" startIcon={<GroupIcon />} onClick={() => onSelect("competitors")} sx={{ minWidth: 200, fontSize: "1.2rem" }}>
+                <Button
+                    variant={selectedSurveyType === "competitors" ? "contained" : "outlined"}
+                    color="primary"
+                    startIcon={<GroupIcon />}
+                    onClick={() => onSelect("competitors")}
+                    sx={{ minWidth: 200, fontSize: "1.2rem" }}
+                >
                     Search for Competitors
                 </Button>
-                <Button variant="contained" color="secondary" startIcon={<PersonSearchIcon />} onClick={() => onSelect("clients")} sx={{ minWidth: 200, fontSize: "1.2rem" }}>
+                <Button
+                    variant={selectedSurveyType === "clients" ? "contained" : "outlined"}
+                    color="secondary"
+                    startIcon={<PersonSearchIcon />}
+                    onClick={() => onSelect("clients")}
+                    sx={{ minWidth: 200, fontSize: "1.2rem" }}
+                >
                     Search for Potential Clients
                 </Button>
             </Stack>

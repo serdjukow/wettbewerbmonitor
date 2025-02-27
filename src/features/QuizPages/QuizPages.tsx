@@ -60,6 +60,7 @@ const QuizPages: React.FC = () => {
             trackedCountries: [],
         },
     })
+    const [selectedSurveyType, setSelectedSurveyType] = useState<SurveyType | null>(null)
 
     const handleStepClick = (stepIndex: number) => {
         setQuizData((prev) => ({
@@ -97,8 +98,9 @@ const QuizPages: React.FC = () => {
                 return (
                     <Box>
                         <SurveyStart
-                            onSelect={(surveyType: SurveyType) => {
-                                updateCompanyData({ surveyType })
+                            selectedSurveyType={selectedSurveyType}
+                            onSelect={(type: SurveyType) => {
+                                setSelectedSurveyType(type)
                                 goToNextStep()
                             }}
                         />
