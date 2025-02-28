@@ -101,7 +101,6 @@ const QuizPages: React.FC = () => {
                 router.push(COMPANIES_ROUTE)
             } catch (error) {
                 console.error("Error creating company:", error)
-                // Здесь можно добавить уведомление об ошибке для пользователя
             }
         },
         [router]

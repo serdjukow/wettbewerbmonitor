@@ -83,11 +83,22 @@ const QuizStepper: React.FC<QuizStepperProps> = ({ activeStep, steps = ["Step 1"
     return (
         <Stack sx={{ width: "100%" }} spacing={4}>
             <Stepper alternativeLabel activeStep={activeStep} connector={<ColorlibConnector />}>
-                {steps.map((label, index) => (
-                    <Step key={label} onClick={() => onStepClick && onStepClick(index)} sx={{ cursor: "pointer" }}>
-                        <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
-                    </Step>
-                ))}
+                {steps.map((label, index) => {
+                    const isClickable = index <= activeStep
+                    return (
+                        <Step
+                            key={label}
+                            onClick={() => {
+                                if (isClickable && onStepClick) {
+                                    onStepClick(index)
+                                }
+                            }}
+                            sx={{ cursor: isClickable ? "pointer" : "default" }}
+                        >
+                            <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
+                        </Step>
+                    )
+                })}
             </Stepper>
         </Stack>
     )
