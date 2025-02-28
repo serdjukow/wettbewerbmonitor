@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, MouseEvent } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { toast } from "react-toastify"
 import { useAppStore } from "@/src/store/appStore"
@@ -59,7 +59,7 @@ const EditCompanyForm = () => {
         setIsEdit(!isEdit)
     }
 
-    const handleButonEdit = (e: any) => {
+    const handleButtonEdit = (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         setIsEdit(!isEdit)
     }
@@ -342,7 +342,7 @@ const EditCompanyForm = () => {
                                     <CompanyDeleteButton />
                                 </>
                             ) : (
-                                <Button onClick={handleButonEdit} type="button" variant="contained" startIcon={<EditIcon />} color="primary" sx={{ color: "#fff" }}>
+                                <Button onClick={handleButtonEdit} type="button" variant="contained" startIcon={<EditIcon />} color="primary" sx={{ color: "#fff" }}>
                                     Edit
                                 </Button>
                             )}

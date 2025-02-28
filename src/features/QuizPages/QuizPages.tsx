@@ -24,7 +24,6 @@ const Item = styled(Paper)(({ theme }) => ({
     }),
 }))
 
-// Определяем типы для состояния квиза и действий редьюсера
 type QuizState = {
     currentStep: number
     company: Company
@@ -32,7 +31,6 @@ type QuizState = {
 
 type QuizAction = { type: "SET_STEP"; payload: number } | { type: "NEXT_STEP" } | { type: "PREV_STEP" } | { type: "UPDATE_COMPANY"; payload: Partial<Company> }
 
-// Вынесем начальные данные в константу
 const initialCompany: Company = {
     uuid: "",
     name: "",
@@ -109,14 +107,12 @@ const QuizPages: React.FC = () => {
         [router]
     )
 
-    // Вызываем создание компании, когда пройдены все шаги
     useEffect(() => {
         if (currentStep === totalSteps) {
             createCompany(company)
         }
     }, [currentStep, company, createCompany])
 
-    // Рендерим соответствующий шаг
     const renderStep = () => {
         switch (currentStep) {
             case 0:

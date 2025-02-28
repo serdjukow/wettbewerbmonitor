@@ -8,10 +8,10 @@ import { useAppStore } from "@/src/store/appStore"
 import Link from "next/link"
 import PageLoader from "@/src/components/PageLoader"
 import { useAuth } from "@/src/context/AuthContext"
-import { Card, CardContent, Typography, CardActionArea, CardMedia, Container, Box, IconButton } from "@mui/material"
+import { Card, CardContent, Typography, CardActionArea, CardMedia, Container, Box, Button } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
 import AddBoxIcon from "@mui/icons-material/AddBox"
-import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
+import { DASHBOARD_ROUTE, COMPANIES_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
 import { type Company } from "../utils/types"
 
 const CARD_HEIGHT = 250
@@ -49,25 +49,29 @@ const CompaniesPage = () => {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                justifyContent: "space-around",
                 minHeight: "calc(100vh - 68px)",
                 pt: 3,
                 pb: 3,
             }}
         >
             {!!companies.length && (
-                <Link href={"/companies/quiz"} style={{ textDecoration: "none", color: "inherit" }}>
-                    <IconButton color="primary" size="large">
-                        <AddBoxIcon />
-                    </IconButton>
-                </Link>
+                <Box sx={{ ml: "auto" }}>
+                    <Link href={"/companies/quiz"} style={{ textDecoration: "none", color: "inherit" }} title="Add new company">
+                        <Button variant="outlined" startIcon={<AddBoxIcon style={{ fontSize: "30px" }} />}>
+                            Add new company
+                        </Button>
+                    </Link>
+                </Box>
             )}
 
             <Box
                 sx={{
                     display: "flex",
-                    justifyContent: "center",
                     alignItems: "center",
-                    flex: "1 1 auto",
+                    justifyContent: "center",
+                    gap: "20px",
+                    flexWrap: "wrap",
                 }}
             >
                 {companies.map((company) => (
