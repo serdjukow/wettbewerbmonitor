@@ -1,60 +1,71 @@
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
-import { TextField, Button, Grid, Card, CardContent, Box, Stack, CardActions } from "@mui/material"
+import { toast } from "react-toastify"
+import { useAppStore } from "@/src/store/appStore"
+import { type Company } from "@/src/utils/types"
+
+import { TextField, Button, Stack, Box, Card, CardContent } from "@mui/material"
+import { Save as SaveIcon, Edit as EditIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import CountrySelect from "@/src/components/CountrySelect"
-import { type TrackedCountry, Company } from "@/src/utils/types"
+import CompanyDeleteButton from "@/src/components/CompanyDeleteButton"
 
-interface CompanyFormProps {
-    initialData: Company
-    onSave: (companyData: Company) => void
-}
+const EditCompanyForm = () => {
+    const { selectedCompany, updateCompany } = useAppStore()
+    const [isEdit, setIsEdit] = useState(false)
 
-const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
     const {
-        handleSubmit,
         control,
-        trigger,
+        handleSubmit,
+        reset,
         setValue,
-        watch,
+        trigger,
         formState: { errors },
     } = useForm<Company>({
-        defaultValues: initialData,
+        defaultValues: {
+            name: "",
+            country: { country: "", country_name: "" },
+            contact: { email: "", phone: "" },
+            address: { street: "", houseNumber: "", city: "", postalCode: "" },
+            website: "",
+            socialNetworks: {
+                facebook: "",
+                instagram: "",
+                linkedin: "",
+                twitter: "",
+            },
+        },
     })
 
-    const selectedCountry = watch("country")
-
     useEffect(() => {
-        const fetchCountry = async () => {
-            try {
-                const response = await fetch("https://get.geojs.io/v1/ip/geo.json")
-                const data = await response.json()
-                if (data && data.country && (!selectedCountry || !selectedCountry.country)) {
-                    const autoDetectedCountry: TrackedCountry = {
-                        country: data.country_code ? data.country_code.toLowerCase() : "de",
-                        country_name: data.country ? data.country : "Germany",
-                    }
-                    setValue("country", autoDetectedCountry)
-                    await trigger("country")
-                }
-            } catch (error) {
-                console.error("Error detecting country:", error)
-                const defaultCountry: TrackedCountry = { country: "de", country_name: "Germany" }
-                setValue("country", defaultCountry)
-                await trigger("country")
-            }
+        if (selectedCompany) {
+            reset(selectedCompany)
         }
-
-        fetchCountry()
-    }, [setValue, trigger, selectedCountry])
+    }, [selectedCompany, reset])
 
     const onSubmit = (data: Company) => {
-        onSave(data)
+        if (!data.country || !data.country.country || !data.country.country_name) {
+            toast.error("Please select a valid country before saving.")
+            return
+        }
+
+        if (selectedCompany && selectedCompany.uuid) {
+            updateCompany(selectedCompany.uuid, data)
+            toast.success("The company has been successfully updated!")
+        } else {
+            toast.error("Error updating company!")
+        }
+        setIsEdit(!isEdit)
+    }
+
+    const handleButonEdit = (e: any) => {
+        e.preventDefault()
+        setIsEdit(!isEdit)
     }
 
     return (
-        <Card>
+        <Card sx={{ paddingTop: 4 }}>
             <CardContent>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Stack spacing={2}>
@@ -62,13 +73,24 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                         <Controller
                             name="name"
                             control={control}
-                            rules={{ required: "Company name is required" }}
+                            rules={{ required: "Full Name is required" }}
                             render={({ field }) => (
-                                <TextField fullWidth label="Company Name" variant="outlined" {...field} error={!!errors.name} helperText={errors.name?.message} required />
+                                <TextField
+                                    fullWidth
+                                    label="Full Name"
+                                    variant="outlined"
+                                    value={field.value ?? ""}
+                                    onChange={field.onChange}
+                                    error={!!errors.name}
+                                    helperText={errors.name?.message}
+                                    required
+                                    disabled={!isEdit}
+                                />
                             )}
                         />
 
-                        <Stack direction="row" spacing={2}>
+                        <Stack direction="row" spacing={2} sx={{ pointerEvents: !isEdit ? "none" : "auto" }}>
+                            {/* Country Selection */}
                             <Controller
                                 name="country"
                                 control={control}
@@ -76,24 +98,39 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                 render={({ field }) => (
                                     <CountrySelect
                                         value={field.value}
-                                        onChange={(selected: TrackedCountry) => {
-                                            field.onChange(selected)
+                                        onChange={(selectedCountry) => {
+                                            setValue("country", {
+                                                country: selectedCountry.country,
+                                                country_name: selectedCountry.country_name,
+                                            })
                                             trigger("country")
                                         }}
                                     />
                                 )}
                             />
+                            {/* Website */}
                             <Controller
                                 name="website"
                                 control={control}
                                 rules={{ required: "Website is required" }}
                                 render={({ field }) => (
-                                    <TextField fullWidth label="Website" variant="outlined" {...field} error={!!errors.website} helperText={errors.website?.message} required />
+                                    <TextField
+                                        fullWidth
+                                        label="Website"
+                                        variant="outlined"
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
+                                        error={!!errors.website}
+                                        helperText={errors.website?.message}
+                                        required
+                                        disabled={!isEdit}
+                                    />
                                 )}
                             />
                         </Stack>
 
                         <Stack direction="row" spacing={2}>
+                            {/* Address: Street & City */}
                             <Controller
                                 name="address.street"
                                 control={control}
@@ -103,10 +140,12 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         fullWidth
                                         label="Street"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.address?.street}
                                         helperText={errors.address?.street?.message}
                                         required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
@@ -119,29 +158,34 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         fullWidth
                                         label="City"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.address?.city}
                                         helperText={errors.address?.city?.message}
                                         required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
                         </Stack>
 
                         <Stack direction="row" spacing={2}>
+                            {/* Address: House Number & Postal Code */}
                             <Controller
                                 name="address.houseNumber"
                                 control={control}
-                                rules={{ required: "House number is required" }}
+                                rules={{ required: "House Number is required" }}
                                 render={({ field }) => (
                                     <TextField
                                         fullWidth
                                         label="House Number"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.address?.houseNumber}
                                         helperText={errors.address?.houseNumber?.message}
                                         required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
@@ -154,62 +198,60 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         fullWidth
                                         label="Postal Code"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.address?.postalCode}
                                         helperText={errors.address?.postalCode?.message}
                                         required
-                                    />
-                                )}
-                            />
-                        </Stack>
-                        <Stack direction="row" spacing={2}>
-                            <Controller
-                                name="contact.phone"
-                                control={control}
-                                rules={{
-                                    required: "Phone number is required",
-                                    pattern: {
-                                        value: /^[0-9]+$/,
-                                        message: "Phone number must be numeric",
-                                    },
-                                }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Phone"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.contact?.phone}
-                                        helperText={errors.contact?.phone?.message}
-                                        required
-                                    />
-                                )}
-                            />
-                            <Controller
-                                name="contact.email"
-                                control={control}
-                                rules={{
-                                    required: "Email is required",
-                                    pattern: {
-                                        value: /^\S+@\S+$/i,
-                                        message: "Invalid email address",
-                                    },
-                                }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Email"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.contact?.email}
-                                        helperText={errors.contact?.email?.message}
-                                        required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
                         </Stack>
 
                         <Stack direction="row" spacing={2}>
+                            {/* Phone */}
+                            <Controller
+                                name="contact.phone"
+                                control={control}
+                                rules={{ required: "Phone number is required" }}
+                                render={({ field }) => (
+                                    <TextField
+                                        fullWidth
+                                        label="Phone"
+                                        variant="outlined"
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
+                                        error={!!errors.contact?.phone}
+                                        helperText={errors.contact?.phone?.message}
+                                        required
+                                        disabled={!isEdit}
+                                    />
+                                )}
+                            />
+                            {/* Email */}
+                            <Controller
+                                name="contact.email"
+                                control={control}
+                                rules={{ required: "Email is required" }}
+                                render={({ field }) => (
+                                    <TextField
+                                        fullWidth
+                                        label="Email"
+                                        variant="outlined"
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
+                                        error={!!errors.contact?.email}
+                                        helperText={errors.contact?.email?.message}
+                                        required
+                                        disabled={!isEdit}
+                                    />
+                                )}
+                            />
+                        </Stack>
+
+                        <Stack direction="row" spacing={2}>
+                            {/* Social Networks */}
                             <Controller
                                 name="socialNetworks.facebook"
                                 control={control}
@@ -219,10 +261,12 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         fullWidth
                                         label="Facebook"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.socialNetworks?.facebook}
                                         helperText={errors.socialNetworks?.facebook?.message}
                                         required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
@@ -235,10 +279,12 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         fullWidth
                                         label="Instagram"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.socialNetworks?.instagram}
                                         helperText={errors.socialNetworks?.instagram?.message}
                                         required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
@@ -254,10 +300,12 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         fullWidth
                                         label="LinkedIn"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.socialNetworks?.linkedin}
                                         helperText={errors.socialNetworks?.linkedin?.message}
                                         required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
@@ -270,19 +318,35 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         fullWidth
                                         label="Twitter"
                                         variant="outlined"
-                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
                                         error={!!errors.socialNetworks?.twitter}
                                         helperText={errors.socialNetworks?.twitter?.message}
                                         required
+                                        disabled={!isEdit}
                                     />
                                 )}
                             />
                         </Stack>
-                    </Stack>
-                    <Stack sx={{ mt: 2, alignItems: "center" }}>
-                        <Button type="submit" variant="contained" color="primary">
-                            Next
-                        </Button>
+
+                        {/* Save & Delete Buttons */}
+                        <Box sx={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+                            {isEdit ? (
+                                <>
+                                    <Button type="submit" variant="contained" startIcon={<SaveIcon />} color="success" sx={{ color: "#fff" }}>
+                                        Save Changes
+                                    </Button>
+                                    <Button onClick={() => setIsEdit(!isEdit)} type="button" variant="contained" startIcon={<CancelIcon />} color="primary" sx={{ color: "#fff" }}>
+                                        Cancel
+                                    </Button>
+                                    <CompanyDeleteButton />
+                                </>
+                            ) : (
+                                <Button onClick={handleButonEdit} type="button" variant="contained" startIcon={<EditIcon />} color="primary" sx={{ color: "#fff" }}>
+                                    Edit
+                                </Button>
+                            )}
+                        </Box>
                     </Stack>
                 </form>
             </CardContent>
@@ -290,4 +354,4 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
     )
 }
 
-export default CompanyForm
+export default EditCompanyForm

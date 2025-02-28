@@ -8,8 +8,9 @@ import { useAppStore } from "@/src/store/appStore"
 import Link from "next/link"
 import PageLoader from "@/src/components/PageLoader"
 import { useAuth } from "@/src/context/AuthContext"
-import { Grid2, Card, CardContent, Typography, CardActionArea, CardMedia, Container, Box } from "@mui/material"
+import { Card, CardContent, Typography, CardActionArea, CardMedia, Container, Box, IconButton } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
+import AddBoxIcon from "@mui/icons-material/AddBox"
 import { DASHBOARD_ROUTE, COMPANIES_ROUTE, CREATE_COMPANY_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
 import { type Company } from "../utils/types"
 
@@ -53,86 +54,87 @@ const CompaniesPage = () => {
                 pb: 3,
             }}
         >
-            <Link href={"/companies/quiz"} style={{ textDecoration: "none", color: "inherit" }}>
-                <Typography variant="body2" sx={{ fontSize: 20, mt: 1 }}>
-                    Create New Company (Test Quiz)
-                </Typography>
-            </Link>
+            {!!companies.length && (
+                <Link href={"/companies/quiz"} style={{ textDecoration: "none", color: "inherit" }}>
+                    <IconButton color="primary" size="large">
+                        <AddBoxIcon />
+                    </IconButton>
+                </Link>
+            )}
+
             <Box
                 sx={{
                     display: "flex",
+                    justifyContent: "center",
                     alignItems: "center",
                     flex: "1 1 auto",
                 }}
             >
-                <Grid2 container spacing={{ xs: 2, md: 3 }} justifyContent="center">
-                    {companies.map((company) => (
-                        <Box key={company.uuid}>
-                            <Card sx={{ height: CARD_HEIGHT, width: CARD_WIDTH }}>
-                                <CardActionArea
-                                    onClick={() => company.uuid && handleSelectCompany(company)}
-                                    data-active={selectedCompany?.uuid === company.uuid ? "" : undefined}
-                                    sx={{
-                                        height: "100%",
-                                        "&[data-active]": {
-                                            backgroundColor: "action.selected",
-                                            "&:hover": {
-                                                backgroundColor: "action.selectedHover",
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <CardMedia component="img" height="140" image={"/company.png"} alt="Company Image" />
-                                    <CardContent
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                            height: "calc(100% - 140px)",
-                                        }}
-                                    >
-                                        <Typography gutterBottom variant="h5" component="div" noWrap>
-                                            {company.name}
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
-                                            {company.address?.city}
-                                        </Typography>
-                                        <Typography variant="body1" sx={{ color: "text.secondary" }} noWrap>
-                                            {company.contact?.email}
-                                        </Typography>
-                                    </CardContent>
-                                </CardActionArea>
-                            </Card>
-                        </Box>
-                    ))}
-
-                    {/* Add New Company Card */}
-                    <Grid2>
+                {companies.map((company) => (
+                    <Box key={company.uuid}>
                         <Card sx={{ height: CARD_HEIGHT, width: CARD_WIDTH }}>
-                            <Link href={CREATE_COMPANY_ROUTE} style={{ textDecoration: "none", color: "inherit" }}>
-                                <CardActionArea
-                                    sx={{
-                                        height: "100%",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "center",
-                                        justifyContent: "center",
+                            <CardActionArea
+                                onClick={() => company.uuid && handleSelectCompany(company)}
+                                data-active={selectedCompany?.uuid === company.uuid ? "" : undefined}
+                                sx={{
+                                    height: "100%",
+                                    "&[data-active]": {
+                                        backgroundColor: "action.selected",
                                         "&:hover": {
                                             backgroundColor: "action.selectedHover",
                                         },
+                                    },
+                                }}
+                            >
+                                <CardMedia component="img" height="140" image={"/company.png"} alt="Company Image" />
+                                <CardContent
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-between",
+                                        height: "calc(100% - 140px)",
                                     }}
                                 >
-                                    <CardContent sx={{ textAlign: "center" }}>
-                                        <AddIcon sx={{ fontSize: 40 }} />
-                                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: 20, mt: 1 }}>
-                                            Create New Company
-                                        </Typography>
-                                    </CardContent>
-                                </CardActionArea>
-                            </Link>
+                                    <Typography gutterBottom variant="h5" component="div" noWrap>
+                                        {company.name}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
+                                        {company.address?.city}
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: "text.secondary" }} noWrap>
+                                        {company.contact?.email}
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
                         </Card>
-                    </Grid2>
-                </Grid2>
+                    </Box>
+                ))}
+                {/* Add New Company Card */}
+                {!companies.length && (
+                    <Card sx={{ height: CARD_HEIGHT, width: CARD_WIDTH }}>
+                        <Link href={"/companies/quiz"} style={{ textDecoration: "none", color: "inherit" }}>
+                            <CardActionArea
+                                sx={{
+                                    height: "100%",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    "&:hover": {
+                                        backgroundColor: "action.selectedHover",
+                                    },
+                                }}
+                            >
+                                <CardContent sx={{ textAlign: "center" }}>
+                                    <AddIcon sx={{ fontSize: 40 }} />
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 20, mt: 1 }}>
+                                        Create New Company
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
+                        </Link>
+                    </Card>
+                )}
             </Box>
         </Container>
     )

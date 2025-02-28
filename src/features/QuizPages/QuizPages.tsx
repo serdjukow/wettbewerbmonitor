@@ -1,19 +1,17 @@
 "use client"
 
 import { Box, Button, styled, Paper, Typography } from "@mui/material"
-import { useState } from "react"
+import { useCallback, useEffect, useReducer, useState } from "react"
 import QuizStepper from "@/src/features/QuizPages/components/QuizStepper"
 import CompanyForm from "@/src/features/QuizPages/components/CompanyForm"
 import SurveyStart, { SurveyType } from "./components/SurveyStart"
-import { Company, GeneralService, TrackedCountry } from "@/src/utils/types" // предполагается, что тип Company экспортируется отсюда
+import { Company, GeneralService, TrackedCountry } from "@/src/utils/types"
 import QuizGeneralKeyWordsEditor from "./components/QuizGeneralKeyWordsEditor"
 import QuizGeneralServicesEditor from "./components/QuizGeneralServicesEditor"
 import QuizTrackedCountriesEditor from "./components/QuizTrackedCountriesEditor"
-
-interface QuizData {
-    currentStep: number
-    company: Company
-}
+import { addCompanyToDB } from "@/src/services/firebaseService"
+import { useRouter } from "next/navigation"
+import { COMPANIES_ROUTE } from "@/src/utils/consts"
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: "#fff",
@@ -26,72 +24,101 @@ const Item = styled(Paper)(({ theme }) => ({
     }),
 }))
 
+// Определяем типы для состояния квиза и действий редьюсера
+type QuizState = {
+    currentStep: number
+    company: Company
+}
+
+type QuizAction = { type: "SET_STEP"; payload: number } | { type: "NEXT_STEP" } | { type: "PREV_STEP" } | { type: "UPDATE_COMPANY"; payload: Partial<Company> }
+
+// Вынесем начальные данные в константу
+const initialCompany: Company = {
+    uuid: "",
+    name: "",
+    country: { country: "de", country_name: "Germany" },
+    surveyType: "",
+    address: { street: "", houseNumber: "", postalCode: "", city: "" },
+    contact: { phone: "", email: "" },
+    website: "",
+    socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
+    seo: {},
+    generalKeywords: [],
+    generalServices: [],
+    generalDomains: [],
+    trackedCountries: [],
+}
+
+const initialState: QuizState = {
+    currentStep: 0,
+    company: initialCompany,
+}
+
+const totalSteps = 5
+
+const quizReducer = (state: QuizState, action: QuizAction): QuizState => {
+    switch (action.type) {
+        case "SET_STEP":
+            return { ...state, currentStep: action.payload }
+        case "NEXT_STEP":
+            return { ...state, currentStep: state.currentStep + 1 }
+        case "PREV_STEP":
+            return { ...state, currentStep: Math.max(state.currentStep - 1, 0) }
+        case "UPDATE_COMPANY":
+            return { ...state, company: { ...state.company, ...action.payload } }
+        default:
+            return state
+    }
+}
+
 const QuizPages: React.FC = () => {
-    const [quizData, setQuizData] = useState<QuizData>({
-        currentStep: 0,
-        company: {
-            uuid: "",
-            name: "",
-            country: { country: "", country_name: "" },
-            surveyType: "",
-            address: {
-                street: "",
-                houseNumber: "",
-                postalCode: "",
-                city: "",
-            },
-            contact: {
-                phone: "",
-                email: "",
-            },
-            website: "",
-            socialNetworks: {
-                facebook: "",
-                instagram: "",
-                linkedin: "",
-                twitter: "",
-            },
-            seo: {},
-            generalKeywords: [],
-            generalServices: [],
-            generalDomains: [],
-            trackedCountries: [],
-        },
-    })
+    const router = useRouter()
+    const [state, dispatch] = useReducer(quizReducer, initialState)
+    const { currentStep, company } = state
     const [selectedSurveyType, setSelectedSurveyType] = useState<SurveyType | null>(null)
 
     const handleStepClick = (stepIndex: number) => {
-        setQuizData((prev) => ({
-            ...prev,
-            currentStep: stepIndex,
-        }))
+        dispatch({ type: "SET_STEP", payload: stepIndex })
     }
 
-    const totalSteps = 5
+    const createCompany = useCallback(
+        async (data: Company) => {
+            const newCompany: Omit<Company, "uuid"> = {
+                name: data.name || "Default Company Name",
+                country: data.country || { country: "de", country_name: "Germany" },
+                surveyType: data.surveyType || "",
+                address: data.address || { street: "", houseNumber: "", postalCode: "", city: "" },
+                contact: data.contact || { email: "", phone: "" },
+                website: data.website || "",
+                socialNetworks: data.socialNetworks || { facebook: "", instagram: "", linkedin: "", twitter: "" },
+                seo: data.seo || {},
+                generalKeywords: data.generalKeywords || [],
+                generalServices: data.generalServices || [],
+                generalDomains: data.generalDomains || [],
+                trackedCountries: data.trackedCountries || [],
+            }
 
-    const updateCompanyData = (newData: Partial<Company>) => {
-        setQuizData((prev) => ({
-            ...prev,
-            company: { ...prev.company, ...newData },
-        }))
-    }
+            try {
+                await addCompanyToDB(newCompany)
+                router.push(COMPANIES_ROUTE)
+            } catch (error) {
+                console.error("Error creating company:", error)
+                // Здесь можно добавить уведомление об ошибке для пользователя
+            }
+        },
+        [router]
+    )
 
-    const goToNextStep = () => {
-        setQuizData((prev) => ({
-            ...prev,
-            currentStep: prev.currentStep + 1,
-        }))
-    }
+    // Вызываем создание компании, когда пройдены все шаги
+    useEffect(() => {
+        if (currentStep === totalSteps) {
+            createCompany(company)
+        }
+    }, [currentStep, company, createCompany])
 
-    const goToPrevStep = () => {
-        setQuizData((prev) => ({
-            ...prev,
-            currentStep: prev.currentStep > 0 ? prev.currentStep - 1 : 0,
-        }))
-    }
-
+    // Рендерим соответствующий шаг
     const renderStep = () => {
-        switch (quizData.currentStep) {
+        switch (currentStep) {
             case 0:
                 return (
                     <Box>
@@ -99,7 +126,7 @@ const QuizPages: React.FC = () => {
                             selectedSurveyType={selectedSurveyType}
                             onSelect={(type: SurveyType) => {
                                 setSelectedSurveyType(type)
-                                goToNextStep()
+                                dispatch({ type: "NEXT_STEP" })
                             }}
                         />
                     </Box>
@@ -111,10 +138,10 @@ const QuizPages: React.FC = () => {
                             Creating and editing a profile
                         </Typography>
                         <CompanyForm
-                            initialData={quizData.company}
+                            initialData={company}
                             onSave={(companyData: Company) => {
-                                updateCompanyData(companyData)
-                                goToNextStep()
+                                dispatch({ type: "UPDATE_COMPANY", payload: companyData })
+                                dispatch({ type: "NEXT_STEP" })
                             }}
                         />
                     </Box>
@@ -127,10 +154,15 @@ const QuizPages: React.FC = () => {
                         </Typography>
                         <Item>
                             <QuizTrackedCountriesEditor
-                                trackedCountries={quizData.company.trackedCountries || []}
-                                defaultCountry={quizData.company.country}
-                                onTrackedCountriesChange={(newCountries: TrackedCountry[]) => updateCompanyData({ trackedCountries: newCountries })}
+                                trackedCountries={company.trackedCountries || []}
+                                defaultCountry={company.country}
+                                onTrackedCountriesChange={(newCountries: TrackedCountry[]) => dispatch({ type: "UPDATE_COMPANY", payload: { trackedCountries: newCountries } })}
                             />
+                            <Box sx={{ pt: 2 }}>
+                                <Button variant="contained" onClick={() => dispatch({ type: "NEXT_STEP" })}>
+                                    Next
+                                </Button>
+                            </Box>
                         </Item>
                     </Box>
                 )
@@ -142,9 +174,14 @@ const QuizPages: React.FC = () => {
                         </Typography>
                         <Item>
                             <QuizGeneralKeyWordsEditor
-                                generalKeywords={quizData.company.generalKeywords || []}
-                                onKeywordsChange={(newKeywords: string[]) => updateCompanyData({ generalKeywords: newKeywords })}
+                                generalKeywords={company.generalKeywords || []}
+                                onKeywordsChange={(newKeywords: string[]) => dispatch({ type: "UPDATE_COMPANY", payload: { generalKeywords: newKeywords } })}
                             />
+                            <Box sx={{ pt: 2 }}>
+                                <Button variant="contained" onClick={() => dispatch({ type: "NEXT_STEP" })}>
+                                    Next
+                                </Button>
+                            </Box>
                         </Item>
                     </Box>
                 )
@@ -156,40 +193,27 @@ const QuizPages: React.FC = () => {
                         </Typography>
                         <Item>
                             <QuizGeneralServicesEditor
-                                generalServices={quizData.company.generalServices || []}
-                                onServicesChange={(newServices: GeneralService[]) => updateCompanyData({ generalServices: newServices })}
+                                generalServices={company.generalServices || []}
+                                onServicesChange={(newServices: GeneralService[]) => dispatch({ type: "UPDATE_COMPANY", payload: { generalServices: newServices } })}
                             />
+                            <Box sx={{ pt: 2 }}>
+                                <Button variant="contained" onClick={() => dispatch({ type: "NEXT_STEP" })}>
+                                    Next
+                                </Button>
+                            </Box>
                         </Item>
                     </Box>
                 )
-
             default:
-                return (
-                    <Box>
-                        <h2>The survey is closed!</h2>
-                        <pre>{JSON.stringify(quizData.company, null, 2)}</pre>
-                    </Box>
-                )
+                return null
         }
     }
 
     return (
         <Box>
-            <Box
-                sx={{
-                    maxWidth: 1200,
-                    margin: "0 auto",
-                    p: 2,
-                    pt: 3,
-                }}
-            >
-                <QuizStepper
-                    activeStep={quizData.currentStep}
-                    steps={["Search target", "Company data", "Search terms", "Keys", "Request for Proposals"]}
-                    onStepClick={handleStepClick}
-                />
+            <Box sx={{ maxWidth: 1200, margin: "0 auto", p: 2, pt: 3 }}>
+                <QuizStepper activeStep={currentStep} steps={["Search target", "Company data", "Search terms", "Keys", "Request for Proposals"]} onStepClick={handleStepClick} />
             </Box>
-
             <Box
                 sx={{
                     display: "flex",
@@ -212,24 +236,6 @@ const QuizPages: React.FC = () => {
                     }}
                 >
                     {renderStep()}
-                </Box>
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-around",
-                        alignItems: "center",
-                        gap: 2,
-                        p: 2,
-                        maxWidth: 1200,
-                        margin: "0 auto",
-                    }}
-                >
-                    <Button variant="contained" onClick={goToPrevStep} disabled={quizData.currentStep === 0}>
-                        Prev
-                    </Button>
-                    <Button variant="contained" onClick={goToNextStep} disabled={quizData.currentStep >= totalSteps}>
-                        Next
-                    </Button>
                 </Box>
             </Box>
         </Box>

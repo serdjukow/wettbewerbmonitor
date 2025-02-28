@@ -5,6 +5,7 @@ import { type TrackedCountry } from "@/src/utils/types"
 interface CountrySelectProps {
     value: TrackedCountry | null
     onChange: (country: TrackedCountry) => void
+    disabled?: boolean
 }
 
 const countryOptions: TrackedCountry[] = [
@@ -74,7 +75,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
     return (
         <FormControl fullWidth>
             <InputLabel id="country-select-label">Country</InputLabel>
-            <Select labelId="country-select-label" value={value?.country || ""} label="Country" onChange={handleCountryChange}>
+            <Select labelId="country-select-label" value={value?.country || ""} label="Country" onChange={handleCountryChange} sx={{ textAlign: "left" }}>
                 {countryOptions.map((country) => (
                     <MenuItem key={country.country} value={country.country}>
                         {country.country_name}
