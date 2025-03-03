@@ -14,7 +14,7 @@ import Sitemark from "./SitemarkIcon"
 import PersonIcon from "@mui/icons-material/Person"
 import Image from "next/image"
 
-import { HOME_ROUTE, COMPANIES_ROUTE } from "@/src/utils/consts"
+import { COMPANIES_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
 
 export interface User {
     id: string
@@ -42,7 +42,7 @@ const DashboardMenuBar = () => {
         logOut()
         deleteCookie("auth_token")
         toast.success("You have successfully logged out.")
-        redirect(HOME_ROUTE)
+        redirect(LOGIN_PAGE_ROUTE)
     }
 
     const handleOpenUserMenu = (event: MouseEvent<HTMLElement>) => {
@@ -62,14 +62,7 @@ const DashboardMenuBar = () => {
                 <Container maxWidth="xl" sx={{ margin: "0 auto 0 0", width: "100%" }}>
                     <Toolbar disableGutters>
                         <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-                            <IconButton
-                                size="large"
-                                aria-label="open navigation menu"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
-                                onClick={handleOpenNavMenu}
-                                color="inherit"
-                            >
+                            <IconButton size="large" aria-label="open navigation menu" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu} color="inherit">
                                 <MenuIcon />
                             </IconButton>
                             <Menu
@@ -98,7 +91,7 @@ const DashboardMenuBar = () => {
                         <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
                             <Link href={COMPANIES_ROUTE} style={{ color: "inherit", textDecoration: "none" }}>
                                 <Button sx={{ my: 2, color: "white", display: "block" }}>My Companies</Button>
-                            </Link>           
+                            </Link>
                         </Box>
                     </Toolbar>
                 </Container>
@@ -109,11 +102,7 @@ const DashboardMenuBar = () => {
                         <Tooltip title={user?.displayName}>
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                 <Avatar sx={{ width: 40, height: 40 }}>
-                                    {user?.photoURL ? (
-                                        <Image src={user?.photoURL} alt={user?.displayName || "User Avatar"} width={40} height={40} />
-                                    ) : (
-                                        <PersonIcon />
-                                    )}
+                                    {user?.photoURL ? <Image src={user?.photoURL} alt={user?.displayName || "User Avatar"} width={40} height={40} /> : <PersonIcon />}
                                 </Avatar>
                             </IconButton>
                         </Tooltip>

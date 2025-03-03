@@ -12,14 +12,8 @@ import FormControl from "@mui/material/FormControl"
 import Select, { SelectChangeEvent } from "@mui/material/Select"
 
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box } from "@mui/material"
-import {
-    Home as HomeIcon,
-    Business as BusinessIcon,
-    Key as KeyIcon,
-    InsertLink as InsertLinkIcon,
-    Edit as EditIcon,
-} from "@mui/icons-material"
-import { DASHBOARD_ROUTE, COMPETITORS_ROUTE, DOMAINS_ROUTE, KEYWORDS_ROUTE, COMPANIES_ROUTE, EDIT_PROFILE_ROUTE } from "@/src/utils/consts"
+import { Home as HomeIcon, Business as BusinessIcon, Key as KeyIcon, InsertLink as InsertLinkIcon, Edit as EditIcon,Abc as AbcIcon  } from "@mui/icons-material"
+import { DASHBOARD_ROUTE, COMPETITORS_ROUTE, DOMAINS_ROUTE, KEYWORDS_ROUTE, COMPANIES_ROUTE, EDIT_PROFILE_ROUTE, DOMAIN_KEYWORDS_ROUTE } from "@/src/utils/consts"
 
 interface MenuItem {
     title: string
@@ -44,6 +38,11 @@ const menuItems: MenuItem[] = [
         title: "Search by Keyword",
         icon: <KeyIcon />,
         path: KEYWORDS_ROUTE,
+    },
+    {
+        title: "Keywords by Domain",
+        icon: <AbcIcon />,
+        path: DOMAIN_KEYWORDS_ROUTE,
     },
     {
         title: "Competitors",
@@ -97,12 +96,7 @@ const Sidebar = () => {
                     <InputLabel sx={{ m: -1.5 }} id="company-select-label">
                         Company
                     </InputLabel>
-                    <Select
-                        labelId="company-select-label"
-                        id="company-select"
-                        value={selectedCompany?.uuid || ""}
-                        onChange={handleCompanyChange}
-                    >
+                    <Select labelId="company-select-label" id="company-select" value={selectedCompany?.uuid || ""} onChange={handleCompanyChange}>
                         {companies.map((company) => (
                             <MenuItem key={company.uuid} value={company.uuid}>
                                 {company.name}

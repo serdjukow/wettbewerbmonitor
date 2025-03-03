@@ -6,7 +6,7 @@ import { type Competitor } from "@/src/utils/types"
 import { useAppStore } from "@/src/store/appStore"
 import { v4 as uuidv4 } from "uuid"
 
-import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container } from "@mui/material"
+import { TextField, Button, Stack, Box, Card, CardContent, Container } from "@mui/material"
 
 const CompetitorCreatePage = () => {
     const router = useRouter()
@@ -90,17 +90,24 @@ const CompetitorCreatePage = () => {
                             />
 
                             {/* Address */}
-                            <Typography variant="h6">Address</Typography>
-                            <Controller
-                                name="address.street"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} required />}
-                            />
-                            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                            <Stack direction="row" spacing={2}>
+                                <Controller
+                                    name="address.street"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} required />}
+                                />
                                 <Controller
                                     name="address.houseNumber"
                                     control={control}
                                     render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+                            </Stack>
+
+                            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                                <Controller
+                                    name="address.city"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                                 <Controller
                                     name="address.postalCode"
@@ -108,11 +115,6 @@ const CompetitorCreatePage = () => {
                                     render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
-                            <Controller
-                                name="address.city"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
 
                             {/* Contact */}
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
@@ -176,18 +178,9 @@ const CompetitorCreatePage = () => {
                                     control={control}
                                     render={({ field }) => <TextField fullWidth label="URL" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
-                            </Stack>
-
-                            {/* Keyword */}
-                            <Typography variant="h6">Keyword</Typography>
-                            <Controller
-                                name="keyword"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
+                            </Stack>           
 
                             {/* Social Networks */}
-                            <Typography variant="h6">Social Networks</Typography>
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="socialNetworks.facebook"

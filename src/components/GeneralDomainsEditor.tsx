@@ -7,7 +7,6 @@ import { useAppStore } from "@/src/store/appStore"
 import { toast } from "react-toastify"
 import DeleteDialog from "./DeleteDialog"
 
-// Регулярное выражение для проверки корректного домена
 const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/
 
 const isValidDomain = (domain: string): boolean => {
@@ -28,7 +27,6 @@ const GeneralDomainsEditor: React.FC = () => {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [deleteDomainIndex, setDeleteDomainIndex] = useState<number | null>(null)
 
-    // Синхронизируем локальное состояние с данными компании
     useEffect(() => {
         if (selectedCompany) {
             setDomains(selectedCompany.generalDomains || [])
@@ -170,7 +168,13 @@ const GeneralDomainsEditor: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleSaveEdit} startIcon={<SaveIcon />} color="primary" variant="contained">
+                    <Button
+                        disabled={editDomainValue.trim().length > 0 && !isValidDomain(editDomainValue)}
+                        onClick={handleSaveEdit}
+                        startIcon={<SaveIcon />}
+                        color="primary"
+                        variant="contained"
+                    >
                         Save
                     </Button>
                     <Button onClick={handleCloseEditDialog} startIcon={<CancelIcon />} color="error" variant="contained">

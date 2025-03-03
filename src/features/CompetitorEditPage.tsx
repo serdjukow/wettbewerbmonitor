@@ -9,7 +9,7 @@ import { toast } from "react-toastify"
 import { useAppStore } from "@/src/store/appStore"
 import { type Competitor } from "@/src/utils/types"
 
-import { TextField, Button, Stack, Box, Typography, Card, CardContent, Container } from "@mui/material"
+import { TextField, Button, Stack, Box, Card, CardContent, Container } from "@mui/material"
 import { Save as SaveIcon, Cancel as CancelIcon, DeleteForever as DeleteForeverIcon } from "@mui/icons-material"
 import DeleteDialog from "../components/DeleteDialog"
 
@@ -109,30 +109,19 @@ const CompetitorEditPage = () => {
                                 )}
                             />
 
-                            {/* Contact Information */}
-                            <Controller
-                                name="contact.email"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Email" variant="outlined" value={field.value ?? ""} onChange={field.onChange} required />}
-                            />
-                            <Controller
-                                name="contact.phone"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
-
-                            {/* Address */}
-                            <Typography variant="h6">Address</Typography>
-                            <Controller
-                                name="address.street"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
-                            <Controller
-                                name="address.houseNumber"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
+                            <Stack direction="row" spacing={2}>
+                                {/* Address */}
+                                <Controller
+                                    name="address.street"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="Street" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+                                <Controller
+                                    name="address.houseNumber"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="House Number" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+                            </Stack>
                             <Stack direction="row" spacing={2}>
                                 <Controller
                                     name="address.city"
@@ -146,25 +135,36 @@ const CompetitorEditPage = () => {
                                 />
                             </Stack>
 
-                            {/* Website */}
-                            <Typography variant="h6">Website</Typography>
-                            <Controller
-                                name="domain"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Website" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
-
-                            {/* Keyword */}
-                            <Typography variant="h6">Keyword</Typography>
-                            <Controller
-                                name="keyword"
-                                control={control}
-                                render={({ field }) => <TextField fullWidth label="Keyword" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                            />
-
-                            {/* Social Networks */}
-                            <Typography variant="h6">Social Networks</Typography>
                             <Stack direction="row" spacing={2}>
+                                {/* Contact Information */}
+                                <Controller
+                                    name="domain"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="Website" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+
+                                <Controller
+                                    name="url"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="URL" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+                            </Stack>
+                            <Stack direction="row" spacing={2}>
+                                <Controller
+                                    name="contact.phone"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="Phone" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+
+                                {/* Website */}
+                                <Controller
+                                    name="contact.email"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="Email" variant="outlined" value={field.value ?? ""} onChange={field.onChange} required />}
+                                />
+                            </Stack>
+
+                            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
                                     name="socialNetworks.facebook"
                                     control={control}
@@ -174,6 +174,18 @@ const CompetitorEditPage = () => {
                                     name="socialNetworks.instagram"
                                     control={control}
                                     render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+                            </Stack>
+                            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                                <Controller
+                                    name="socialNetworks.linkedin"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+                                <Controller
+                                    name="socialNetworks.twitter"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
 

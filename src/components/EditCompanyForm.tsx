@@ -69,7 +69,6 @@ const EditCompanyForm = () => {
             <CardContent>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Stack spacing={2}>
-                        {/* Company Name */}
                         <Controller
                             name="name"
                             control={control}

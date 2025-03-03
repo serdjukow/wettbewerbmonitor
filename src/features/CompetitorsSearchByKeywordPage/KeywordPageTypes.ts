@@ -15,16 +15,8 @@ export interface EnhancedTableToolbarProps {
     onAddCompetitors?: () => void
 }
 
-interface KeywordStats {
-    intent_website?: number
-    intent_know?: number
-    intent_visit?: number
-    intent_do?: number
-}
-
 export interface KeywordStatsTableToolbarProps {
     keyword: string
-    keywordStats: KeywordStats
 }
 
 export type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }

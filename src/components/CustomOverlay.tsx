@@ -24,7 +24,7 @@ interface CustomOverlayProps {
     data: SistrixResponse | null
 }
 
-type SistrixResponse = SistrixResponseError | SistrixResponseSuccess
+type SistrixResponse = SistrixResponseError | SistrixResponseSuccess 
 
 const CustomOverlay: React.FC<CustomOverlayProps> = ({ data }) => {
     if (data && "status" in data && data.status === "fail") {

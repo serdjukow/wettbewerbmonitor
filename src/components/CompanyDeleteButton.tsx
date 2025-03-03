@@ -32,7 +32,7 @@ const CompanyDeleteButton = () => {
     return (
         <>
             <Button onClick={handleOpenCompanyDeleteDialog} variant="contained" startIcon={<DeleteForeverIcon />} color="error">
-                Delete
+                Delete company
             </Button>
             <DeleteDialog open={openCompanyDeleteDialog} onClose={handleCloseCompanyDeleteDialog} onConfirm={handleConfirmDelete} />
         </>

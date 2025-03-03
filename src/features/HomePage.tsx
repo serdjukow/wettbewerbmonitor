@@ -10,6 +10,8 @@ import AppAppBar from "@/src/components/AppAppBar"
 import Box from "@mui/material/Box"
 import Stack from "@mui/material/Stack"
 import Typography from "@mui/material/Typography"
+import { Button, Link } from "@mui/material"
+import { COMPANIES_ROUTE } from "@/src/utils/consts"
 
 const HomePage = () => {
     const disableCustomTheme = false
@@ -57,7 +59,7 @@ const HomePage = () => {
                                 fontSize: "clamp(3rem, 10vw, 3.5rem)",
                             }}
                         >
-                            Wettbewerb&nbsp;
+                            Analito&nbsp;
                             <Typography
                                 component="span"
                                 variant="h1"
@@ -69,21 +71,18 @@ const HomePage = () => {
                                     }),
                                 })}
                             >
-                                Monitor
+                                App
                             </Typography>
                         </Typography>
-                        <Typography
-                            sx={{
-                                textAlign: "center",
-                                color: "text.secondary",
-                                width: { sm: "100%", md: "80%" },
+                        <Link
+                            href={COMPANIES_ROUTE}
+                            style={{
+                                color: "inherit",
+                                textDecoration: "none",
                             }}
                         >
-                            WettbewerbMonitor – Wettbewerbsanalyse für Ihr Unternehmen WettbewerbMonitor ist ein leistungsstarkes Tool zur
-                            Überwachung von Wettbewerbern und zur Analyse ihrer SEO-Strategien. Das System ermöglicht die Identifizierung
-                            von Konkurrenten anhand von Schlüsselwörtern, die Analyse ihrer Suchmaschinenplatzierungen und den Zugriff auf
-                            wertvolle SEO-Daten durch die Integration mit der Sistrix API.
-                        </Typography>
+                            <Button variant="contained">Get started</Button>
+                        </Link>
                     </Stack>
                 </Container>
             </Box>

@@ -48,7 +48,7 @@ const GeneralKeywordsDialog: React.FC<GeneralKeywordsDialogProps> = ({ open, onC
                 <NoDataMessage />
             )}
             <DialogActions>
-                <Button variant="outlined" color="secondary" onClick={onClose}>
+                <Button variant="contained" color="secondary" onClick={onClose} style={{ color: "#ffffff" }}>
                     Close
                 </Button>
             </DialogActions>

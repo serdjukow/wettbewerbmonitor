@@ -215,7 +215,6 @@ const QuizPages: React.FC = () => {
                     flexDirection: "column",
                     height: "calc(100vh - 68px - 130px)",
                     overflowY: "auto",
-                    pt: 3,
                 }}
             >
                 <Box

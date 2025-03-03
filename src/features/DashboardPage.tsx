@@ -117,7 +117,6 @@ const DashboardPage = () => {
                             </Typography>
                         )}
                         <Box sx={{ mt: 2 }}>
-                            Sistrix Credits:
                             <RemainingCredits />
                         </Box>
                     </Paper>

@@ -13,12 +13,6 @@ export interface SistrixResponse {
         }>
     }>
     credits: Array<{ used: number }>
-    keywordStats?: {
-        intent_website: number
-        intent_know: number
-        intent_visit: number
-        intent_do: number
-    }
 }
 
 export interface ExtendedUseQueryOptions<TQueryFnData, TError, TData, TQueryKey extends QueryKey = QueryKey>

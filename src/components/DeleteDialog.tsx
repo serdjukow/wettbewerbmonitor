@@ -12,7 +12,7 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({ open, onClose, onConfirm })
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogContent>
-                <Typography>Are you sure you want to delete this keyword?</Typography>
+                <Typography>Are you sure you want to delete?</Typography>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onConfirm} color="error" variant="contained">

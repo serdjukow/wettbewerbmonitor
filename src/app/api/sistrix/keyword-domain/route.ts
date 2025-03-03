@@ -6,22 +6,22 @@ const API_KEY = process.env.SISTRIX_API_KEY || ""
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
-    const kw = searchParams.get("kw")
+    const domain = searchParams.get("domain")
 
-    if (!kw) {
-        return NextResponse.json({ error: "Parameter 'kw' is required" }, { status: 400 })
+    if (!domain) {
+        return NextResponse.json({ error: "Parameter 'domain' is required" }, { status: 400 })
     }
 
     const paramsSeo = {
         api_key: API_KEY,
-        kw,
+        domain,
         country: searchParams.get("country") || "de",
         limit: searchParams.get("limit") || "10",
         format: "json",
     }
 
     try {
-        const seoRes = await axios.get(`${BASE_URL}/keyword.seo`, { params: paramsSeo })
+        const seoRes = await axios.get(`${BASE_URL}/keyword.domain.sem`, { params: paramsSeo })
         return NextResponse.json(seoRes.data)
     } catch (error) {
         const errorMessage = (axios.isAxiosError(error) && error.response?.data) || (error as Error).message || "Ошибка запроса"

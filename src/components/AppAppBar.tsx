@@ -1,21 +1,10 @@
-import { useState } from "react"
-import Link from "next/link"
-import { useAuth } from "@/src/context/AuthContext"
-
 import { alpha, styled } from "@mui/material/styles"
 import Box from "@mui/material/Box"
 import AppBar from "@mui/material/AppBar"
 import Toolbar from "@mui/material/Toolbar"
-import Button from "@mui/material/Button"
-import IconButton from "@mui/material/IconButton"
 import Container from "@mui/material/Container"
-import MenuItem from "@mui/material/MenuItem"
-import Drawer from "@mui/material/Drawer"
-import MenuIcon from "@mui/icons-material/Menu"
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
 import ColorModeIconDropdown from "@/src/theme/ColorModeIconDropdown"
 import Sitemark from "./SitemarkIcon"
-import { LOGIN_PAGE_ROUTE, COMPANIES_ROUTE } from "@/src/utils/consts"
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: "flex",
@@ -32,13 +21,6 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }))
 
 export default function AppAppBar() {
-    const [open, setOpen] = useState(false)
-    const { logOut, user } = useAuth()
-
-    const toggleDrawer = (newOpen: boolean) => () => {
-        setOpen(newOpen)
-    }
-
     return (
         <AppBar
             position="fixed"
@@ -64,104 +46,15 @@ export default function AppAppBar() {
                     </Box>
                     <Box
                         sx={{
-                            flexGrow: 1,
-                            display: "flex",
-                            alignItems: "center",
-                            px: 1,
-                        }}
-                    >
-                        <Box sx={{ display: { xs: "none", md: "flex" } }}>
-                            <Link
-                                href={COMPANIES_ROUTE}
-                                style={{
-                                    color: "inherit",
-                                    textDecoration: "none",
-                                }}
-                            >
-                                <Button
-                                    variant="text"
-                                    color="info"
-                                    size="small"
-                                >
-                                    Dashboard
-                                </Button>
-                            </Link>
-                        </Box>
-                    </Box>
-                    <Box
-                        sx={{
                             display: { xs: "none", md: "flex" },
                             gap: 1,
                             alignItems: "center",
                         }}
-                    >
-                        {user ? (
-                            <Button
-                                color="primary"
-                                variant="contained"
-                                size="small"
-                                onClick={logOut}
-                            >
-                                Sign up
-                            </Button>
-                        ) : (
-                            <Button
-                                href={LOGIN_PAGE_ROUTE}
-                                color="primary"
-                                variant="text"
-                                size="small"
-                            >
-                                Sign in
-                            </Button>
-                        )}
+                    >                 
                         <ColorModeIconDropdown />
                     </Box>
                     <Box sx={{ display: { xs: "flex", md: "none" }, gap: 1 }}>
-                        <ColorModeIconDropdown size="medium" />
-                        <IconButton
-                            aria-label="Menu button"
-                            onClick={toggleDrawer(true)}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Drawer
-                            anchor="top"
-                            open={open}
-                            onClose={toggleDrawer(false)}
-                            PaperProps={{
-                                sx: {
-                                    top: "var(--template-frame-height, 0px)",
-                                },
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    p: 2,
-                                    backgroundColor: "background.default",
-                                }}
-                            >
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "flex-end",
-                                    }}
-                                >
-                                    <IconButton onClick={toggleDrawer(false)}>
-                                        <CloseRoundedIcon />
-                                    </IconButton>
-                                </Box>
-                                <MenuItem>
-                                    <Button
-                                        href="/auth/login"
-                                        color="primary"
-                                        variant="outlined"
-                                        fullWidth
-                                    >
-                                        Sign in
-                                    </Button>
-                                </MenuItem>
-                            </Box>
-                        </Drawer>
+                        <ColorModeIconDropdown size="medium" />             
                     </Box>
                 </StyledToolbar>
             </Container>

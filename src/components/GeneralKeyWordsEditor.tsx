@@ -128,7 +128,7 @@ const GeneralKeyWordsEditor: React.FC = () => {
                         }
                     }}
                 />
-                <Button variant="contained" onClick={handleAddKeyword}>
+                <Button disabled={newKeyword.trim().length > 0 && !isValidKeyword(newKeyword)} variant="contained" onClick={handleAddKeyword}>
                     Add
                 </Button>
             </Box>

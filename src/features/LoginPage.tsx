@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "react-toastify"
 import { useAuth } from "@/src/context/AuthContext"
@@ -25,9 +25,6 @@ const LoginPage = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
     const redirect = searchParams?.get("redirect") || COMPANIES_ROUTE
-    const [loading, setLoading] = useState(false)
-
-    console.log(loading)
 
     useEffect(() => {
         if (user) {
@@ -36,7 +33,6 @@ const LoginPage = () => {
     }, [user, redirect, router])
 
     const signIn: SignInPageProps["signIn"] = async (provider, formData) => {
-        setLoading(true)
         let result
         if (provider.id === "google") {
             result = await signInWithGoogle()
@@ -52,7 +48,6 @@ const LoginPage = () => {
         } else {
             toast.error(`Login failed. ${result.error}`)
         }
-        setLoading(false)
         return result
     }
 
@@ -63,11 +58,7 @@ const LoginPage = () => {
     return (
         <AppTheme>
             <AppProvider theme={theme}>
-                <SignInPage
-                    signIn={signIn}
-                    providers={providers}
-                    slotProps={{ emailField: { autoFocus: false }, rememberMe: { sx: { display: "none" } } }}
-                />
+                <SignInPage signIn={signIn} providers={providers} slotProps={{ emailField: { autoFocus: false }, rememberMe: { sx: { display: "none" } } }} />
             </AppProvider>
         </AppTheme>
     )

@@ -25,31 +25,30 @@ import {
     Alert,
 } from "@mui/material"
 import ListAltIcon from "@mui/icons-material/ListAlt"
-import { v4 as uuidv4 } from "uuid"
-import { useSistrixDomainsData } from "@/src/hooks/useSistrixDomainsQuery"
-import { type Competitor } from "@/src/utils/types"
+import { useSistrixDomainKeywordsData } from "@/src/hooks/useSistrixDomainKeywordsQuery"
 import { useAppStore } from "@/src/store/appStore"
 import RemainingCredits from "@/src/components/RemainingCredits"
-import CustomOverlay from "@/src/components/CustomOverlay"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import NoDataMessage from "@/src/components/NoDataMessage"
 import CompetitorStats from "@/src/components/CompetitorStats"
 
-interface SistrixDomainResult {
-    uuid?: string
-    domain: string
-    match: number
+export interface SistrixDomainsKeywordsResult {
+    kw: string
+    position: number
+    competition: number
+    traffic: number
+    url: string
 }
 
 type Order = "asc" | "desc"
 
 interface EnhancedTableToolbarProps {
     numSelected: number
-    onAddCompetitors?: () => void
+    onAddKeywords?: () => void
 }
 
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-    const { numSelected, onAddCompetitors } = props
+    const { numSelected, onAddKeywords } = props
     return (
         <Toolbar
             sx={{
@@ -65,9 +64,9 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                     <Typography sx={{ flex: "1 1 100%" }} color="inherit" variant="subtitle1" component="div">
                         {numSelected} selected
                     </Typography>
-                    <Tooltip title="Add competitors">
+                    <Tooltip title="Add keywords">
                         <Button
-                            onClick={onAddCompetitors}
+                            onClick={onAddKeywords}
                             variant="contained"
                             size="small"
                             color="success"
@@ -77,13 +76,13 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                                 },
                             }}
                         >
-                            Save competitors
+                            Save keywords
                         </Button>
                     </Tooltip>
                 </>
             ) : (
                 <Typography sx={{ flex: "1 1 100%" }} variant="h6" id="tableTitle" component="div">
-                    Competitors
+                    Keywords
                 </Typography>
             )}
         </Toolbar>
@@ -116,14 +115,12 @@ function DomainStatsTableToolbar(props: DomainStatsTableToolbarProps) {
     )
 }
 
-type ExtendedCompetitor = Competitor & { competitorName?: string; domain?: string }
-
-export default function CompetitorsSearchByDomainPage() {
+export default function KeywordsSearchByDomainPage() {
     const [domainInput, setDomainInput] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
-    const [competitors, setCompetitors] = useState<Competitor[]>([])
+    const [keywords, setKeywords] = useState<SistrixDomainsKeywordsResult[]>([])
     const [order, setOrder] = useState<Order>("asc")
-    const [orderBy, setOrderBy] = useState<"match" | "domain">("match")
+    const [orderBy, setOrderBy] = useState<"position" | "kw">("position")
     const [selected, setSelected] = useState<string[]>([])
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(100)
@@ -156,53 +153,39 @@ export default function CompetitorsSearchByDomainPage() {
         return groups
     }, [selectedCompany])
 
-    const { data, isLoading, isError, error } = useSistrixDomainsData(searchTerm, queryParams.country, { limit: queryParams.limit, history: "false" }, { enabled: !!searchTerm })
+    const { data, isLoading, isError, error } = useSistrixDomainKeywordsData(
+        searchTerm,
+        queryParams.country,
+        { limit: queryParams.limit, history: "false" },
+        { enabled: !!searchTerm }
+    )
 
     useEffect(() => {
         if (data) {
             if ("status" in data && data.status === "fail") {
-                setCompetitors([])
+                setKeywords([])
                 setTotalResultsCount(0)
                 setFilteredResultsCount(0)
                 setHiddenResultsCount(0)
             } else if ("answer" in data && data.answer?.[0]?.result) {
-                const competitorResults = data.answer[0].result as SistrixDomainResult[]
-                const validResults = competitorResults.filter((item) => Boolean(item.domain))
+                const keywordResults = data.answer[0].result as SistrixDomainsKeywordsResult[]
+                const validResults = keywordResults.filter((item) => Boolean(item.kw))
                 setTotalResultsCount(validResults.length)
-                const addedCompetitors = selectedCompany?.seo?.competitors || []
+                const addedKeywords = selectedCompany?.generalKeywords || []
 
                 let hiddenCount = 0
 
                 const filteredResults = validResults.filter((item) => {
-                    const isAlreadyAdded = addedCompetitors.some((comp) => {
-                        const compDomain = (comp as ExtendedCompetitor).domain || ""
-                        return compDomain === item.domain
-                    })
-
+                    const isAlreadyAdded = addedKeywords.includes(item.kw)
                     if (isAlreadyAdded) {
                         hiddenCount++
                     }
-
                     return !isAlreadyAdded
                 })
 
                 setFilteredResultsCount(filteredResults.length)
                 setHiddenResultsCount(hiddenCount)
-
-                const fetchedCompetitors: Competitor[] = filteredResults.map((item) => ({
-                    uuid: item.uuid || uuidv4(),
-                    match: item.match,
-                    domain: item.domain,
-                    url: "",
-                    keyword: "",
-                    name: "",
-                    status: "not_checked",
-                    products: [],
-                    address: { street: "", houseNumber: "", postalCode: "", city: "" },
-                    contact: { phone: "", email: "" },
-                    socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
-                }))
-                setCompetitors(fetchedCompetitors)
+                setKeywords(filteredResults)
             }
         }
     }, [data, selectedCompany])
@@ -213,59 +196,47 @@ export default function CompetitorsSearchByDomainPage() {
         setDomainInput(trimmedDomainInput)
     }
 
-    const handleSaveCompetitors = (competitors: Competitor[]) => {
+    const handleSaveKeywords = (keywordsToSave: SistrixDomainsKeywordsResult[]) => {
         if (selectedCompany?.uuid) {
-            const currentCompetitors = selectedCompany?.seo?.competitors || []
-            const formattedCompetitors = competitors.map((comp) => ({
-                uuid: comp.uuid || "",
-                name: comp.name || (comp as ExtendedCompetitor).competitorName || "",
-                status: comp.status,
-                products: comp.products,
-                domain: comp.domain || "",
-                url: comp.url || "",
-                position: comp.position !== undefined ? comp.position : 0,
-                address: {
-                    street: comp.address?.street || "",
-                    houseNumber: comp.address?.houseNumber || "",
-                    postalCode: comp.address?.postalCode || "",
-                    city: comp.address?.city || "",
-                },
-                contact: {
-                    phone: comp.contact?.phone || "",
-                    email: comp.contact?.email || "",
-                },
-                socialNetworks: {
-                    facebook: comp.socialNetworks?.facebook || "",
-                    instagram: comp.socialNetworks?.instagram || "",
-                    linkedin: comp.socialNetworks?.linkedin || "",
-                    twitter: comp.socialNetworks?.twitter || "",
-                },
-            }))
-
+            const currentGeneralKeywords = selectedCompany.generalKeywords || []
+            const newGeneralKeywords = keywordsToSave.map((keyword) => keyword.kw)
             updateCompany(selectedCompany.uuid, {
-                seo: {
-                    competitors: [...currentCompetitors, ...formattedCompetitors],
-                },
+                generalKeywords: [...currentGeneralKeywords, ...newGeneralKeywords],
             })
             setSelected([])
         }
     }
 
-    const handleAddCompetitors = () => {
-        const selectedCompetitors = competitors.filter((comp) => comp.uuid && selected.includes(comp.uuid))
-        handleSaveCompetitors(selectedCompetitors)
-        setCompetitors([])
+    const handleAddKeywords = () => {
+        const selectedKeywords = keywords.filter((item) => item.kw && selected.includes(item.kw))
+        handleSaveKeywords(selectedKeywords)
+        setKeywords([])
     }
 
-    const gridRows = competitors.map((comp) => ({
-        id: comp.uuid,
-        domain: comp.domain,
-        match: comp.match,
+    const gridRows = keywords.map((item) => ({
+        id: item.kw,
+        kw: item.kw,
+        position: item.position,
+        competition: item.competition,
+        traffic: item.traffic,
+        url: item.url,
     }))
 
     const columns: GridColDef[] = [
-        { field: "domain", headerName: "Domain", flex: 1 },
-        { field: "match", headerName: "Match", flex: 1 },
+        { field: "kw", headerName: "Keyword", flex: 1 },
+        { field: "position", headerName: "Position", flex: 1 },
+        { field: "competition", headerName: "Competition", flex: 1 },
+        { field: "traffic", headerName: "Traffic", flex: 1 },
+        {
+            field: "url",
+            headerName: "URL",
+            flex: 1,
+            renderCell: (params) => (
+                <a href={params.value} target="_blank" rel="noopener noreferrer">
+                    {params.value}
+                </a>
+            ),
+        },
     ]
 
     const sortModel: GridSortModel = [
@@ -312,7 +283,7 @@ export default function CompetitorsSearchByDomainPage() {
                         </Box>
                         <DomainStatsTableToolbar domain={domainInput} />
                         <CompetitorStats totalResultsCount={totalResultsCount} filteredResultsCount={filteredResultsCount} hiddenResultsCount={hiddenResultsCount} />
-                        <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
+                        <EnhancedTableToolbar numSelected={selected.length} onAddKeywords={handleAddKeywords} />
 
                         <Box sx={{ height: "55vh", width: "100%" }}>
                             {isError ? (
@@ -335,15 +306,15 @@ export default function CompetitorsSearchByDomainPage() {
                                     onSortModelChange={(model) => {
                                         if (model.length) {
                                             const field = model[0].field
-                                            if (field === "match" || field === "domain") {
-                                                setOrderBy(field as "match" | "domain")
+                                            if (field === "position" || field === "kw") {
+                                                setOrderBy(field as "position" | "kw")
                                                 setOrder(model[0].sort as Order)
                                             }
                                         }
                                     }}
                                     rowSelectionModel={selected}
                                     onRowSelectionModelChange={(newSelection) => setSelected(newSelection as string[])}
-                                    slots={{ noRowsOverlay: () => <CustomOverlay data={data ?? null} /> }}
+                                    // slots={{ noRowsOverlay: () => <CustomOverlay data={data ?? null} /> }}
                                 />
                             )}
                         </Box>
@@ -352,8 +323,7 @@ export default function CompetitorsSearchByDomainPage() {
             </Box>
             <Dialog open={openGeneralDomainsModal} onClose={handleCloseGeneralDomainsModal} fullWidth maxWidth="sm">
                 <DialogTitle>Select a Domain</DialogTitle>
-
-                {selectedCompany?.generalDomains || selectedCompany?.generalDomains?.length ? (
+                {selectedCompany?.generalDomains && selectedCompany.generalDomains.length ? (
                     <DialogContent dividers>
                         <TextField label="Search domains" fullWidth value={generalSearchQuery} onChange={(e) => setGeneralSearchQuery(e.target.value)} sx={{ mb: 2 }} />
                         {Object.keys(groupedGeneralDomains)
@@ -383,7 +353,6 @@ export default function CompetitorsSearchByDomainPage() {
                 ) : (
                     <NoDataMessage />
                 )}
-
                 <DialogActions>
                     <Button color="secondary" onClick={handleCloseGeneralDomainsModal} variant="contained" style={{ color: "#ffffff" }}>
                         Close

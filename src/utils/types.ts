@@ -33,6 +33,7 @@ export interface Competitor {
 }
 
 type Keyword = {
+    kw: string
     uuid: string
     keyword: string
 }

@@ -60,7 +60,7 @@ const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, fi
                     <AnimatedNumber value={filteredResultsCount} />
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: "bold", color: "primary.main" }}>
-                    New Competitors
+                    New
                 </Typography>
             </Box>
             <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>

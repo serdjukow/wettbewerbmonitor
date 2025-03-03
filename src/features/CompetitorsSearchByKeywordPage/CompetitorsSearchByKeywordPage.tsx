@@ -1,15 +1,13 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Box, Button, TextField, Paper, IconButton, Alert} from "@mui/material"
+import { Box, Button, TextField, Paper, IconButton, Alert } from "@mui/material"
 import ListAltIcon from "@mui/icons-material/ListAlt"
-import SettingsInputComponentIcon from "@mui/icons-material/SettingsInputComponent"
 import { v4 as uuidv4 } from "uuid"
-import { useSistrixData } from "@/src/hooks/useSistrixKwQuery"
+import { useSistrixData } from "@/src/hooks/useSistrixKeywordQuery"
 import { type Competitor } from "@/src/utils/types"
 import { useAppStore } from "@/src/store/appStore"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
-import QueryParamsModal from "@/src/components/QueryParamsModal"
 import CustomOverlay from "@/src/components/CustomOverlay"
 import { SistrixCompetitorResult, Order, ExtendedCompetitor } from "./KeywordPageTypes"
 import EnhancedTableToolbar from "./KeywordPageComponents/EnhancedTableToolbar"
@@ -27,7 +25,6 @@ const CompetitorsSearchByKeywordPage = () => {
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(100)
     const { updateCompany, selectedCompany, queryParams } = useAppStore()
-    const [openModal, setOpenModal] = useState(false)
     const [totalResultsCount, setTotalResultsCount] = useState(0)
     const [filteredResultsCount, setFilteredResultsCount] = useState(0)
     const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
@@ -151,7 +148,16 @@ const CompetitorsSearchByKeywordPage = () => {
     const columns: GridColDef[] = [
         { field: "position", headerName: "Position", flex: 1 },
         { field: "domain", headerName: "Domain", flex: 1 },
-        { field: "url", headerName: "Url", flex: 1 },
+        {
+            field: "url",
+            headerName: "URL",
+            flex: 1,
+            renderCell: (params) => (
+                <a href={params.value} target="_blank" rel="noopener noreferrer">
+                    {params.value}
+                </a>
+            ),
+        },
     ]
 
     const sortModel: GridSortModel = [
@@ -192,14 +198,11 @@ const CompetitorsSearchByKeywordPage = () => {
                             <IconButton color="primary" onClick={handleOpenGeneralWordsModal}>
                                 <ListAltIcon />
                             </IconButton>
-                            <IconButton color="secondary" onClick={() => setOpenModal(true)}>
-                                <SettingsInputComponentIcon />
-                            </IconButton>
                             <Button variant="contained" onClick={handleSearch}>
                                 Search
                             </Button>
                         </Box>
-                        <KeywordStatsTableToolbar keyword={keyword} keywordStats={data?.keywordStats ?? {}} />
+                        <KeywordStatsTableToolbar keyword={keyword} />
                         <CompetitorStats totalResultsCount={totalResultsCount} filteredResultsCount={filteredResultsCount} hiddenResultsCount={hiddenResultsCount} />
                         <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
                         <Box sx={{ height: "55vh", width: "100%" }}>
@@ -238,7 +241,6 @@ const CompetitorsSearchByKeywordPage = () => {
                     </Paper>
                 </Box>
             </Box>
-            <QueryParamsModal open={openModal} onClose={() => setOpenModal(false)} />
             <GeneralKeywordsDialog
                 open={openGeneralWordsModal}
                 onClose={handleCloseGeneralWordsModal}

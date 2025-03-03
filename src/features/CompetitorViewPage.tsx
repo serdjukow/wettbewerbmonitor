@@ -17,8 +17,6 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { useAppStore } from "@/src/store/appStore"
 import { type Competitor } from "@/src/utils/types"
 
-type ExtendedCompetitor = Competitor & { keyword?: string }
-
 const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
@@ -39,11 +37,11 @@ const CompetitorViewPage: React.FC = () => {
     const router = useRouter()
     const { selectedCompany } = useAppStore()
     const uuid = searchParams?.get("uuid")
-    const [competitor, setCompetitor] = useState<ExtendedCompetitor | null>(null)
+    const [competitor, setCompetitor] = useState<Competitor | null>(null)
 
     useEffect(() => {
         if (selectedCompany && uuid) {
-            const comp = selectedCompany?.seo?.competitors?.find((c: ExtendedCompetitor) => c.uuid === uuid) || null
+            const comp = selectedCompany?.seo?.competitors?.find((c: Competitor) => c.uuid === uuid) || null
             setCompetitor(comp)
         }
     }, [selectedCompany, uuid])
@@ -53,7 +51,6 @@ const CompetitorViewPage: React.FC = () => {
               { property: "Name", value: competitor.name },
               { property: "Domain", value: competitor.domain },
               { property: "URL", value: competitor.url },
-              { property: "Keyword", value: competitor.keyword },
               { property: "Contact Email", value: competitor.contact?.email },
               { property: "Contact Phone", value: competitor.contact?.phone },
               { property: "Street", value: competitor.address?.street },

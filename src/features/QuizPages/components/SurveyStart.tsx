@@ -20,7 +20,6 @@ const SurveyStart: React.FC<SurveyStartProps> = ({ selectedSurveyType, onSelect 
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                pt: 4,
             }}
         >
             <Typography variant="h4" gutterBottom>

@@ -9,7 +9,7 @@ import {
 import { KeywordStatsTableToolbarProps } from "./../KeywordPageTypes"
 
 function KeywordStatsTableToolbar(props: KeywordStatsTableToolbarProps) {
-    const { keyword, keywordStats } = props
+    const { keyword } = props
     return (
         <Toolbar
             sx={{
@@ -23,13 +23,7 @@ function KeywordStatsTableToolbar(props: KeywordStatsTableToolbarProps) {
                 <Typography variant="h6" id="tableTitle" component="div">
                     Keyword:
                     <span style={{ color: "#3498db", marginLeft: "5px" }}>{keyword}</span>
-                </Typography>
-                <Box sx={{ display: "flex", gap: 2, mt: 1, color: "text.secondary" }}>
-                    <Typography variant="body1">Website: {keywordStats.intent_website ?? 0}</Typography>
-                    <Typography variant="body1">Know: {keywordStats.intent_know ?? 0}</Typography>
-                    <Typography variant="body1">Visit: {keywordStats.intent_visit ?? 0}</Typography>
-                    <Typography variant="body1">Do: {keywordStats.intent_do ?? 0}</Typography>
-                </Box>
+                </Typography>               
             </Box>
             <RemainingCredits />
         </Toolbar>
