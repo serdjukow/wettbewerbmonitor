@@ -105,14 +105,14 @@ const CompetitorCreatePage = () => {
 
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                 <Controller
-                                    name="address.city"
-                                    control={control}
-                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
-                                />
-                                <Controller
                                     name="address.postalCode"
                                     control={control}
                                     render={({ field }) => <TextField fullWidth label="Postal Code" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
+                                />
+                                <Controller
+                                    name="address.city"
+                                    control={control}
+                                    render={({ field }) => <TextField fullWidth label="City" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
                             </Stack>
 
@@ -178,7 +178,7 @@ const CompetitorCreatePage = () => {
                                     control={control}
                                     render={({ field }) => <TextField fullWidth label="URL" variant="outlined" value={field.value ?? ""} onChange={field.onChange} />}
                                 />
-                            </Stack>           
+                            </Stack>
 
                             {/* Social Networks */}
                             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>

@@ -85,10 +85,20 @@ const CompetitorsSearchByKeywordPage = () => {
                     return !isAlreadyAdded
                 })
 
-                setFilteredResultsCount(filteredResults.length)
+                const uniqueDomains = new Set<string>()
+                const uniqueResults = filteredResults.filter((item) => {
+                    if (!item.domain) return false 
+                    if (uniqueDomains.has(item.domain)) {
+                        return false
+                    }
+                    uniqueDomains.add(item.domain)
+                    return true
+                })
+
+                setFilteredResultsCount(uniqueResults.length)
                 setHiddenResultsCount(hiddenCount)
 
-                const fetchedCompetitors: Competitor[] = filteredResults.map((item) => ({
+                const fetchedCompetitors: Competitor[] = uniqueResults.map((item) => ({
                     uuid: item.uuid || uuidv4(),
                     position: item.position,
                     url: item.url || "",
@@ -147,7 +157,22 @@ const CompetitorsSearchByKeywordPage = () => {
 
     const columns: GridColDef[] = [
         { field: "position", headerName: "Position", flex: 1 },
-        { field: "domain", headerName: "Domain", flex: 1 },
+        {
+            field: "domain",
+            headerName: "Domain",
+            flex: 1,
+            renderCell: (params) => {
+                let url = params.value
+                if (!/^https?:\/\//i.test(url)) {
+                    url = "https://" + url
+                }
+                return (
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                        {params.value}
+                    </a>
+                )
+            },
+        },
         {
             field: "url",
             headerName: "URL",

@@ -22,7 +22,7 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
     const computedRequired = required
     const remaining = computedRequired - computedCompleted
     const series = [computedCompleted, computedRequired - computedCompleted]
-    
+
     const isComplete = current >= required
     const headerIcon = isComplete ? <CheckCircleIcon /> : <WarningAmberIcon />
     const headerBgColor = isComplete ? "success.main" : "warning.main"
@@ -49,6 +49,13 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
         },
         dataLabels: { enabled: false },
         stroke: { show: false },
+    }
+
+    let linkHref = `/companies/${companyUUID}/dashboard/competitors`
+    let buttonText = "Review"
+    if (label === "Keywords") {
+        linkHref = `/companies/${companyUUID}/dashboard/edit-profile`
+        buttonText = "Edit Profile"
     }
 
     return (
@@ -82,22 +89,6 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
                                 width: 10,
                                 height: 10,
                                 borderRadius: "50%",
-                                backgroundColor: "#00a76f",
-                            }}
-                        />
-                        <Typography variant="body2" sx={{ flex: 1 }}>
-                            Done
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                            {computedCompleted}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Box
-                            sx={{
-                                width: 10,
-                                height: 10,
-                                borderRadius: "50%",
                                 backgroundColor: "#EFF2F5",
                                 border: "1px solid #E0E0E0",
                             }}
@@ -113,9 +104,9 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
                 {!isComplete && (
                     <Box sx={{ textAlign: "center", mt: 2 }}>
                         {current > 0 && companyUUID && (
-                            <Link href={`/companies/${companyUUID}/dashboard/competitors`} passHref>
+                            <Link href={linkHref} passHref>
                                 <Button variant="contained" color="warning" sx={{ mt: 2 }}>
-                                    Review
+                                    {buttonText}
                                 </Button>
                             </Link>
                         )}

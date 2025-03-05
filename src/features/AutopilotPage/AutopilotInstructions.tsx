@@ -5,7 +5,25 @@ import { Card, CardHeader, CardContent, Box, Typography, List, ListItem, ListIte
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline"
 
-const AutopilotInstructions: React.FC = () => {
+interface AutopilotInstructionsProps {
+    confirmedCompetitors: number
+    requiredCompetitors: number
+    confirmedNonCompetitors: number
+    requiredNonCompetitors: number
+    keywords: number
+    requiredKeywords: number
+    unconfirmedCompetitors: number // should be 0 to pass the condition
+}
+
+const AutopilotInstructions: React.FC<AutopilotInstructionsProps> = ({
+    confirmedCompetitors,
+    requiredCompetitors,
+    confirmedNonCompetitors,
+    requiredNonCompetitors,
+    keywords,
+    requiredKeywords,
+    unconfirmedCompetitors,
+}) => {
     return (
         <Card
             sx={{
@@ -29,42 +47,34 @@ const AutopilotInstructions: React.FC = () => {
                 }}
             />
             <CardContent>
-                <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+                <Typography variant="body1" align="center" sx={{ mb: 1 }}>
                     To activate the Autopilot, you must meet the following requirements:
                 </Typography>
                 <List>
                     <ListItem>
-                        <ListItemIcon>
-                            <CheckCircleIcon color="success" />
-                        </ListItemIcon>
-                        <ListItemText primary="Add at least 100 confirmed competitors" />
+                        <ListItemIcon>{confirmedCompetitors >= requiredCompetitors ? <CheckCircleIcon color="success" /> : <ErrorOutlineIcon color="error" />}</ListItemIcon>
+                        <ListItemText primary={`Add at least ${requiredCompetitors} confirmed competitors (${confirmedCompetitors} confirmed)`} />
                     </ListItem>
                     <ListItem>
-                        <ListItemIcon>
-                            <CheckCircleIcon color="success" />
-                        </ListItemIcon>
-                        <ListItemText primary="Add at least 100 confirmed non-competitors" />
+                        <ListItemIcon>{confirmedNonCompetitors >= requiredNonCompetitors ? <CheckCircleIcon color="success" /> : <ErrorOutlineIcon color="error" />}</ListItemIcon>
+                        <ListItemText primary={`Add at least ${requiredNonCompetitors} confirmed non-competitors (${confirmedNonCompetitors} confirmed)`} />
                     </ListItem>
                     <ListItem>
-                        <ListItemIcon>
-                            <CheckCircleIcon color="success" />
-                        </ListItemIcon>
-                        <ListItemText primary="Specify at least 10 keywords in your project profile" />
+                        <ListItemIcon>{keywords >= requiredKeywords ? <CheckCircleIcon color="success" /> : <ErrorOutlineIcon color="error" />}</ListItemIcon>
+                        <ListItemText primary={`Specify at least ${requiredKeywords} keywords in your project profile (${keywords} specified)`} />
                     </ListItem>
                     <ListItem>
-                        <ListItemIcon>
-                            <ErrorOutlineIcon color="error" />
-                        </ListItemIcon>
-                        <ListItemText primary="Ensure that there are no unconfirmed competitors in your project" />
-                    </ListItem>
-                    <ListItem>
-                        <ListItemIcon>
-                            <ErrorOutlineIcon color="error" />
-                        </ListItemIcon>
-                        <ListItemText primary="Note: The autopilot does not find all possible competitors; it simply produces a large influx of new competitors. Please review and process the autopilot results thoroughly before proceeding." />
+                        <ListItemIcon>{unconfirmedCompetitors === 0 ? <CheckCircleIcon color="success" /> : <ErrorOutlineIcon color="error" />}</ListItemIcon>
+                        <ListItemText primary={`Ensure there are no unconfirmed competitors in your project (${unconfirmedCompetitors} unconfirmed)`} />
                     </ListItem>
                 </List>
-                <Box sx={{ mt: 3, textAlign: "center" }}>
+                <Box sx={{ mt: 1, textAlign: "center" }}>
+                    <Typography variant="body2" color="text.secondary">
+                        Note: The autopilot does not find all possible competitors; it simply produces a large influx of new competitors. Please review and process the autopilot
+                        results thoroughly before proceeding.
+                    </Typography>
+                </Box>
+                <Box sx={{ mt: 1, textAlign: "center" }}>
                     <Typography variant="body2" color="text.secondary">
                         Once all conditions are met, the Autopilot feature will be activated and available for use.
                     </Typography>

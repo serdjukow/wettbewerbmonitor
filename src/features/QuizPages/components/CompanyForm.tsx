@@ -111,25 +111,6 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                 )}
                             />
                             <Controller
-                                name="address.city"
-                                control={control}
-                                rules={{ required: "City is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="City"
-                                        variant="outlined"
-                                        {...field}
-                                        error={!!errors.address?.city}
-                                        helperText={errors.address?.city?.message}
-                                        required
-                                    />
-                                )}
-                            />
-                        </Stack>
-
-                        <Stack direction="row" spacing={2}>
-                            <Controller
                                 name="address.houseNumber"
                                 control={control}
                                 rules={{ required: "House number is required" }}
@@ -145,6 +126,9 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                     />
                                 )}
                             />
+                        </Stack>
+
+                        <Stack direction="row" spacing={2}>               
                             <Controller
                                 name="address.postalCode"
                                 control={control}
@@ -157,6 +141,22 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                                         {...field}
                                         error={!!errors.address?.postalCode}
                                         helperText={errors.address?.postalCode?.message}
+                                        required
+                                    />
+                                )}
+                            />
+                            <Controller
+                                name="address.city"
+                                control={control}
+                                rules={{ required: "City is required" }}
+                                render={({ field }) => (
+                                    <TextField
+                                        fullWidth
+                                        label="City"
+                                        variant="outlined"
+                                        {...field}
+                                        error={!!errors.address?.city}
+                                        helperText={errors.address?.city?.message}
                                         required
                                     />
                                 )}
@@ -213,32 +213,24 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                             <Controller
                                 name="socialNetworks.facebook"
                                 control={control}
-                                rules={{ required: "Facebook profile is required" }}
                                 render={({ field }) => (
                                     <TextField
                                         fullWidth
                                         label="Facebook"
                                         variant="outlined"
                                         {...field}
-                                        error={!!errors.socialNetworks?.facebook}
-                                        helperText={errors.socialNetworks?.facebook?.message}
-                                        required
                                     />
                                 )}
                             />
                             <Controller
                                 name="socialNetworks.instagram"
                                 control={control}
-                                rules={{ required: "Instagram profile is required" }}
                                 render={({ field }) => (
                                     <TextField
                                         fullWidth
                                         label="Instagram"
                                         variant="outlined"
                                         {...field}
-                                        error={!!errors.socialNetworks?.instagram}
-                                        helperText={errors.socialNetworks?.instagram?.message}
-                                        required
                                     />
                                 )}
                             />
@@ -248,32 +240,24 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ initialData, onSave }) => {
                             <Controller
                                 name="socialNetworks.linkedin"
                                 control={control}
-                                rules={{ required: "LinkedIn profile is required" }}
                                 render={({ field }) => (
                                     <TextField
                                         fullWidth
                                         label="LinkedIn"
                                         variant="outlined"
                                         {...field}
-                                        error={!!errors.socialNetworks?.linkedin}
-                                        helperText={errors.socialNetworks?.linkedin?.message}
-                                        required
                                     />
                                 )}
                             />
                             <Controller
                                 name="socialNetworks.twitter"
                                 control={control}
-                                rules={{ required: "Twitter profile is required" }}
                                 render={({ field }) => (
                                     <TextField
                                         fullWidth
                                         label="Twitter"
                                         variant="outlined"
                                         {...field}
-                                        error={!!errors.socialNetworks?.twitter}
-                                        helperText={errors.socialNetworks?.twitter?.message}
-                                        required
                                     />
                                 )}
                             />

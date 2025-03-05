@@ -16,7 +16,6 @@ interface UnconfirmedCompetitorsCardProps {
 }
 
 const UnconfirmedCompetitorsCard: React.FC<UnconfirmedCompetitorsCardProps> = ({ unconfirmedCount, companyUUID }) => {
-    // Если нет неподтверждённых конкурентов, прогресс = 100, иначе = 0.
     const progress = unconfirmedCount === 0 ? 100 : 0
     const series = [progress, 100 - progress]
 
@@ -79,7 +78,7 @@ const UnconfirmedCompetitorsCard: React.FC<UnconfirmedCompetitorsCardProps> = ({
                     {unconfirmedCount > 0 && (
                         <Link href={`/companies/${companyUUID}/dashboard/competitors`} passHref>
                             <Button variant="contained" color="warning" sx={{ mt: 2 }}>
-                                Review Competitors
+                                Review
                             </Button>
                         </Link>
                     )}

@@ -15,6 +15,7 @@ interface AutopilotAccessProps {
 
 const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords }) => {
     const { selectedCompany } = useAppStore()
+
     const tabFilters = useMemo(
         () => ({
             not_checked: (row: Competitor) => row.status === "not_checked",
@@ -59,11 +60,26 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
 
     const unmetRequirements = Object.values(requirements).filter((req) => req.current < req.required)
     const isAccessGranted = unmetRequirements.length === 0
+    const confirmedCompetitors = counts.competitor
+    const requiredCompetitors = requirements.competitors.required
+    const confirmedNonCompetitors = counts.not_competitor
+    const requiredNonCompetitors = requirements.nonCompetitors.required
+    const keywordsCount = projectKeywords.length
+    const requiredKeywords = requirements.keywords.required
+    const unconfirmedCompetitors = counts.not_checked
 
     return (
         <Box sx={{ p: 2 }}>
             <Box sx={{ mb: 3 }}>
-                <AutopilotInstructions />
+                <AutopilotInstructions
+                    confirmedCompetitors={confirmedCompetitors}
+                    requiredCompetitors={requiredCompetitors}
+                    confirmedNonCompetitors={confirmedNonCompetitors}
+                    requiredNonCompetitors={requiredNonCompetitors}
+                    keywords={keywordsCount}
+                    requiredKeywords={requiredKeywords}
+                    unconfirmedCompetitors={unconfirmedCompetitors}
+                />
             </Box>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center" }}>
                 {requirementCards}

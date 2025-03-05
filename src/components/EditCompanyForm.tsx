@@ -129,7 +129,6 @@ const EditCompanyForm = () => {
                         </Stack>
 
                         <Stack direction="row" spacing={2}>
-                            {/* Address: Street & City */}
                             <Controller
                                 name="address.street"
                                 control={control}
@@ -139,12 +138,45 @@ const EditCompanyForm = () => {
                                         fullWidth
                                         label="Street"
                                         variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
+                                        {...field}
                                         error={!!errors.address?.street}
                                         helperText={errors.address?.street?.message}
                                         required
-                                        disabled={!isEdit}
+                                    />
+                                )}
+                            />
+                            <Controller
+                                name="address.houseNumber"
+                                control={control}
+                                rules={{ required: "House number is required" }}
+                                render={({ field }) => (
+                                    <TextField
+                                        fullWidth
+                                        label="House Number"
+                                        variant="outlined"
+                                        {...field}
+                                        error={!!errors.address?.houseNumber}
+                                        helperText={errors.address?.houseNumber?.message}
+                                        required
+                                    />
+                                )}
+                            />
+                        </Stack>
+
+                        <Stack direction="row" spacing={2}>
+                            <Controller
+                                name="address.postalCode"
+                                control={control}
+                                rules={{ required: "Postal Code is required" }}
+                                render={({ field }) => (
+                                    <TextField
+                                        fullWidth
+                                        label="Postal Code"
+                                        variant="outlined"
+                                        {...field}
+                                        error={!!errors.address?.postalCode}
+                                        helperText={errors.address?.postalCode?.message}
+                                        required
                                     />
                                 )}
                             />
@@ -157,52 +189,10 @@ const EditCompanyForm = () => {
                                         fullWidth
                                         label="City"
                                         variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
+                                        {...field}
                                         error={!!errors.address?.city}
                                         helperText={errors.address?.city?.message}
                                         required
-                                        disabled={!isEdit}
-                                    />
-                                )}
-                            />
-                        </Stack>
-
-                        <Stack direction="row" spacing={2}>
-                            {/* Address: House Number & Postal Code */}
-                            <Controller
-                                name="address.houseNumber"
-                                control={control}
-                                rules={{ required: "House Number is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="House Number"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                        error={!!errors.address?.houseNumber}
-                                        helperText={errors.address?.houseNumber?.message}
-                                        required
-                                        disabled={!isEdit}
-                                    />
-                                )}
-                            />
-                            <Controller
-                                name="address.postalCode"
-                                control={control}
-                                rules={{ required: "Postal Code is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Postal Code"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                        error={!!errors.address?.postalCode}
-                                        helperText={errors.address?.postalCode?.message}
-                                        required
-                                        disabled={!isEdit}
                                     />
                                 )}
                             />
@@ -250,42 +240,15 @@ const EditCompanyForm = () => {
                         </Stack>
 
                         <Stack direction="row" spacing={2}>
-                            {/* Social Networks */}
                             <Controller
                                 name="socialNetworks.facebook"
                                 control={control}
-                                rules={{ required: "Facebook profile is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Facebook"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                        error={!!errors.socialNetworks?.facebook}
-                                        helperText={errors.socialNetworks?.facebook?.message}
-                                        required
-                                        disabled={!isEdit}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="Facebook" variant="outlined" {...field} />}
                             />
                             <Controller
                                 name="socialNetworks.instagram"
                                 control={control}
-                                rules={{ required: "Instagram profile is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Instagram"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                        error={!!errors.socialNetworks?.instagram}
-                                        helperText={errors.socialNetworks?.instagram?.message}
-                                        required
-                                        disabled={!isEdit}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="Instagram" variant="outlined" {...field} />}
                             />
                         </Stack>
 
@@ -293,38 +256,12 @@ const EditCompanyForm = () => {
                             <Controller
                                 name="socialNetworks.linkedin"
                                 control={control}
-                                rules={{ required: "LinkedIn profile is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="LinkedIn"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                        error={!!errors.socialNetworks?.linkedin}
-                                        helperText={errors.socialNetworks?.linkedin?.message}
-                                        required
-                                        disabled={!isEdit}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="LinkedIn" variant="outlined" {...field} />}
                             />
                             <Controller
                                 name="socialNetworks.twitter"
                                 control={control}
-                                rules={{ required: "Twitter profile is required" }}
-                                render={({ field }) => (
-                                    <TextField
-                                        fullWidth
-                                        label="Twitter"
-                                        variant="outlined"
-                                        value={field.value ?? ""}
-                                        onChange={field.onChange}
-                                        error={!!errors.socialNetworks?.twitter}
-                                        helperText={errors.socialNetworks?.twitter?.message}
-                                        required
-                                        disabled={!isEdit}
-                                    />
-                                )}
+                                render={({ field }) => <TextField fullWidth label="Twitter" variant="outlined" {...field} />}
                             />
                         </Stack>
 
