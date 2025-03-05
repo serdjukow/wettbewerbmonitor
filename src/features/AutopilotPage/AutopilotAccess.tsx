@@ -21,7 +21,6 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
             not_checked: (row: Competitor) => row.status === "not_checked",
             competitor: (row: Competitor) => row.status === "competitor" && row.products?.length > 0,
             not_competitor: (row: Competitor) => row.status === "not_competitor",
-            products_not_selected: (row: Competitor) => row.status === "competitor" && row.products?.length === 0,
         }),
         []
     )
@@ -31,7 +30,6 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
             not_checked: rows.filter(tabFilters.not_checked).length,
             competitor: rows.filter(tabFilters.competitor).length,
             not_competitor: rows.filter(tabFilters.not_competitor).length,
-            products_not_selected: rows.filter(tabFilters.products_not_selected).length,
         }),
         [rows, tabFilters]
     )
@@ -55,18 +53,26 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
     }
 
     const requirementCards = Object.values(requirements).map((req, index) => (
-        <RequirementDonutCard key={index} label={req.label} current={req.current} required={req.required} companyUUID={selectedCompany?.uuid || ""} />
+        <RequirementDonutCard
+            key={index}
+            label={req.label}
+            current={req.current}
+            required={req.required}
+            companyUUID={selectedCompany?.uuid || ""}
+        />
     ))
 
+    const unconfirmedCompetitors = counts.not_checked
+
     const unmetRequirements = Object.values(requirements).filter((req) => req.current < req.required)
-    const isAccessGranted = unmetRequirements.length === 0
+    const isAccessGranted = unmetRequirements.length === 0 && unconfirmedCompetitors === 0
+
     const confirmedCompetitors = counts.competitor
     const requiredCompetitors = requirements.competitors.required
     const confirmedNonCompetitors = counts.not_competitor
     const requiredNonCompetitors = requirements.nonCompetitors.required
     const keywordsCount = projectKeywords.length
     const requiredKeywords = requirements.keywords.required
-    const unconfirmedCompetitors = counts.not_checked
 
     return (
         <Box sx={{ p: 2 }}>
@@ -87,7 +93,7 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
             </Box>
             <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
                 <Button variant="contained" disabled={!isAccessGranted}>
-                    {isAccessGranted ? "Autopilot access activated" : "Complete the requirements to access"}
+                    {isAccessGranted ? "Autopilot access activated" : "Complete all requirements and review unconfirmed competitors"}
                 </Button>
             </Box>
         </Box>

@@ -103,7 +103,7 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
                 </Box>
                 {!isComplete && (
                     <Box sx={{ textAlign: "center", mt: 2 }}>
-                        {current > 0 && companyUUID && (
+                        {companyUUID && (
                             <Link href={linkHref} passHref>
                                 <Button variant="contained" color="warning" sx={{ mt: 2 }}>
                                     {buttonText}
