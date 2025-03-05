@@ -131,6 +131,7 @@ export default function CompetitorsSearchByDomainPage() {
     const [totalResultsCount, setTotalResultsCount] = useState(0)
     const [filteredResultsCount, setFilteredResultsCount] = useState(0)
     const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
+    const [duplicateDomainsCount, setDuplicateDomainsCount] = useState(0)
 
     const [openGeneralDomainsModal, setOpenGeneralDomainsModal] = useState(false)
     const handleOpenGeneralDomainsModal = () => setOpenGeneralDomainsModal(true)
@@ -165,29 +166,44 @@ export default function CompetitorsSearchByDomainPage() {
                 setTotalResultsCount(0)
                 setFilteredResultsCount(0)
                 setHiddenResultsCount(0)
+                setDuplicateDomainsCount(0)
             } else if ("answer" in data && data.answer?.[0]?.result) {
                 const competitorResults = data.answer[0].result as SistrixDomainResult[]
                 const validResults = competitorResults.filter((item) => Boolean(item.domain))
                 setTotalResultsCount(validResults.length)
+
                 const addedCompetitors = selectedCompany?.seo?.competitors || []
+
+                const uniqueDomains = new Set<string>()
+                const uniqueResults: SistrixDomainResult[] = []
+                let duplicateCount = 0
+
+                for (const item of validResults) {
+                    if (!item.domain) continue
+                    if (uniqueDomains.has(item.domain)) {
+                        duplicateCount++
+                        continue
+                    }
+                    uniqueDomains.add(item.domain)
+                    uniqueResults.push(item)
+                }
 
                 let hiddenCount = 0
 
-                const filteredResults = validResults.filter((item) => {
+                const filteredResults = uniqueResults.filter((item) => {
                     const isAlreadyAdded = addedCompetitors.some((comp) => {
                         const compDomain = (comp as ExtendedCompetitor).domain || ""
                         return compDomain === item.domain
                     })
-
                     if (isAlreadyAdded) {
                         hiddenCount++
                     }
-
                     return !isAlreadyAdded
                 })
 
-                setFilteredResultsCount(filteredResults.length)
+                setDuplicateDomainsCount(duplicateCount)
                 setHiddenResultsCount(hiddenCount)
+                setFilteredResultsCount(filteredResults.length)
 
                 const fetchedCompetitors: Competitor[] = filteredResults.map((item) => ({
                     uuid: item.uuid || uuidv4(),
@@ -202,6 +218,7 @@ export default function CompetitorsSearchByDomainPage() {
                     contact: { phone: "", email: "" },
                     socialNetworks: { facebook: "", instagram: "", linkedin: "", twitter: "" },
                 }))
+
                 setCompetitors(fetchedCompetitors)
             }
         }
@@ -311,7 +328,12 @@ export default function CompetitorsSearchByDomainPage() {
                             </Button>
                         </Box>
                         <DomainStatsTableToolbar domain={domainInput} />
-                        <CompetitorStats totalResultsCount={totalResultsCount} filteredResultsCount={filteredResultsCount} hiddenResultsCount={hiddenResultsCount} />
+                        <CompetitorStats
+                            totalResultsCount={totalResultsCount}
+                            filteredResultsCount={filteredResultsCount}
+                            hiddenResultsCount={hiddenResultsCount}
+                            duplicateDomainsCount={duplicateDomainsCount}
+                        />
                         <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
 
                         <Box sx={{ height: "55vh", width: "100%" }}>

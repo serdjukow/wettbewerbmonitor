@@ -8,6 +8,7 @@ interface CompetitorStatsProps {
     totalResultsCount: number
     filteredResultsCount: number
     hiddenResultsCount: number
+    duplicateDomainsCount?: number
 }
 
 const AnimatedNumber = ({ value }: { value: number }) => {
@@ -17,7 +18,8 @@ const AnimatedNumber = ({ value }: { value: number }) => {
         setDisplayValue(0)
 
         let start = -1
-        const stepTime = value > 0 ? Math.abs(Math.floor(1000 / value)) : 50
+        const duration = 500
+        const stepTime = value > 0 ? Math.abs(Math.floor(duration / value)) : 100
 
         const timer = setInterval(() => {
             start += 1
@@ -31,7 +33,7 @@ const AnimatedNumber = ({ value }: { value: number }) => {
     return <motion.span>{displayValue}</motion.span>
 }
 
-const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, filteredResultsCount, hiddenResultsCount }) => {
+const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, filteredResultsCount, hiddenResultsCount, duplicateDomainsCount }) => {
     return (
         <Box
             sx={{
@@ -64,13 +66,23 @@ const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, fi
                 </Typography>
             </Box>
             <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>
-                <Typography variant="h5" sx={{ fontWeight: "bold", color: "error.main" }}>
+                <Typography variant="h5" sx={{ fontWeight: "bold", color: "success.main" }}>
                     <AnimatedNumber value={hiddenResultsCount} />
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold", color: "error.main" }}>
+                <Typography variant="body1" sx={{ fontWeight: "bold", color: "success.main" }}>
                     Already Added
                 </Typography>
             </Box>
+            {!!duplicateDomainsCount && (
+                <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>
+                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "error.main" }}>
+                        <AnimatedNumber value={duplicateDomainsCount} />
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: "bold", color: "error.main" }}>
+                        Duplicate
+                    </Typography>
+                </Box>
+            )}
         </Box>
     )
 }

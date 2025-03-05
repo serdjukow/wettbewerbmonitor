@@ -28,6 +28,7 @@ const CompetitorsSearchByKeywordPage = () => {
     const [totalResultsCount, setTotalResultsCount] = useState(0)
     const [filteredResultsCount, setFilteredResultsCount] = useState(0)
     const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
+    const [duplicateDomainsCount, setDuplicateDomainsCount] = useState(0)
 
     const [openGeneralWordsModal, setOpenGeneralWordsModal] = useState(false)
     const handleOpenGeneralWordsModal = () => setOpenGeneralWordsModal(true)
@@ -63,42 +64,47 @@ const CompetitorsSearchByKeywordPage = () => {
                 setTotalResultsCount(0)
                 setFilteredResultsCount(0)
                 setHiddenResultsCount(0)
+                setDuplicateDomainsCount(0)
             } else if ("answer" in data && data.answer?.[0]?.result) {
                 const competitorResults = data.answer[0].result as SistrixCompetitorResult[]
                 const validResults = competitorResults.filter((item) => Boolean(item.domain))
                 setTotalResultsCount(validResults.length)
+
                 const candidateKeyword = data.answer[0].kw || ""
                 const addedCompetitors = selectedCompany?.seo?.competitors || []
 
+                const uniqueDomains = new Set<string>()
+                const uniqueResults: SistrixCompetitorResult[] = []
+                let duplicateCount = 0
+
+                for (const item of validResults) {
+                    if (!item.domain) continue
+                    if (uniqueDomains.has(item.domain)) {
+                        duplicateCount++
+                        continue
+                    }
+                    uniqueDomains.add(item.domain)
+                    uniqueResults.push(item)
+                }
+
                 let hiddenCount = 0
 
-                const filteredResults = validResults.filter((item) => {
+                const filteredResults = uniqueResults.filter((item) => {
                     const isAlreadyAdded = addedCompetitors.some((comp) => {
                         const compKeyword = (comp as ExtendedCompetitor).keyword || ""
                         return comp.domain === item.domain && compKeyword === candidateKeyword
                     })
-
                     if (isAlreadyAdded) {
                         hiddenCount++
                     }
-
                     return !isAlreadyAdded
                 })
 
-                const uniqueDomains = new Set<string>()
-                const uniqueResults = filteredResults.filter((item) => {
-                    if (!item.domain) return false 
-                    if (uniqueDomains.has(item.domain)) {
-                        return false
-                    }
-                    uniqueDomains.add(item.domain)
-                    return true
-                })
-
-                setFilteredResultsCount(uniqueResults.length)
+                setDuplicateDomainsCount(duplicateCount)
                 setHiddenResultsCount(hiddenCount)
+                setFilteredResultsCount(filteredResults.length)
 
-                const fetchedCompetitors: Competitor[] = uniqueResults.map((item) => ({
+                const fetchedCompetitors: Competitor[] = filteredResults.map((item) => ({
                     uuid: item.uuid || uuidv4(),
                     position: item.position,
                     url: item.url || "",
@@ -228,7 +234,12 @@ const CompetitorsSearchByKeywordPage = () => {
                             </Button>
                         </Box>
                         <KeywordStatsTableToolbar keyword={keyword} />
-                        <CompetitorStats totalResultsCount={totalResultsCount} filteredResultsCount={filteredResultsCount} hiddenResultsCount={hiddenResultsCount} />
+                        <CompetitorStats
+                            totalResultsCount={totalResultsCount}
+                            filteredResultsCount={filteredResultsCount}
+                            hiddenResultsCount={hiddenResultsCount}
+                            duplicateDomainsCount={duplicateDomainsCount}
+                        />
                         <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
                         <Box sx={{ height: "55vh", width: "100%" }}>
                             {isError ? (
