@@ -1,11 +1,29 @@
 import React from "react"
-import { Box, Card, CardHeader, CardContent, CardActions, FormControl, InputLabel, Select, MenuItem, Typography, Stack, Alert, IconButton } from "@mui/material"
+import {
+    Box,
+    Card,
+    CardHeader,
+    CardContent,
+    CardActions,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Typography,
+    Stack,
+    Alert,
+    IconButton,
+    Link,
+} from "@mui/material"
 import ListAltIcon from "@mui/icons-material/ListAlt"
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye"
 import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 import { SelectChangeEvent } from "@mui/material/Select"
 import { type Competitor } from "../utils/types"
+import VisibilityIcon from "@mui/icons-material/Visibility"
+import QuizIcon from "@mui/icons-material/Quiz"
+import SmartToyIcon from "@mui/icons-material/SmartToy"
 
 export type StatusType = "not_checked" | "competitor" | "not_competitor"
 
@@ -21,6 +39,27 @@ export interface CompetitorCardProps {
     handleViewCompetitor: (uuid: string) => void
     handleEditCompetitor: (uuid: string) => void
     handleOpenDeleteDialog: (row: Competitor) => void
+}
+
+const analysisTypeStyles = {
+    manual: {
+        borderColor: "success.main",
+        textColor: "success.main",
+        icon: <VisibilityIcon sx={{ fontSize: "16px", mr: 1, color: "success.main" }} />,
+        title: "Manual determination",
+    },
+    ai: {
+        borderColor: "primary.main",
+        textColor: "primary.main",
+        icon: <SmartToyIcon sx={{ fontSize: "16px", mr: 1, color: "primary.main" }} />,
+        title: "Determined by AI",
+    },
+    default: {
+        borderColor: "grey.400",
+        textColor: "grey.600",
+        icon: <QuizIcon sx={{ fontSize: "16px", mr: 1, color: "grey.400" }} />,
+        title: "Not processed",
+    },
 }
 
 const CompetitorCard: React.FC<CompetitorCardProps> = ({
@@ -60,10 +99,10 @@ const CompetitorCard: React.FC<CompetitorCardProps> = ({
                 <CardContent>
                     <Stack spacing={1}>
                         <Typography variant="body2" color="text.secondary">
-                            URL: {row.url}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Keyword: {row.keyword}
+                            URL:{" "}
+                            <Link href={row.url} target="_blank" rel="noopener noreferrer">
+                                {row.url}
+                            </Link>
                         </Typography>
                         {row.products && row.products.length > 0 ? (
                             <>
@@ -71,72 +110,40 @@ const CompetitorCard: React.FC<CompetitorCardProps> = ({
                                     Services / Products:
                                 </Typography>
                                 <Stack direction="row" spacing={2} flexWrap="wrap" sx={{ mb: 1 }}>
-                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                        <Box
-                                            sx={{
-                                                width: 12,
-                                                height: 12,
-                                                border: 1,
-                                                borderColor: "grey.400",
-                                                borderRadius: "50%",
-                                                mr: 0.5,
-                                            }}
-                                        />
-                                        <Typography variant="caption">Not Processed</Typography>
+                                    <Box sx={{ display: "flex", alignItems: "center" }} title="AI">
+                                        <SmartToyIcon sx={{ color: "primary.main" }} />
                                     </Box>
-                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                        <Box
-                                            sx={{
-                                                width: 12,
-                                                height: 12,
-                                                border: 1,
-                                                borderColor: "success.main",
-                                                borderRadius: "50%",
-                                                mr: 0.5,
-                                            }}
-                                        />
-                                        <Typography variant="caption">Manual</Typography>
+                                    <Box sx={{ display: "flex", alignItems: "center" }} title="Manual">
+                                        <VisibilityIcon sx={{ color: "success.main" }} />
                                     </Box>
-                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                        <Box
-                                            sx={{
-                                                width: 12,
-                                                height: 12,
-                                                border: 1,
-                                                borderColor: "primary.main",
-                                                borderRadius: "50%",
-                                                mr: 0.5,
-                                            }}
-                                        />
-                                        <Typography variant="caption">AI</Typography>
+                                    <Box sx={{ display: "flex", alignItems: "center" }} title="Not processed">
+                                        <QuizIcon sx={{ color: "grey.400" }} />
                                     </Box>
                                 </Stack>
                                 <Stack direction="row" spacing={1} flexWrap="wrap">
                                     {row.products.map((prod, index) => {
-                                        let borderColor = "grey.400"
-                                        let textColor = "grey.600"
-                                        if (prod.analysisType === "manual") {
-                                            borderColor = "success.main"
-                                            textColor = "success.main"
-                                        } else if (prod.analysisType === "ai") {
-                                            borderColor = "primary.main"
-                                            textColor = "primary.main"
-                                        }
+                                        const style =
+                                            analysisTypeStyles[prod.analysisType as keyof typeof analysisTypeStyles] ||
+                                            analysisTypeStyles.default
                                         return (
                                             <Box
                                                 key={prod.title || index}
                                                 sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
                                                     border: 1,
-                                                    borderColor: borderColor,
+                                                    borderColor: style.borderColor,
                                                     borderRadius: 1,
                                                     px: 1,
                                                     py: 0.5,
                                                     mb: 0.5,
                                                     backgroundColor: "transparent",
-                                                    color: textColor,
+                                                    color: style.textColor,
                                                     fontWeight: "bold",
                                                 }}
+                                                title={style.title}
                                             >
+                                                {style.icon}
                                                 <Typography variant="caption">{prod.title}</Typography>
                                             </Box>
                                         )

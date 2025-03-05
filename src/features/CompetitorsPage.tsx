@@ -16,18 +16,17 @@ import {
 import NoCompetitorsFoundCard from "@/src/components/NoCompetitorsFoundCard"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
 import CompetitorServicesEditor from "@/src/components/CompetitorServicesEditor"
-import DeleteDialog from "../components/DeleteDialog"
-import CompetitorTabs from "../components/CompetinorTabs"
+import DeleteDialog from "@/src/components/DeleteDialog"
+import CompetitorTabs from "@/src/components/CompetinorTabs"
 import CompetitorCard from "@/src/components/CompetitorCard"
 
-type ExtendedCompetitor = Competitor & { competitorName?: string; keyword?: string }
+type ExtendedCompetitor = Competitor & { competitorName?: string; }
 type TabValue = "not_checked" | "competitor" | "not_competitor" | "products_not_selected"
 
 function createData(
     uuid: string,
     domain?: string,
     url?: string,
-    keyword?: string,
     name?: string,
     status: "not_checked" | "competitor" | "not_competitor" = "not_checked",
     products: GeneralService[] = []
@@ -36,7 +35,6 @@ function createData(
         uuid,
         domain: domain && domain.trim() !== "" ? domain : "-",
         url: url && url.trim() !== "" ? url : "-",
-        keyword: keyword && keyword.trim() !== "" ? keyword : "-",
         name: name && name.trim() !== "" ? name : "-",
         status,
         products,
@@ -69,7 +67,6 @@ const CompetitorsPage = () => {
                         item.uuid || "-",
                         item.domain || "-",
                         item.url || "-",
-                        item.keyword || "-",
                         item.name || "-",
                         (item as Competitor).status || "not_checked",
                         (item as Competitor).products || []

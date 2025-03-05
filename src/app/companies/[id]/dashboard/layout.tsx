@@ -17,6 +17,7 @@ function getPageTitle(pathname: string): string {
         dashboard: "Dashboard",
         domains: "Search by Domain",
         keywords: "Search by Keyword",
+        autopilot: "Autopilot",
         "domain-keywords": "Keywords bay domain",
         competitors: "Competitors",
         "competitor-edit": "Edit competitor",
