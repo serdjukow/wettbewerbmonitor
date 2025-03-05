@@ -57,6 +57,12 @@ const AutopilotInstructions: React.FC = () => {
                         </ListItemIcon>
                         <ListItemText primary="Ensure that there are no unconfirmed competitors in your project" />
                     </ListItem>
+                    <ListItem>
+                        <ListItemIcon>
+                            <ErrorOutlineIcon color="error" />
+                        </ListItemIcon>
+                        <ListItemText primary="Note: The autopilot does not find all possible competitors; it simply produces a large influx of new competitors. Please review and process the autopilot results thoroughly before proceeding." />
+                    </ListItem>
                 </List>
                 <Box sx={{ mt: 3, textAlign: "center" }}>
                     <Typography variant="body2" color="text.secondary">
