@@ -6,6 +6,7 @@ import { type Competitor } from "@/src/utils/types"
 import RequirementDonutCard from "./RequirementDonutCard"
 import AutopilotInstructions from "./AutopilotInstructions"
 import UnconfirmedCompetitorsCard from "./UnconfirmedCompetitorsCard"
+import { useAppStore } from "@/src/store/appStore"
 
 interface AutopilotAccessProps {
     rows: Competitor[]
@@ -13,6 +14,7 @@ interface AutopilotAccessProps {
 }
 
 const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords }) => {
+    const { selectedCompany } = useAppStore()
     const tabFilters = useMemo(
         () => ({
             not_checked: (row: Competitor) => row.status === "not_checked",
@@ -41,7 +43,7 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
         },
         nonCompetitors: {
             current: counts.not_competitor,
-            required: 100,
+            required: 10,
             label: "Confirmed Non-Competitors",
         },
         keywords: {
@@ -52,7 +54,7 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
     }
 
     const requirementCards = Object.values(requirements).map((req, index) => (
-        <RequirementDonutCard key={index} label={req.label} current={req.current} required={req.required} />
+        <RequirementDonutCard key={index} label={req.label} current={req.current} required={req.required} companyUUID={selectedCompany?.uuid || ""} />
     ))
 
     const unmetRequirements = Object.values(requirements).filter((req) => req.current < req.required)
@@ -65,9 +67,9 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
             </Box>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "center" }}>
                 {requirementCards}
-                <UnconfirmedCompetitorsCard unconfirmedCount={counts.not_checked} />
+                <UnconfirmedCompetitorsCard unconfirmedCount={counts.not_checked} companyUUID={selectedCompany?.uuid || ""} />
             </Box>
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
                 <Button variant="contained" disabled={!isAccessGranted}>
                     {isAccessGranted ? "Autopilot access activated" : "Complete the requirements to access"}
                 </Button>

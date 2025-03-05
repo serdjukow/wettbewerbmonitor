@@ -50,7 +50,7 @@ const AutopilotPage = () => {
     }, [selectedCompany])
 
     return (
-        <Container>
+        <Container maxWidth="xl">
             <Box sx={{ p: 2 }}>
                 <AutopilotAccess rows={rows} projectKeywords={selectedCompany?.generalKeywords ?? []} />
             </Box>

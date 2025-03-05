@@ -107,7 +107,7 @@ const DashboardPage = () => {
         <Container sx={{ mt: 4, mb: 4 }}>
             <Box sx={{ mb: 3 }}>
                 {selectedCompany && (
-                    <Paper elevation={3} sx={{ p: 3, display: "flex", flexDirection: "column", gap: 1, alignItems: "center" }}>
+                    <Paper elevation={3} sx={{ p: 3, display: "flex", gap: 2, alignItems: "center", justifyContent: "space-between" }}>
                         <Typography variant="h4" component="h1">
                             {selectedCompany.name || "Selected Company"}
                         </Typography>
@@ -116,7 +116,7 @@ const DashboardPage = () => {
                                 {selectedCompany.website}
                             </Typography>
                         )}
-                        <Box sx={{ mt: 2 }}>
+                        <Box>
                             <RemainingCredits />
                         </Box>
                     </Paper>

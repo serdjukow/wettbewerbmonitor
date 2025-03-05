@@ -1,9 +1,12 @@
 "use client"
 
 import React from "react"
-import { Card, CardHeader, CardContent, Box, Typography } from "@mui/material"
+import { Card, CardHeader, CardContent, Box, Typography, Button } from "@mui/material"
 import dynamic from "next/dynamic"
+import Link from "next/link"
 import { ApexOptions } from "apexcharts"
+import WarningAmberIcon from "@mui/icons-material/WarningAmber"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false })
 
@@ -11,30 +14,21 @@ interface RequirementDonutCardProps {
     label: string
     current: number
     required: number
+    companyUUID?: string
 }
 
-const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, current, required }) => {
-    let computedCompleted: number
-    let computedRequired: number
-    let remaining: number
-
-    if (required === 0 && label === "Unconfirmed competitors") {
-        if (current === 0) {
-            computedCompleted = 1
-            computedRequired = 1
-            remaining = 0
-        } else {
-            computedCompleted = 0
-            computedRequired = current
-            remaining = current
-        }
-    } else {
-        computedCompleted = Math.min(current, required)
-        computedRequired = required
-        remaining = computedRequired - computedCompleted
-    }
-
+const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, current, required, companyUUID }) => {
+    // Calculate progress values
+    const computedCompleted = Math.min(current, required)
+    const computedRequired = required
+    const remaining = computedRequired - computedCompleted
     const series = [computedCompleted, computedRequired - computedCompleted]
+
+    // Determine header style based on whether the requirement is met
+    const isComplete = current >= required
+    const headerIcon = isComplete ? <CheckCircleIcon /> : <WarningAmberIcon />
+    const headerBgColor = isComplete ? "success.main" : "warning.main"
+    const headerColor = isComplete ? "success.contrastText" : "warning.contrastText"
 
     const chartOptions: ApexOptions = {
         chart: {
@@ -61,11 +55,7 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
 
     return (
         <Card sx={{ width: 300, borderRadius: 2 }}>
-            <CardHeader
-                title={<Typography variant="h6">{label}</Typography>}
-                //avatar={<WarningAmberIcon color="warning" />}
-                sx={{ backgroundColor: "warning.main", color: "warning.contrastText" }}
-            />
+            <CardHeader title={<Typography variant="subtitle1">{label}</Typography>} avatar={headerIcon} sx={{ backgroundColor: headerBgColor, color: headerColor }} />
             <CardContent>
                 <Box sx={{ position: "relative", display: "flex", justifyContent: "center", mb: 2 }}>
                     <ReactApexChart options={chartOptions} series={series} type="donut" width={240} />
@@ -84,13 +74,7 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
                             pointerEvents: "none",
                         }}
                     >
-                        <Typography variant="h6">
-                            {label === "Unconfirmed competitors"
-                                ? current === 0
-                                    ? "0 from 0"
-                                    : `0 from ${current}`
-                                : `${computedCompleted} from ${computedRequired}`}
-                        </Typography>
+                        <Typography variant="h6">{`${computedCompleted} from ${computedRequired}`}</Typography>
                     </Box>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -107,7 +91,7 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
                             Done
                         </Typography>
                         <Typography variant="body2" fontWeight={600}>
-                            {label === "Unconfirmed competitors" ? 0 : computedCompleted}
+                            {computedCompleted}
                         </Typography>
                     </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -124,10 +108,21 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
                             Remaining
                         </Typography>
                         <Typography variant="body2" fontWeight={600}>
-                            {label === "Unconfirmed competitors" ? current : remaining}
+                            {remaining}
                         </Typography>
                     </Box>
                 </Box>
+                {!isComplete && (
+                    <Box sx={{ textAlign: "center", mt: 2 }}>
+                        {current > 0 && companyUUID && (
+                            <Link href={`/companies/${companyUUID}/dashboard/competitors`} passHref>
+                                <Button variant="contained" color="warning" sx={{ mt: 2 }}>
+                                    Review
+                                </Button>
+                            </Link>
+                        )}
+                    </Box>
+                )}
             </CardContent>
         </Card>
     )
