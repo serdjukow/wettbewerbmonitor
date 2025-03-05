@@ -18,13 +18,11 @@ interface RequirementDonutCardProps {
 }
 
 const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, current, required, companyUUID }) => {
-    // Calculate progress values
     const computedCompleted = Math.min(current, required)
     const computedRequired = required
     const remaining = computedRequired - computedCompleted
     const series = [computedCompleted, computedRequired - computedCompleted]
-
-    // Determine header style based on whether the requirement is met
+    
     const isComplete = current >= required
     const headerIcon = isComplete ? <CheckCircleIcon /> : <WarningAmberIcon />
     const headerBgColor = isComplete ? "success.main" : "warning.main"
@@ -54,7 +52,7 @@ const RequirementDonutCard: React.FC<RequirementDonutCardProps> = ({ label, curr
     }
 
     return (
-        <Card sx={{ width: 300, borderRadius: 2 }}>
+        <Card sx={{ width: 300, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader title={<Typography variant="subtitle1">{label}</Typography>} avatar={headerIcon} sx={{ backgroundColor: headerBgColor, color: headerColor }} />
             <CardContent>
                 <Box sx={{ position: "relative", display: "flex", justifyContent: "center", mb: 2 }}>

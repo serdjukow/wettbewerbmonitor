@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Card, CardHeader, CardContent, Box, Typography, Button} from "@mui/material"
+import { Card, CardHeader, CardContent, Box, Typography, Button } from "@mui/material"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { ApexOptions } from "apexcharts"
@@ -16,52 +16,44 @@ interface UnconfirmedCompetitorsCardProps {
 }
 
 const UnconfirmedCompetitorsCard: React.FC<UnconfirmedCompetitorsCardProps> = ({ unconfirmedCount, companyUUID }) => {
-    const series = [unconfirmedCount]
+    // Если нет неподтверждённых конкурентов, прогресс = 100, иначе = 0.
+    const progress = unconfirmedCount === 0 ? 100 : 0
+    const series = [progress, 100 - progress]
+
+    const isComplete = unconfirmedCount === 0
+    const headerIcon = isComplete ? <CheckCircleIcon /> : <WarningAmberIcon />
+    const headerBgColor = isComplete ? "success.main" : "warning.main"
+    const headerColor = isComplete ? "success.contrastText" : "warning.contrastText"
 
     const chartOptions: ApexOptions = {
         chart: {
-            type: "radialBar",
-            sparkline: { enabled: true },
+            type: "donut",
+            sparkline: { enabled: false },
         },
+        labels: ["Done", "Remaining"],
+        colors: ["#00a76f", "#888"],
+        legend: { show: false },
         plotOptions: {
-            radialBar: {
-                hollow: {
-                    size: "70%",
-                },
-                dataLabels: {
-                    name: {
-                        show: true,
-                        offsetY: -10,
-                    },
-                    value: {
-                        show: true,
-                        fontSize: "1.5rem",
-                        fontWeight: "bold",
-                        formatter: (): string => `${unconfirmedCount}`,
-                    },
-                    total: {
-                        show: false,
+            pie: {
+                donut: {
+                    size: "80%",
+                    labels: {
+                        name: { show: false },
+                        value: { show: false },
                     },
                 },
             },
         },
-        colors: ["#FF9800"],
-        labels: ["Unconfirmed"],
-        legend: {
-            show: false,
-        },
+        dataLabels: { enabled: false },
+        stroke: { show: false },
     }
-
-    const headerIcon = unconfirmedCount > 0 ? <WarningAmberIcon /> : <CheckCircleIcon />
-    const headerBgColor = unconfirmedCount > 0 ? "warning.main" : "success.main"
-    const headerColor = unconfirmedCount > 0 ? "warning.contrastText" : "success.contrastText"
 
     return (
         <Card sx={{ width: 300, borderRadius: 2, boxShadow: 3 }}>
             <CardHeader title={<Typography variant="h6">Unconfirmed Competitors</Typography>} avatar={headerIcon} sx={{ backgroundColor: headerBgColor, color: headerColor }} />
             <CardContent>
                 <Box sx={{ position: "relative", display: "flex", justifyContent: "center", mb: 2 }}>
-                    <ReactApexChart options={chartOptions} series={series} type="radialBar" width={240} />
+                    <ReactApexChart options={chartOptions} series={series} type="donut" width={240} />
                     <Box
                         sx={{
                             position: "absolute",
@@ -69,7 +61,7 @@ const UnconfirmedCompetitorsCard: React.FC<UnconfirmedCompetitorsCardProps> = ({
                             left: 0,
                             width: 240,
                             height: 240,
-                            transform: "translate(5%, -8%)",
+                            transform: "translate(6%, -10%)",
                             display: "flex",
                             flexDirection: "column",
                             justifyContent: "center",
@@ -77,17 +69,17 @@ const UnconfirmedCompetitorsCard: React.FC<UnconfirmedCompetitorsCardProps> = ({
                             pointerEvents: "none",
                         }}
                     >
-                        <Typography variant="h6">{unconfirmedCount > 0 ? `0 from ${unconfirmedCount}` : "0 from 0"}</Typography>
+                        <Typography variant="h6" sx={{ mt: 2 }}>
+                            {isComplete ? "Done" : `${unconfirmedCount}`}
+                        </Typography>
                     </Box>
                 </Box>
-                <Box sx={{ textAlign: "center" }}>
-                    <Typography variant="body2" sx={{ mt: 2 }}>
-                        {unconfirmedCount > 0 ? `You need to confirm ${unconfirmedCount} competitors.` : "All competitors are confirmed!"}
-                    </Typography>
+                <Box sx={{ textAlign: "center", mt: 2 }}>
+                    <Typography variant="body2">{unconfirmedCount > 0 ? `You need to confirm ${unconfirmedCount} competitors.` : "All competitors are confirmed!"}</Typography>
                     {unconfirmedCount > 0 && (
                         <Link href={`/companies/${companyUUID}/dashboard/competitors`} passHref>
                             <Button variant="contained" color="warning" sx={{ mt: 2 }}>
-                                Confirm Now
+                                Review Competitors
                             </Button>
                         </Link>
                     )}

@@ -43,7 +43,7 @@ const AutopilotAccess: React.FC<AutopilotAccessProps> = ({ rows, projectKeywords
         },
         nonCompetitors: {
             current: counts.not_competitor,
-            required: 10,
+            required: 100,
             label: "Confirmed Non-Competitors",
         },
         keywords: {
