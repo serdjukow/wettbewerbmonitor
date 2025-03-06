@@ -19,7 +19,7 @@ function getPageTitle(pathname: string): string {
         keywords: "Search by Keyword",
         autopilot: "Autopilot",
         "domain-keywords": "Keywords bay domain",
-        competitors: "Competitors",
+        competitors: "Competitors / Prospective Clients",
         "competitor-edit": "Edit competitor",
         "competitor-create": "Create competitor",
         "edit-profile": "Edit profile",

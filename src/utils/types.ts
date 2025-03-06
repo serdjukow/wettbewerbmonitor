@@ -74,20 +74,3 @@ export type Company = {
     generalDomains?: string[]
     trackedCountries?: TrackedCountry[]
 }
-
-interface QueryParams {
-    limit: string
-    country: string
-}
-
-export type AppState = {
-    companies: Company[]
-    selectedCompany: Company | null
-    addCompany: (company: Company) => void
-    setSelectedCompany: (company: Company | null) => void
-    fetchCompanies: () => Promise<void>
-    removeCompany: (uuid: string) => Promise<void>
-    updateCompany: (uuid: string, updatedData: Partial<Company>) => Promise<void>
-    queryParams: QueryParams
-    updateQueryParams: (params: Partial<QueryParams>) => void
-}

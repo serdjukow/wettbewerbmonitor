@@ -6,6 +6,8 @@ import { useAppStore } from "@/src/store/appStore"
 import { type Competitor, type GeneralService } from "@/src/utils/types"
 import AutopilotAccess from "./AutopilotAccess"
 import { Box, Container } from "@mui/material"
+import { useHasHydrated } from "@/src/hooks/useHasHydrated"
+import PageLoader from "@/src/components/PageLoader"
 
 type ExtendedCompetitor = Competitor & { competitorName?: string }
 
@@ -28,8 +30,8 @@ function createData(
 }
 
 const AutopilotPage = () => {
+    const hydrated = useHasHydrated()
     const { selectedCompany } = useAppStore()
-
     const [rows, setRows] = useState<Competitor[]>([])
 
     useEffect(() => {
@@ -48,6 +50,10 @@ const AutopilotPage = () => {
             )
         }
     }, [selectedCompany])
+
+    if (!hydrated) {
+        return <PageLoader />
+    }
 
     return (
         <Container maxWidth="xl">

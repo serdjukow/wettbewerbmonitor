@@ -13,6 +13,7 @@ interface SurveyStartProps {
 }
 
 const SurveyStart: React.FC<SurveyStartProps> = ({ selectedSurveyType, onSelect }) => {
+    console.log("onSelect", selectedSurveyType)
     return (
         <Box
             sx={{

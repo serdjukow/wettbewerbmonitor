@@ -30,6 +30,6 @@ export const menuItems: MenuItem[] = [
     { title: "Search by Keyword", icon: <KeyIcon />, path: KEYWORDS_ROUTE },
     { title: "Keywords by Domain", icon: <AbcIcon />, path: DOMAIN_KEYWORDS_ROUTE },
     { title: "Autopilot", icon: <AutoModeIcon />, path: AUTOPILOT_ROUTE },
-    { title: "Competitors", icon: <TrendingUpIcon />, path: COMPETITORS_ROUTE },
+    { title: "Competitors/ Clients", icon: <TrendingUpIcon />, path: COMPETITORS_ROUTE },
     { title: "Edit profile", icon: <EditIcon />, path: EDIT_PROFILE_ROUTE },
 ]

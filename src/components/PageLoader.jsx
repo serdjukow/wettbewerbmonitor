@@ -1,16 +1,11 @@
-"use client";
-
-import React from "react";
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 
 const PageLoader = () => {
-	const theme = useTheme();
 
 	return (
 		<Box
 			className="page-loader"
 			sx={{
-				backgroundColor: theme.palette.background.default,
 				display: "flex",
 				justifyContent: "center",
 				alignItems: "center",

@@ -1,7 +1,20 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import { type Company, type AppState } from "@/src/utils/types"
+import { type Company } from "@/src/utils/types"
 import { addCompanyToDB, getCompanies, deleteCompanyFromDB, updateCompanyInDB } from "@/src/services/firebaseService"
+
+type AppState = {
+    companies: Company[]
+    selectedCompany: Company | null
+    keywords: string[]
+    isAutopilotActive: boolean
+    setAutopilotActive: (active: boolean) => void
+    addCompany: (company: Company) => void
+    setSelectedCompany: (company: Company | null) => void
+    fetchCompanies: () => Promise<void>
+    removeCompany: (uuid: string) => Promise<void>
+    updateCompany: (uuid: string, updatedData: Partial<Company>) => Promise<void>
+}
 
 export const useAppStore = create(
     persist<AppState>(
@@ -9,10 +22,9 @@ export const useAppStore = create(
             companies: [],
             selectedCompany: null,
             keywords: [],
-            queryParams: {
-                limit: "10",
-                country: "de",
-            },
+            isAutopilotActive: false,
+
+            setAutopilotActive: (active) => set({ isAutopilotActive: active }),
 
             addCompany: async (company: Omit<Company, "uuid">) => {
                 const newCompany: Company = await addCompanyToDB(company)
@@ -44,18 +56,9 @@ export const useAppStore = create(
                 await updateCompanyInDB(uuid, updatedData)
                 set((state) => ({
                     companies: state.companies.map((company) => (company.uuid === uuid ? { ...company, ...updatedData } : company)),
-                    selectedCompany:
-                        state.selectedCompany?.uuid === uuid ? { ...state.selectedCompany, ...updatedData } : state.selectedCompany,
+                    selectedCompany: state.selectedCompany?.uuid === uuid ? { ...state.selectedCompany, ...updatedData } : state.selectedCompany,
                 }))
             },
-
-            updateQueryParams: (params) =>
-                set((state) => ({
-                    queryParams: {
-                        ...state.queryParams,
-                        ...params,
-                    },
-                })),
         }),
         {
             name: "app-store",

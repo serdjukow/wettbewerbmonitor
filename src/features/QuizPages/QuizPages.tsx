@@ -75,6 +75,8 @@ const QuizPages: React.FC = () => {
     const { currentStep, company } = state
     const [selectedSurveyType, setSelectedSurveyType] = useState<SurveyType | null>(null)
 
+    console.log("company:", company)
+
     const handleStepClick = (stepIndex: number) => {
         dispatch({ type: "SET_STEP", payload: stepIndex })
     }
@@ -121,6 +123,7 @@ const QuizPages: React.FC = () => {
                             selectedSurveyType={selectedSurveyType}
                             onSelect={(type: SurveyType) => {
                                 setSelectedSurveyType(type)
+                                dispatch({ type: "UPDATE_COMPANY", payload: { surveyType: type } })
                                 dispatch({ type: "NEXT_STEP" })
                             }}
                         />

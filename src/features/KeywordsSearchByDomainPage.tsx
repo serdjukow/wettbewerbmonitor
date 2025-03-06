@@ -124,7 +124,7 @@ export default function KeywordsSearchByDomainPage() {
     const [selected, setSelected] = useState<string[]>([])
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(100)
-    const { updateCompany, selectedCompany, queryParams } = useAppStore()
+    const { updateCompany, selectedCompany } = useAppStore()
     const [totalResultsCount, setTotalResultsCount] = useState(0)
     const [filteredResultsCount, setFilteredResultsCount] = useState(0)
     const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
@@ -153,12 +153,7 @@ export default function KeywordsSearchByDomainPage() {
         return groups
     }, [selectedCompany])
 
-    const { data, isLoading, isError, error } = useSistrixDomainKeywordsData(
-        searchTerm,
-        queryParams.country,
-        { limit: queryParams.limit, history: "false" },
-        { enabled: !!searchTerm }
-    )
+    const { data, isLoading, isError, error } = useSistrixDomainKeywordsData(searchTerm)
 
     useEffect(() => {
         if (data) {
