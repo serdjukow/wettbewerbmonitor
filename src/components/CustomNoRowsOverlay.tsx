@@ -24,7 +24,7 @@ const StyledGridOverlay = styled("div")(({ theme }) => ({
 function CustomNoRowsOverlay() {
     return (
         <StyledGridOverlay>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" width={96} viewBox="0 0 452 257" aria-hidden focusable="false">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" width={96} viewBox="0 0 452 257" focusable="false">
                 <path
                     className="no-rows-primary"
                     d="M348 69c-46.392 0-84 37.608-84 84s37.608 84 84 84 84-37.608 84-84-37.608-84-84-84Zm-104 84c0-57.438 46.562-104 104-104s104 46.562 104 104-46.562 104-104 104-104-46.562-104-104Z"

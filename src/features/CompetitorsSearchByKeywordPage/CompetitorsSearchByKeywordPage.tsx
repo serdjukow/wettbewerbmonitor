@@ -1,21 +1,31 @@
 "use client"
-
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { Box, Button, TextField, Paper, IconButton, Alert } from "@mui/material"
 import ListAltIcon from "@mui/icons-material/ListAlt"
 import { v4 as uuidv4 } from "uuid"
 import { useSistrixData } from "@/src/hooks/useSistrixKeywordQuery"
-import { type Competitor } from "@/src/utils/types"
+import { Competitor } from "@/src/utils/types"
 import { useAppStore } from "@/src/store/appStore"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import CustomOverlay from "@/src/components/CustomOverlay"
 import { SistrixCompetitorResult, Order, ExtendedCompetitor } from "./KeywordPageTypes"
-import EnhancedTableToolbar from "./KeywordPageComponents/EnhancedTableToolbar"
-import KeywordStatsTableToolbar from "./KeywordPageComponents/KeywordStatsTableToolbar"
-import GeneralKeywordsDialog from "./KeywordPageComponents/GeneralKeywordsDialog"
+import KeywordStatsTableToolbar from "./KeywordStatsTableToolbar"
+import GeneralKeywordsDialog from "./GeneralKeywordsDialog"
 import CompetitorStats from "@/src/components/CompetitorStats"
+import EnhancedTableToolbar from "./EnhancedTableToolbar"
+import { usePathname } from "next/navigation"
+import { useCompetitorSearchStore } from "@/src/store/competitorSearchStore"
 
 const CompetitorsSearchByKeywordPage = () => {
+    const pathname = usePathname()
+    const pageId = useMemo(() => {
+        const parts = pathname.split("/").filter(Boolean)
+        return parts.pop() || "defaultPage"
+    }, [pathname])
+
+    const { pages, setPageResult, removeCompetitors } = useCompetitorSearchStore()
+    const storedSearch = pages[pageId]
+
     const [keyword, setKeyword] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
     const [competitors, setCompetitors] = useState<Competitor[]>([])
@@ -43,7 +53,7 @@ const CompetitorsSearchByKeywordPage = () => {
     }
     const [generalSearchQuery, setGeneralSearchQuery] = useState("")
 
-    const groupedGeneralKeywords = React.useMemo(() => {
+    const groupedGeneralKeywords = useMemo(() => {
         const words = (selectedCompany?.generalKeywords || []).slice()
         words.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
         const groups: { [letter: string]: string[] } = {}
@@ -56,6 +66,17 @@ const CompetitorsSearchByKeywordPage = () => {
     }, [selectedCompany])
 
     const { data, isLoading, isError, error } = useSistrixData(searchTerm)
+
+    useEffect(() => {
+        if (storedSearch) {
+            setKeyword(storedSearch.query)
+            setCompetitors(storedSearch.result)
+            setTotalResultsCount(storedSearch.totalResultsCount)
+            setFilteredResultsCount(storedSearch.filteredResultsCount)
+            setHiddenResultsCount(storedSearch.hiddenResultsCount)
+            setDuplicateDomainsCount(storedSearch.duplicateDomainsCount)
+        }
+    }, [storedSearch])
 
     useEffect(() => {
         if (data) {
@@ -76,7 +97,6 @@ const CompetitorsSearchByKeywordPage = () => {
                 const uniqueDomains = new Set<string>()
                 const uniqueResults: SistrixCompetitorResult[] = []
                 let duplicateCount = 0
-
                 for (const item of validResults) {
                     if (!item.domain) continue
                     if (uniqueDomains.has(item.domain)) {
@@ -88,7 +108,6 @@ const CompetitorsSearchByKeywordPage = () => {
                 }
 
                 let hiddenCount = 0
-
                 const filteredResults = uniqueResults.filter((item) => {
                     const isAlreadyAdded = addedCompetitors.some((comp) => {
                         const compKeyword = (comp as ExtendedCompetitor).keyword || ""
@@ -115,9 +134,18 @@ const CompetitorsSearchByKeywordPage = () => {
                 }))
 
                 setCompetitors(fetchedCompetitors)
+
+                setPageResult(pageId, {
+                    query: searchTerm,
+                    result: fetchedCompetitors,
+                    totalResultsCount: validResults.length,
+                    filteredResultsCount: filteredResults.length,
+                    hiddenResultsCount: hiddenCount,
+                    duplicateDomainsCount: duplicateCount,
+                })
             }
         }
-    }, [data, selectedCompany, updateCompany])
+    }, [data, selectedCompany, searchTerm, pageId, setPageResult])
 
     const handleSearch = () => {
         const trimmedKeyword = keyword.trim()
@@ -125,10 +153,10 @@ const CompetitorsSearchByKeywordPage = () => {
         setKeyword(trimmedKeyword)
     }
 
-    const handleSaveCompetitors = (competitors: Competitor[]) => {
+    const handleSaveCompetitors = (competitorsToSave: Competitor[]) => {
         if (selectedCompany?.uuid) {
             const currentCompetitors = selectedCompany?.seo?.competitors || []
-            const formattedCompetitors = competitors.map((comp) => ({
+            const formattedCompetitors = competitorsToSave.map((comp) => ({
                 keyword: data?.answer?.[0]?.kw || "",
                 uuid: comp.uuid || "",
                 name: comp.name || (comp as ExtendedCompetitor).competitorName || "",
@@ -151,7 +179,19 @@ const CompetitorsSearchByKeywordPage = () => {
     const handleAddCompetitors = () => {
         const selectedCompetitors = competitors.filter((comp) => comp.uuid && selected.includes(comp.uuid))
         handleSaveCompetitors(selectedCompetitors)
-        setCompetitors([])
+
+        const removedIds = selectedCompetitors.map((comp) => comp.uuid)
+        removeCompetitors(pageId, removedIds)
+
+        const updated = useCompetitorSearchStore.getState().pages[pageId]
+        if (updated) {
+            setCompetitors(updated.result)
+            setFilteredResultsCount(updated.filteredResultsCount)
+            setTotalResultsCount(updated.totalResultsCount)
+            setHiddenResultsCount(updated.hiddenResultsCount)
+            setDuplicateDomainsCount(updated.duplicateDomainsCount)
+        }
+        setSelected([])
     }
 
     const gridRows = competitors.map((comp) => ({
@@ -240,7 +280,7 @@ const CompetitorsSearchByKeywordPage = () => {
                             hiddenResultsCount={hiddenResultsCount}
                             duplicateDomainsCount={duplicateDomainsCount}
                         />
-                        <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
+                        <EnhancedTableToolbar numSelected={selected.length} onAddKeywords={handleAddCompetitors} />
                         <Box sx={{ height: "55vh", width: "100%" }}>
                             {isError ? (
                                 <Box sx={{ p: 3 }}>

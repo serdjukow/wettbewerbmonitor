@@ -1,15 +1,13 @@
+"use client"
 import React from "react"
-
+import { Toolbar, Typography, Box } from "@mui/material"
 import RemainingCredits from "@/src/components/RemainingCredits"
-import {
-    Box,
-    Typography,
-    Toolbar,
-} from "@mui/material"
-import { KeywordStatsTableToolbarProps } from "./../KeywordPageTypes"
 
-function KeywordStatsTableToolbar(props: KeywordStatsTableToolbarProps) {
-    const { keyword } = props
+interface DomainStatsTableToolbarProps {
+    domain: string
+}
+
+const DomainStatsTableToolbar: React.FC<DomainStatsTableToolbarProps> = ({ domain }) => {
     return (
         <Toolbar
             sx={{
@@ -21,13 +19,12 @@ function KeywordStatsTableToolbar(props: KeywordStatsTableToolbarProps) {
         >
             <Box sx={{ flex: "1 1 100%" }}>
                 <Typography variant="h6" id="tableTitle" component="div">
-                    Keyword:
-                    <span style={{ color: "#3498db", marginLeft: "5px" }}>{keyword}</span>
-                </Typography>               
+                    Domain: <span style={{ color: "#3498db", marginLeft: "5px" }}>{domain}</span>
+                </Typography>
             </Box>
             <RemainingCredits />
         </Toolbar>
     )
 }
 
-export default KeywordStatsTableToolbar
+export default DomainStatsTableToolbar

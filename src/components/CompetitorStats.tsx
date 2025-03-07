@@ -50,35 +50,35 @@ const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, fi
             }}
         >
             <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>
-                <Typography variant="h5" sx={{ fontWeight: "bold", color: "warning.main" }}>
+                <Typography variant="body2" sx={{ fontWeight: "bold", color: "warning.main" }}>
                     <AnimatedNumber value={totalResultsCount} />
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold", color: "warning.main" }}>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "warning.main" }}>
                     Total Results
                 </Typography>
             </Box>
             <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>
-                <Typography variant="h5" sx={{ fontWeight: "bold", color: "primary.main", textAlign: "center" }}>
+                <Typography variant="body2" sx={{ fontWeight: "bold", color: "primary.main", textAlign: "center" }}>
                     <AnimatedNumber value={filteredResultsCount} />
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "primary.main" }}>
                     New
                 </Typography>
             </Box>
             <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>
-                <Typography variant="h5" sx={{ fontWeight: "bold", color: "success.main" }}>
+                <Typography variant="body2" sx={{ fontWeight: "bold", color: "success.main" }}>
                     <AnimatedNumber value={hiddenResultsCount} />
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: "bold", color: "success.main" }}>
+                <Typography variant="caption" sx={{ fontWeight: "bold", color: "success.main" }}>
                     Already Added
                 </Typography>
             </Box>
             {!!duplicateDomainsCount && (
                 <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>
-                    <Typography variant="h5" sx={{ fontWeight: "bold", color: "error.main" }}>
+                    <Typography variant="body2" sx={{ fontWeight: "bold", color: "error.main" }}>
                         <AnimatedNumber value={duplicateDomainsCount} />
                     </Typography>
-                    <Typography variant="body1" sx={{ fontWeight: "bold", color: "error.main" }}>
+                    <Typography variant="caption" sx={{ fontWeight: "bold", color: "error.main" }}>
                         Duplicate
                     </Typography>
                 </Box>

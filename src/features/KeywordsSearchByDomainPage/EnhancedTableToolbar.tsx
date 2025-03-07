@@ -1,11 +1,14 @@
+"use client"
 import React from "react"
+import { Toolbar, Typography, Button, Tooltip } from "@mui/material"
 import { alpha } from "@mui/material/styles"
-import { Button, Typography, Tooltip, Toolbar } from "@mui/material"
 
-import { EnhancedTableToolbarProps } from "./../KeywordPageTypes"
+interface EnhancedTableToolbarProps {
+    numSelected: number
+    onAddKeywords?: () => void
+}
 
-function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-    const { numSelected, onAddCompetitors } = props
+const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = ({ numSelected, onAddKeywords }) => {
     return (
         <Toolbar
             sx={{
@@ -18,28 +21,28 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         >
             {numSelected > 0 ? (
                 <>
-                    <Typography sx={{ flex: "1 1 100%" }} color="inherit" variant="subtitle1" component="div">
+                    <Typography sx={{ flex: "1 1 100%" }} color="inherit" variant="subtitle1">
                         {numSelected} selected
                     </Typography>
-                    <Tooltip title="Add competitors">
+                    <Tooltip title="Add keywords">
                         <Button
-                            onClick={onAddCompetitors}
                             variant="contained"
                             size="small"
                             color="success"
+                            onClick={onAddKeywords}
                             sx={{
                                 "&:hover": {
                                     color: "white",
                                 },
                             }}
                         >
-                            Save competitors
+                            Save keywords
                         </Button>
                     </Tooltip>
                 </>
             ) : (
-                <Typography sx={{ flex: "1 1 100%" }} variant="h6" id="tableTitle" component="div">
-                    Competitors
+                <Typography sx={{ flex: "1 1 100%" }} variant="h6" component="div">
+                    Keywords
                 </Typography>
             )}
         </Toolbar>

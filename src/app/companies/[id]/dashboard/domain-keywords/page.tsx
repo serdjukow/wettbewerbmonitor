@@ -1,4 +1,4 @@
-import KeywordsSearchByDomainPage from "@/src/features/KeywordsSearchByDomainPage"
+import KeywordsSearchByDomainPage from "@/src/features/KeywordsSearchByDomainPage/KeywordsSearchByDomainPage"
 
 export const metadata = {
     title: "Search keywords by domain",
