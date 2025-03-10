@@ -1,0 +1,309 @@
+{
+    "address": { "postalCode": "awd", "street": "awd awd", "city": "awd", "houseNumber": "awd" },
+    "name": "awd",
+    "contact": { "email": "awd@awd.adw", "phone": "11111" },
+    "socialNetworks": { "twitter": "awd", "facebook": "awd", "instagram": "awd", "linkedin": "awd" },
+    "generalServices": [
+        { "analysisType": "not_processed", "title": "SEO", "description": "awdwa awd awd awd awd awd awd ddd" },
+        { "title": "Formilar erstellen", "analysisType": "not_processed", "description": "ad ad awd awd awd a wawd awd awd" },
+        { "analysisType": "not_processed", "title": "SEO analytics", "description": "awdawd aw awd awd awda wd awda wda w" }
+    ],
+    "uuid": "D14NXVd0Yfrp7GPfFLoQ",
+    "trackedCountries": [],
+    "website": "awd",
+    "generalDomains": ["agentur-goldweiss.de", "formilo.de"],
+    "seo": {
+        "competitors": [
+            {
+                "products": [{ "description": "awdwa awd awd awd awd awd awd ddd", "analysisType": "manual", "title": "adwdawdawd" }],
+                "domain": "formulare-bfinv.de",
+                "url": "https://www.formulare-bfinv.de/",
+                "uuid": "f6f0d77b-50a8-4d3f-ba3c-1aad45662a84",
+                "name": "-",
+                "status": "competitor"
+            },
+            {
+                "status": "competitor",
+                "url": "https://workspace.google.com/intl/de/products/forms/",
+                "domain": "google.com",
+                "uuid": "9fbbc931-e48f-43ee-a822-cfa077dde4af",
+                "products": [
+                    { "description": "ad ad awd awd awd a wawd awd awd", "analysisType": "not_processed", "title": "Formilar erstellen" },
+                    { "description": "awdwa awd awd awd awd awd awd ddd", "analysisType": "not_processed", "title": "SEO" },
+                    { "analysisType": "not_processed", "title": "SEO analytics", "description": "awdawd aw awd awd awda wd awda wda w" }
+                ],
+                "name": "-"
+            },
+            {
+                "domain": "duden.de",
+                "name": "-",
+                "status": "competitor",
+                "products": [
+                    { "description": "awdwa awd awd awd awd awd awd ddd", "title": "SEO", "analysisType": "ai" },
+                    { "title": "Formilar erstellen", "description": "ad ad awd awd awd a wawd awd awd", "analysisType": "not_processed" },
+                    { "description": "awdawd aw awd awd awda wd awda wda w", "title": "SEO analytics", "analysisType": "manual" }
+                ],
+                "url": "https://www.duden.de/rechtschreibung/Formular?amp",
+                "uuid": "b00e2564-9354-4aa0-802f-21f19eb31083"
+            },
+            {
+                "uuid": "8f6e0de6-356a-49d9-8242-24efebc3e311",
+                "url": "https://de.wiktionary.org/wiki/Formular",
+                "products": [
+                    { "description": "ad ad awd awd awd a wawd awd awd", "analysisType": "not_processed", "title": "Formilar erstellen" },
+                    { "description": "awdwa awd awd awd awd awd awd ddd", "title": "SEO", "analysisType": "not_processed" },
+                    { "description": "awdawd aw awd awd awda wd awda wda w", "analysisType": "not_processed", "title": "SEO analytics" }
+                ],
+                "domain": "wiktionary.org",
+                "name": "-",
+                "status": "competitor"
+            },
+            {
+                "status": "competitor",
+                "name": "-",
+                "url": "https://www.dwds.de/wb/Formular",
+                "products": [
+                    { "description": "ad ad awd awd awd a wawd awd awd", "analysisType": "not_processed", "title": "Formilar erstellen" },
+                    { "description": "awdwa awd awd awd awd awd awd ddd", "title": "SEO", "analysisType": "not_processed" }
+                ],
+                "domain": "dwds.de",
+                "uuid": "cc23ec90-cab0-4725-972e-66ef6f53bd37"
+            },
+            {
+                "products": [
+                    { "title": "SEO", "description": "awdwa awd awd awd awd awd awd ddd", "analysisType": "not_processed" },
+                    { "analysisType": "not_processed", "description": "ad ad awd awd awd a wawd awd awd", "title": "Formilar erstellen" },
+                    { "analysisType": "not_processed", "title": "SEO analytics", "description": "awdawd aw awd awd awda wd awda wda w" }
+                ],
+                "uuid": "29d51d1d-98f0-4202-91f0-4dd9cf2f7f76",
+                "status": "competitor",
+                "domain": "youtube.com",
+                "url": "https://www.youtube.com/watch?v=f9XWsKTEGf0",
+                "name": "-"
+            },
+            {
+                "status": "competitor",
+                "name": "-",
+                "url": "https://support.google.com/a/users/answer/9303072?hl=de",
+                "uuid": "27debf65-83f1-422c-a351-97ab7fb531a0",
+                "domain": "google.com",
+                "products": [
+                    { "analysisType": "not_processed", "title": "Formilar erstellen", "description": "ad ad awd awd awd a wawd awd awd" },
+                    { "description": "awdwa awd awd awd awd awd awd ddd", "analysisType": "not_processed", "title": "SEO" },
+                    { "title": "SEO analytics", "description": "awdawd aw awd awd awda wd awda wda w", "analysisType": "not_processed" }
+                ]
+            },
+            {
+                "products": [
+                    { "analysisType": "not_processed", "title": "Formilar erstellen", "description": "ad ad awd awd awd a wawd awd awd" },
+                    { "description": "awdwa awd awd awd awd awd awd ddd", "analysisType": "not_processed", "title": "SEO" },
+                    { "description": "awdawd aw awd awd awda wd awda wda w", "title": "SEO analytics", "analysisType": "not_processed" }
+                ],
+                "uuid": "c145f679-91ea-4b04-9016-b98fa499947a",
+                "status": "competitor",
+                "name": "-",
+                "url": "https://easy-feedback.de/online-formular/online-formular-definition/",
+                "domain": "easy-feedback.de"
+            },
+            {
+                "url": "-",
+                "status": "competitor",
+                "domain": "adobe.com",
+                "uuid": "19d9d3d7-f951-4060-afb1-e0b455527b59",
+                "name": "-",
+                "products": [{ "description": "ad ad awd awd awd a wawd awd awd", "title": "Formilar erstellen", "analysisType": "manual" }]
+            },
+            { "domain": "canva.com", "status": "not_competitor", "url": "-", "uuid": "4be00a80-9b94-419b-ad6e-7015375feec4", "name": "-", "products": [] },
+            { "status": "not_competitor", "name": "-", "domain": "cewe.de", "uuid": "a203ce8b-294e-4c55-9ede-5cd5166f2aa9", "products": [], "url": "-" },
+            { "status": "not_competitor", "name": "-", "uuid": "823ae9a8-51bf-447d-a0ff-2235a7790532", "domain": "flyeralarm.com", "products": [], "url": "-" },
+            { "status": "not_competitor", "url": "-", "name": "-", "products": [], "domain": "microsoft.com", "uuid": "9ad33658-28c8-4773-8370-d0f887b19a7c" },
+            { "domain": "chip.de", "products": [], "status": "not_competitor", "url": "-", "name": "-", "uuid": "35bcabe3-ec11-485b-9b6f-0647ce1df3d3" },
+            { "name": "-", "domain": "fuer-gruender.de", "url": "-", "products": [], "uuid": "ef4d7b31-a593-4c7f-b935-66212f6ea0b5", "status": "not_competitor" },
+            { "name": "-", "products": [], "url": "-", "status": "not_competitor", "uuid": "70f225b4-a3de-4203-adcb-ac2c38f48200", "domain": "arbeitszeiterfassung.com" },
+            { "products": [], "domain": "ionos.de", "name": "-", "url": "-", "uuid": "1658de03-eab4-42f5-9fff-e059e1bacf15", "status": "not_competitor" },
+            {
+                "uuid": "55120532-af15-421b-88cd-e4fdf0d1e85f",
+                "domain": "vistaprint.de",
+                "products": [
+                    { "analysisType": "not_processed", "description": "ad ad awd awd awd a wawd awd awd", "title": "Formilar erstellen" },
+                    { "title": "SEO", "description": "awdwa awd awd awd awd awd awd ddd", "analysisType": "not_processed" },
+                    { "description": "awdawd aw awd awd awda wd awda wda w", "analysisType": "not_processed", "title": "SEO analytics" }
+                ],
+                "url": "-",
+                "status": "competitor",
+                "name": "-"
+            },
+            { "name": "-", "status": "not_competitor", "domain": "agentur-goldweiss.de", "uuid": "af35258e-bb1c-40d8-a0e0-a3018c175ebf", "url": "-", "products": [] },
+            { "domain": "onlineprinters.de", "products": [], "uuid": "9fadeb4a-fc67-47a6-83bf-70a2c831bef8", "name": "-", "status": "not_competitor", "url": "-" },
+            {
+                "products": [
+                    { "analysisType": "manual", "title": "SEO", "description": "awdwa awd awd awd awd awd awd ddd" },
+                    { "description": "awdawd aw awd awd awda wd awda wda w", "title": "SEO analytics", "analysisType": "manual" },
+                    { "analysisType": "manual", "title": "Formilar erstellen", "description": "ad ad awd awd awd a wawd awd awd" }
+                ],
+                "domain": "wikipedia.org",
+                "name": "-",
+                "uuid": "3d6102fb-d922-441b-b07d-056c578252ba",
+                "status": "competitor",
+                "url": "-"
+            },
+            { "url": "-", "products": [], "status": "competitor", "domain": "saxoprint.de", "name": "-", "uuid": "9009217a-8f99-4487-a052-e24eb29a29dd" },
+            { "status": "not_competitor", "name": "-", "domain": "heise.de", "uuid": "6bf97a64-9d92-4ee3-a187-977f8a08e84e", "url": "-", "products": [] },
+            {
+                "domain": "agentur-goldweiss.de",
+                "url": "https://www.agentur-goldweiss.de/flyer-erstellen.html",
+                "status": "competitor",
+                "products": [],
+                "uuid": "5caf7735-2b00-4cac-9175-fddd3d142f2b",
+                "name": "-"
+            },
+            {
+                "url": "https://de.postermywall.com/index.php/art/template/71dfc214615af4ce350030739857791b/digital-solutions-agency-flyer-template-design",
+                "name": "-",
+                "uuid": "1d811df2-3e42-449a-9fa1-b9aeb541ee14",
+                "status": "competitor",
+                "domain": "postermywall.com",
+                "products": []
+            },
+            {
+                "domain": "leadingsystems.de",
+                "name": "-",
+                "uuid": "ad61e86f-038b-42e1-84c1-80549e9db5e5",
+                "products": [],
+                "status": "competitor",
+                "url": "https://www.leadingsystems.de/marketing/flyer-erstellen-drucken-designer-grafiker/"
+            },
+            {
+                "status": "competitor",
+                "domain": "werbeagentur.de",
+                "uuid": "c322f2bf-6548-4a83-9e9b-9c457af24cc3",
+                "name": "-",
+                "products": [],
+                "url": "https://www.werbeagentur.de/de/scoring/flyer-design"
+            },
+            {
+                "domain": "empathie-agentur.de",
+                "name": "-",
+                "status": "competitor",
+                "products": [],
+                "uuid": "7ea0c9ed-eefb-47b6-9dd2-b465c0e23c68",
+                "url": "https://empathie-agentur.de/produkte/flyer/"
+            },
+            { "status": "competitor", "url": "https://eccoflyer.de/", "uuid": "e4fe20cb-556b-47a8-ac67-59de0b263aed", "name": "-", "domain": "eccoflyer.de", "products": [] },
+            {
+                "products": [],
+                "uuid": "52ea33cb-0eaa-4c48-ad2c-389aaac07d80",
+                "url": "https://www.style-your-business.de/store/p58/flyer-design-erstellen.html",
+                "name": "-",
+                "status": "competitor",
+                "domain": "style-your-business.de"
+            },
+            {
+                "products": [],
+                "name": "-",
+                "domain": "flyeralarm.com",
+                "url": "https://www.flyeralarm.com/de/t/branchenwelten/agenturen-und-kreative/",
+                "status": "competitor",
+                "uuid": "618a0766-04fe-474d-926a-2ef53a551d21"
+            },
+            {
+                "name": "-",
+                "status": "competitor",
+                "products": [],
+                "domain": "highfive-kommunikation.de",
+                "url": "https://www.highfive-kommunikation.de/agentur-flyer-design",
+                "uuid": "8ad48946-5be5-4e1d-94df-20036dfc021f"
+            },
+            {
+                "domain": "uweschmidt.com",
+                "status": "competitor",
+                "name": "-",
+                "products": [],
+                "uuid": "57649944-4eec-4574-921b-b6aa415fd45e",
+                "url": "https://www.uweschmidt.com/werbeagentur/flyer.php"
+            },
+            {
+                "products": [],
+                "name": "-",
+                "url": "https://www.agentur-goldweiss.de/",
+                "domain": "agentur-goldweiss.de",
+                "uuid": "2f43a502-8275-45cb-9797-765fdc643349",
+                "status": "competitor"
+            },
+            {
+                "name": "-",
+                "domain": "instagram.com",
+                "url": "https://www.instagram.com/agentur_goldweiss/?hl=de",
+                "status": "competitor",
+                "products": [],
+                "uuid": "10c0bd85-d0db-4000-90c8-0abfc5513a14"
+            },
+            {
+                "name": "-",
+                "uuid": "3066f307-b0af-41fc-8146-00e6796d4a8c",
+                "domain": "wirtschaftskreis-pankow.de",
+                "status": "competitor",
+                "products": [],
+                "url": "https://wirtschaftskreis-pankow.de/agentur-goldweiss-digital-marketing/"
+            },
+            {
+                "url": "",
+                "products": [],
+                "status": "not_checked",
+                "position": 0,
+                "domain": "jotform.com",
+                "name": "",
+                "contact": { "phone": "", "email": "" },
+                "address": { "city": "", "postalCode": "", "street": "", "houseNumber": "" },
+                "uuid": "114c14da-e98e-4507-b06e-d280c85128ab",
+                "socialNetworks": { "instagram": "", "twitter": "", "facebook": "", "linkedin": "" }
+            },
+            {
+                "position": 0,
+                "uuid": "3942f12c-2ba0-45a4-9e65-26433d39989d",
+                "domain": "clockodo.com",
+                "address": { "houseNumber": "", "postalCode": "", "street": "", "city": "" },
+                "name": "",
+                "products": [],
+                "socialNetworks": { "instagram": "", "twitter": "", "linkedin": "", "facebook": "" },
+                "url": "",
+                "status": "not_checked",
+                "contact": { "phone": "", "email": "" }
+            },
+            {
+                "uuid": "1f3035aa-4fab-4b5b-9596-7467c39373d0",
+                "name": "",
+                "status": "not_checked",
+                "products": [],
+                "domain": "streit-software.de",
+                "url": "",
+                "position": 0,
+                "address": { "street": "", "houseNumber": "", "postalCode": "", "city": "" },
+                "contact": { "phone": "", "email": "" },
+                "socialNetworks": { "facebook": "", "instagram": "", "linkedin": "", "twitter": "" }
+            }
+        ]
+    },
+    "generalKeywords": [
+        "werbeagentur flyer",
+        "flyer werbeagentur",
+        "website pflege berlin",
+        "flyer konzeption kommunikationsagentur",
+        "wer erstellt flyer",
+        "agentur gold weiss",
+        "webagentur internetagentur",
+        "regiebericht bedeutung",
+        "agentur flyer",
+        "agentur",
+        "flyer agentur",
+        "werbeagentur flyer pdf",
+        "agentur möbel ergänzung",
+        "fachunternehmererklärung verpflichtung",
+        "cms entscheidung",
+        "suchmaschinenoptimierung wartung der homepage",
+        "pdf schriftart ersetzen",
+        "pdf formular bearbeiten"
+    ],
+    "country": { "country": "de", "country_name": "Germany" },
+    "surveyType": ""
+}

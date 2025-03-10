@@ -1,7 +1,7 @@
 "use client"
+
 import React, { useState, useEffect, useMemo } from "react"
-import { Box, Button, TextField, Paper, IconButton, Alert } from "@mui/material"
-import ListAltIcon from "@mui/icons-material/ListAlt"
+import { Box, Paper, Alert } from "@mui/material"
 import { v4 as uuidv4 } from "uuid"
 import { useSistrixData } from "@/src/hooks/useSistrixKeywordQuery"
 import { Competitor } from "@/src/utils/types"
@@ -15,6 +15,7 @@ import CompetitorStats from "@/src/components/CompetitorStats"
 import EnhancedTableToolbar from "./EnhancedTableToolbar"
 import { usePathname } from "next/navigation"
 import { useCompetitorSearchStore } from "@/src/store/competitorSearchStore"
+import SearchBar from "./SearchBar"
 
 const CompetitorsSearchByKeywordPage = () => {
     const pathname = usePathname()
@@ -26,7 +27,7 @@ const CompetitorsSearchByKeywordPage = () => {
     const { pages, setPageResult, removeCompetitors } = useCompetitorSearchStore()
     const storedSearch = pages[pageId]
 
-    const [keyword, setKeyword] = useState("")
+    const [searchBarInput, setSearchBarInput] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
     const [competitors, setCompetitors] = useState<Competitor[]>([])
     const [order, setOrder] = useState<Order>("asc")
@@ -35,20 +36,16 @@ const CompetitorsSearchByKeywordPage = () => {
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(100)
     const { updateCompany, selectedCompany } = useAppStore()
-    const [totalResultsCount, setTotalResultsCount] = useState(0)
-    const [filteredResultsCount, setFilteredResultsCount] = useState(0)
-    const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
-    const [duplicateDomainsCount, setDuplicateDomainsCount] = useState(0)
 
-    const [openGeneralWordsModal, setOpenGeneralWordsModal] = useState(false)
-    const handleOpenGeneralWordsModal = () => setOpenGeneralWordsModal(true)
+    const [openGeneralModal, setOpenGeneralModal] = useState(false)
+    const handleOpenGeneralModal = () => setOpenGeneralModal(true)
     const handleCloseGeneralWordsModal = () => {
-        setOpenGeneralWordsModal(false)
+        setOpenGeneralModal(false)
         setGeneralSearchQuery("")
     }
     const handleSelectGeneralWord = (word: string) => {
-        setKeyword(word.trim())
-        setOpenGeneralWordsModal(false)
+        setSearchBarInput(word.trim())
+        setOpenGeneralModal(false)
         setGeneralSearchQuery("")
     }
     const [generalSearchQuery, setGeneralSearchQuery] = useState("")
@@ -68,13 +65,15 @@ const CompetitorsSearchByKeywordPage = () => {
     const { data, isLoading, isError, error } = useSistrixData(searchTerm)
 
     useEffect(() => {
+        if (storedSearch && !searchTerm) {
+            setSearchTerm(storedSearch.query)
+        }
+    }, [storedSearch, searchTerm])
+
+    useEffect(() => {
         if (storedSearch) {
-            setKeyword(storedSearch.query)
+            setSearchBarInput(storedSearch.query)
             setCompetitors(storedSearch.result)
-            setTotalResultsCount(storedSearch.totalResultsCount)
-            setFilteredResultsCount(storedSearch.filteredResultsCount)
-            setHiddenResultsCount(storedSearch.hiddenResultsCount)
-            setDuplicateDomainsCount(storedSearch.duplicateDomainsCount)
         }
     }, [storedSearch])
 
@@ -82,46 +81,34 @@ const CompetitorsSearchByKeywordPage = () => {
         if (data) {
             if ("status" in data && data.status === "fail") {
                 setCompetitors([])
-                setTotalResultsCount(0)
-                setFilteredResultsCount(0)
-                setHiddenResultsCount(0)
-                setDuplicateDomainsCount(0)
             } else if ("answer" in data && data.answer?.[0]?.result) {
                 const competitorResults = data.answer[0].result as SistrixCompetitorResult[]
                 const validResults = competitorResults.filter((item) => Boolean(item.domain))
-                setTotalResultsCount(validResults.length)
 
-                const candidateKeyword = data.answer[0].kw || ""
+                const candidateKeyword = (data.answer[0].kw || "").toLowerCase().trim()
                 const addedCompetitors = selectedCompany?.seo?.competitors || []
 
                 const uniqueDomains = new Set<string>()
                 const uniqueResults: SistrixCompetitorResult[] = []
-                let duplicateCount = 0
                 for (const item of validResults) {
                     if (!item.domain) continue
-                    if (uniqueDomains.has(item.domain)) {
-                        duplicateCount++
-                        continue
-                    }
-                    uniqueDomains.add(item.domain)
+                    const lowerDomain = item.domain.toLowerCase()
+                    if (uniqueDomains.has(lowerDomain)) continue
+                    uniqueDomains.add(lowerDomain)
                     uniqueResults.push(item)
                 }
 
-                let hiddenCount = 0
                 const filteredResults = uniqueResults.filter((item) => {
-                    const isAlreadyAdded = addedCompetitors.some((comp) => {
-                        const compKeyword = (comp as ExtendedCompetitor).keyword || ""
-                        return comp.domain === item.domain && compKeyword === candidateKeyword
-                    })
-                    if (isAlreadyAdded) {
-                        hiddenCount++
+                    const lowerItemDomain = item.domain?.toLowerCase() || ""
+                    if (candidateKeyword) {
+                        return !addedCompetitors.some((comp) => {
+                            const compKeyword = ((comp as ExtendedCompetitor).keyword || "").toLowerCase().trim()
+                            return comp.domain.toLowerCase() === lowerItemDomain && compKeyword === candidateKeyword
+                        })
+                    } else {
+                        return !addedCompetitors.some((comp) => comp.domain.toLowerCase() === lowerItemDomain)
                     }
-                    return !isAlreadyAdded
                 })
-
-                setDuplicateDomainsCount(duplicateCount)
-                setHiddenResultsCount(hiddenCount)
-                setFilteredResultsCount(filteredResults.length)
 
                 const fetchedCompetitors: Competitor[] = filteredResults.map((item) => ({
                     uuid: item.uuid || uuidv4(),
@@ -134,23 +121,60 @@ const CompetitorsSearchByKeywordPage = () => {
                 }))
 
                 setCompetitors(fetchedCompetitors)
-
                 setPageResult(pageId, {
                     query: searchTerm,
                     result: fetchedCompetitors,
-                    totalResultsCount: validResults.length,
-                    filteredResultsCount: filteredResults.length,
-                    hiddenResultsCount: hiddenCount,
-                    duplicateDomainsCount: duplicateCount,
                 })
             }
         }
     }, [data, selectedCompany, searchTerm, pageId, setPageResult])
 
+    const stats = useMemo(() => {
+        if (data && "answer" in data && data.answer?.[0]?.result) {
+            const competitorResults = data.answer[0].result as SistrixCompetitorResult[]
+            const validResults = competitorResults.filter((item) => Boolean(item.domain))
+            let duplicateCount = 0
+            const uniqueDomains = new Set<string>()
+            const uniqueResults: SistrixCompetitorResult[] = []
+            for (const item of validResults) {
+                if (!item.domain) continue
+                if (uniqueDomains.has(item.domain)) {
+                    duplicateCount++
+                } else {
+                    uniqueDomains.add(item.domain)
+                    uniqueResults.push(item)
+                }
+            }
+            const candidateKeyword = data.answer[0].kw || ""
+            const addedCompetitors = selectedCompany?.seo?.competitors || []
+            let hiddenCount = 0
+            const filteredResults = uniqueResults.filter((item) => {
+                const isAlreadyAdded = addedCompetitors.some((comp) => {
+                    const compKeyword = (comp as ExtendedCompetitor).keyword || ""
+                    return comp.domain === item.domain && compKeyword === candidateKeyword
+                })
+                if (isAlreadyAdded) hiddenCount++
+                return !isAlreadyAdded
+            })
+            return {
+                totalResultsCount: validResults.length,
+                filteredResultsCount: filteredResults.length,
+                hiddenResultsCount: hiddenCount,
+                duplicateCount: duplicateCount,
+            }
+        } else {
+            return {
+                totalResultsCount: competitors.length,
+                filteredResultsCount: competitors.length,
+                hiddenResultsCount: 0,
+                duplicateCount: 0,
+            }
+        }
+    }, [data, competitors, selectedCompany])
+
     const handleSearch = () => {
-        const trimmedKeyword = keyword.trim()
-        setSearchTerm(trimmedKeyword)
-        setKeyword(trimmedKeyword)
+        const trimmed = searchBarInput.trim()
+        setSearchTerm(trimmed)
     }
 
     const handleSaveCompetitors = (competitorsToSave: Competitor[]) => {
@@ -186,10 +210,6 @@ const CompetitorsSearchByKeywordPage = () => {
         const updated = useCompetitorSearchStore.getState().pages[pageId]
         if (updated) {
             setCompetitors(updated.result)
-            setFilteredResultsCount(updated.filteredResultsCount)
-            setTotalResultsCount(updated.totalResultsCount)
-            setHiddenResultsCount(updated.hiddenResultsCount)
-            setDuplicateDomainsCount(updated.duplicateDomainsCount)
         }
         setSelected([])
     }
@@ -243,42 +263,13 @@ const CompetitorsSearchByKeywordPage = () => {
             <Box sx={{ p: 2 }}>
                 <Box sx={{ mb: 2 }}>
                     <Paper sx={{ width: "100%" }}>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                gap: 2,
-                                flexWrap: "wrap",
-                                alignItems: "center",
-                                pt: 2,
-                                pr: 2,
-                                pl: 2,
-                            }}
-                        >
-                            <TextField
-                                label="Enter keyword"
-                                variant="outlined"
-                                value={keyword}
-                                onChange={(e) => setKeyword(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        handleSearch()
-                                    }
-                                }}
-                                sx={{ flex: 1 }}
-                            />
-                            <IconButton color="primary" onClick={handleOpenGeneralWordsModal}>
-                                <ListAltIcon />
-                            </IconButton>
-                            <Button variant="contained" onClick={handleSearch}>
-                                Search
-                            </Button>
-                        </Box>
-                        <KeywordStatsTableToolbar keyword={keyword} />
+                        <SearchBar searchBarInput={searchBarInput} onSearchBarInputChange={setSearchBarInput} onSearch={handleSearch} onOpenGeneralModal={handleOpenGeneralModal} />
+                        <KeywordStatsTableToolbar keyword={searchBarInput} />
                         <CompetitorStats
-                            totalResultsCount={totalResultsCount}
-                            filteredResultsCount={filteredResultsCount}
-                            hiddenResultsCount={hiddenResultsCount}
-                            duplicateDomainsCount={duplicateDomainsCount}
+                            totalResultsCount={stats.totalResultsCount}
+                            filteredResultsCount={stats.filteredResultsCount}
+                            hiddenResultsCount={stats.hiddenResultsCount}
+                            duplicateCount={stats.duplicateCount}
                         />
                         <EnhancedTableToolbar numSelected={selected.length} onAddKeywords={handleAddCompetitors} />
                         <Box sx={{ height: "55vh", width: "100%" }}>
@@ -318,7 +309,7 @@ const CompetitorsSearchByKeywordPage = () => {
                 </Box>
             </Box>
             <GeneralKeywordsDialog
-                open={openGeneralWordsModal}
+                open={openGeneralModal}
                 onClose={handleCloseGeneralWordsModal}
                 searchQuery={generalSearchQuery}
                 onSearchQueryChange={setGeneralSearchQuery}

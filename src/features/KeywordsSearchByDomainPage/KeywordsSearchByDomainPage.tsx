@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useEffect, useMemo } from "react"
 import { Box, Paper } from "@mui/material"
 import { usePathname } from "next/navigation"
@@ -33,7 +34,7 @@ export default function KeywordsSearchByDomainPage() {
     const { pages, setPageResult, removeKeywords } = useKeywordSearchStore()
     const storedSearch = pages[pageId]
 
-    const [domainInput, setDomainInput] = useState("")
+    const [searchBarInput, setSearchBarInput] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
     const [keywords, setKeywords] = useState<SistrixDomainsKeywordsResult[]>([])
     const [order, setOrder] = useState<Order>("asc")
@@ -42,29 +43,29 @@ export default function KeywordsSearchByDomainPage() {
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(100)
 
-    const [totalResultsCount, setTotalResultsCount] = useState(0)
-    const [filteredResultsCount, setFilteredResultsCount] = useState(0)
-    const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
-
-    const [openGeneralDomainsModal, setOpenGeneralDomainsModal] = useState(false)
-    const handleOpenGeneralDomainsModal = () => setOpenGeneralDomainsModal(true)
-    const handleCloseGeneralDomainsModal = () => {
-        setOpenGeneralDomainsModal(false)
+    const [openGeneralModal, setOpenGeneralModal] = useState(false)
+    const handleOpenGeneralModal = () => setOpenGeneralModal(true)
+    const handleCloseGeneralModal = () => {
+        setOpenGeneralModal(false)
         setGeneralSearchQuery("")
     }
     const handleSelectGeneralDomain = (word: string) => {
-        setDomainInput(word.trim())
-        setOpenGeneralDomainsModal(false)
+        setSearchBarInput(word.trim())
+        setOpenGeneralModal(false)
         setGeneralSearchQuery("")
     }
     const [generalSearchQuery, setGeneralSearchQuery] = useState("")
+
+    useEffect(() => {
+        if (storedSearch && !searchTerm) {
+            setSearchTerm(storedSearch.query)
+        }
+    }, [storedSearch, searchTerm])
+
     useEffect(() => {
         if (storedSearch) {
-            setDomainInput(storedSearch.query)
+            setSearchBarInput(storedSearch.query)
             setKeywords(storedSearch.result)
-            setTotalResultsCount(storedSearch.totalResultsCount)
-            setFilteredResultsCount(storedSearch.filteredResultsCount)
-            setHiddenResultsCount(storedSearch.hiddenResultsCount)
         }
     }, [storedSearch])
 
@@ -74,40 +75,53 @@ export default function KeywordsSearchByDomainPage() {
         if (data) {
             if ("status" in data && data.status === "fail") {
                 setKeywords([])
-                setTotalResultsCount(0)
-                setFilteredResultsCount(0)
-                setHiddenResultsCount(0)
             } else if ("answer" in data && data.answer?.[0]?.result) {
                 const keywordResults = data.answer[0].result as SistrixDomainsKeywordsResult[]
                 const validResults = keywordResults.filter((item) => Boolean(item.kw))
-                setTotalResultsCount(validResults.length)
                 const addedKeywords = selectedCompany?.generalKeywords || []
-                let hiddenCount = 0
                 const filteredResults = validResults.filter((item) => {
                     const isAlreadyAdded = addedKeywords.includes(item.kw)
-                    if (isAlreadyAdded) hiddenCount++
                     return !isAlreadyAdded
                 })
-                setFilteredResultsCount(filteredResults.length)
-                setHiddenResultsCount(hiddenCount)
                 setKeywords(filteredResults)
-
                 setPageResult(pageId, {
                     query: searchTerm,
                     result: filteredResults,
-                    totalResultsCount: validResults.length,
-                    filteredResultsCount: filteredResults.length,
-                    hiddenResultsCount: hiddenCount,
-                    duplicateDomainsCount: 0,
                 })
             }
         }
     }, [data, selectedCompany, searchTerm, pageId, setPageResult])
 
+    const stats = useMemo(() => {
+        if (data && "answer" in data && data.answer?.[0]?.result) {
+            const keywordResults = data.answer[0].result as SistrixDomainsKeywordsResult[]
+            const validResults = keywordResults.filter((item) => Boolean(item.kw))
+            const totalResultsCount = validResults.length
+            const addedKeywords = selectedCompany?.generalKeywords || []
+            let hiddenCount = 0
+            const filteredResults = validResults.filter((item) => {
+                const isAlreadyAdded = addedKeywords.includes(item.kw)
+                if (isAlreadyAdded) hiddenCount++
+                return !isAlreadyAdded
+            })
+            return {
+                totalResultsCount,
+                filteredResultsCount: filteredResults.length,
+                hiddenResultsCount: hiddenCount,
+            }
+        } else {
+            return {
+                totalResultsCount: keywords.length,
+                filteredResultsCount: keywords.length,
+                hiddenResultsCount: 0,
+            }
+        }
+    }, [data, selectedCompany, keywords])
+
     const handleSearch = () => {
-        const trimmed = domainInput.trim()
+        const trimmed = searchBarInput.trim()
         setSearchTerm(trimmed)
-        setDomainInput(trimmed)
+        setSearchBarInput(trimmed)
     }
 
     const handleSaveKeywords = (keywordsToSave: SistrixDomainsKeywordsResult[]) => {
@@ -131,9 +145,6 @@ export default function KeywordsSearchByDomainPage() {
         const updated = useKeywordSearchStore.getState().pages[pageId]
         if (updated) {
             setKeywords(updated.result)
-            setFilteredResultsCount(updated.filteredResultsCount)
-            setTotalResultsCount(updated.totalResultsCount)
-            setHiddenResultsCount(updated.hiddenResultsCount)
         }
         setSelected([])
     }
@@ -143,9 +154,13 @@ export default function KeywordsSearchByDomainPage() {
             <Box sx={{ p: 2 }}>
                 <Box sx={{ mb: 2 }}>
                     <Paper sx={{ width: "100%" }}>
-                        <SearchBar domainInput={domainInput} onDomainInputChange={setDomainInput} onSearch={handleSearch} onOpenGeneralModal={handleOpenGeneralDomainsModal} />
-                        <DomainStatsTableToolbar domain={domainInput} />
-                        <CompetitorStats totalResultsCount={totalResultsCount} filteredResultsCount={filteredResultsCount} hiddenResultsCount={hiddenResultsCount} />
+                        <SearchBar searchBarInput={searchBarInput} onSearchBarInputChange={setSearchBarInput} onSearch={handleSearch} onOpenGeneralModal={handleOpenGeneralModal} />
+                        <DomainStatsTableToolbar domain={searchBarInput} />
+                        <CompetitorStats
+                            totalResultsCount={stats.totalResultsCount}
+                            filteredResultsCount={stats.filteredResultsCount}
+                            hiddenResultsCount={stats.hiddenResultsCount}
+                        />
                         <EnhancedTableToolbar numSelected={selected.length} onAddKeywords={handleAddKeywords} />
                         <KeywordsDataGrid
                             keywords={keywords}
@@ -176,8 +191,8 @@ export default function KeywordsSearchByDomainPage() {
                 </Box>
             </Box>
             <DomainSelectionModal
-                open={openGeneralDomainsModal}
-                onClose={handleCloseGeneralDomainsModal}
+                open={openGeneralModal}
+                onClose={handleCloseGeneralModal}
                 generalDomains={selectedCompany?.generalDomains || []}
                 generalSearchQuery={generalSearchQuery}
                 onGeneralSearchQueryChange={setGeneralSearchQuery}

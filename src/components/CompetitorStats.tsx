@@ -8,7 +8,7 @@ interface CompetitorStatsProps {
     totalResultsCount: number
     filteredResultsCount: number
     hiddenResultsCount: number
-    duplicateDomainsCount?: number
+    duplicateCount?: number
 }
 
 const AnimatedNumber = ({ value }: { value: number }) => {
@@ -33,7 +33,7 @@ const AnimatedNumber = ({ value }: { value: number }) => {
     return <motion.span>{displayValue}</motion.span>
 }
 
-const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, filteredResultsCount, hiddenResultsCount, duplicateDomainsCount }) => {
+const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, filteredResultsCount, hiddenResultsCount, duplicateCount }) => {
     return (
         <Box
             sx={{
@@ -73,10 +73,10 @@ const CompetitorStats: React.FC<CompetitorStatsProps> = ({ totalResultsCount, fi
                     Already Added
                 </Typography>
             </Box>
-            {!!duplicateDomainsCount && (
+            {!!duplicateCount && (
                 <Box sx={{ flex: "0 0 auto", textAlign: "center" }}>
                     <Typography variant="body2" sx={{ fontWeight: "bold", color: "error.main" }}>
-                        <AnimatedNumber value={duplicateDomainsCount} />
+                        <AnimatedNumber value={duplicateCount} />
                     </Typography>
                     <Typography variant="caption" sx={{ fontWeight: "bold", color: "error.main" }}>
                         Duplicate

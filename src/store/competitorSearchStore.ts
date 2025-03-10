@@ -5,10 +5,6 @@ import { Competitor } from "@/src/utils/types"
 export interface CompetitorSearchCacheItem {
     query: string
     result: Competitor[]
-    totalResultsCount: number
-    filteredResultsCount: number
-    hiddenResultsCount: number
-    duplicateDomainsCount: number
 }
 
 interface CompetitorSearchState {
@@ -47,7 +43,6 @@ export const useCompetitorSearchStore = create<CompetitorSearchState>()(
                             [pageId]: {
                                 ...current,
                                 result: newResult,
-                                filteredResultsCount: newResult.length,
                             },
                         },
                     }

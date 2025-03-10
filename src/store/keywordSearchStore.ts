@@ -5,10 +5,6 @@ import { SistrixDomainsKeywordsResult } from "@/src/features/KeywordsSearchByDom
 export interface KeywordSearchCacheItem {
     query: string
     result: SistrixDomainsKeywordsResult[]
-    totalResultsCount: number
-    filteredResultsCount: number
-    hiddenResultsCount: number
-    duplicateDomainsCount: number
 }
 
 interface KeywordSearchState {
@@ -47,7 +43,6 @@ export const useKeywordSearchStore = create<KeywordSearchState>()(
                             [pageId]: {
                                 ...current,
                                 result: newResult,
-                                filteredResultsCount: newResult.length,
                             },
                         },
                     }

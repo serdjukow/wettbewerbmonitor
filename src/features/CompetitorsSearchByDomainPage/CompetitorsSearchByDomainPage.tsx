@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useEffect, useMemo } from "react"
 import { Box, Paper } from "@mui/material"
 import { usePathname } from "next/navigation"
@@ -46,13 +47,8 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
     const [page, setPage] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState(100)
 
-    const [totalResultsCount, setTotalResultsCount] = useState(0)
-    const [filteredResultsCount, setFilteredResultsCount] = useState(0)
-    const [hiddenResultsCount, setHiddenResultsCount] = useState(0)
-    const [duplicateDomainsCount, setDuplicateDomainsCount] = useState(0)
-    
     const [openGeneralDomainsModal, setOpenGeneralDomainsModal] = useState(false)
-    const handleOpenGeneralDomainsModal = () => setOpenGeneralDomainsModal(true)
+    const handleOpenGeneralModal = () => setOpenGeneralDomainsModal(true)
     const handleCloseGeneralDomainsModal = () => {
         setOpenGeneralDomainsModal(false)
         setGeneralSearchQuery("")
@@ -66,13 +62,15 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
     const generalDomains = selectedCompany?.generalDomains || []
 
     useEffect(() => {
+        if (storedSearch && !searchTerm) {
+            setSearchTerm(storedSearch.query)
+        }
+    }, [storedSearch, searchTerm])
+
+    useEffect(() => {
         if (storedSearch) {
             setDomainInput(storedSearch.query)
             setCompetitors(storedSearch.result)
-            setTotalResultsCount(storedSearch.totalResultsCount)
-            setFilteredResultsCount(storedSearch.filteredResultsCount)
-            setHiddenResultsCount(storedSearch.hiddenResultsCount)
-            setDuplicateDomainsCount(storedSearch.duplicateDomainsCount)
         }
     }, [storedSearch])
 
@@ -82,46 +80,31 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
         if (data) {
             if ("status" in data && data.status === "fail") {
                 setCompetitors([])
-                setTotalResultsCount(0)
-                setFilteredResultsCount(0)
-                setHiddenResultsCount(0)
-                setDuplicateDomainsCount(0)
             } else if ("answer" in data && data.answer?.[0]?.result) {
                 const competitorResults = data.answer[0].result as SistrixDomainResult[]
                 const validResults = competitorResults.filter((item) => Boolean(item.domain))
-                const totalCount = validResults.length
-                setTotalResultsCount(totalCount)
 
                 const addedCompetitors = selectedCompany?.seo?.competitors || []
                 const uniqueDomains = new Set<string>()
                 const uniqueResults: SistrixDomainResult[] = []
-                let duplicateCount = 0
 
                 for (const item of validResults) {
                     if (!item.domain) continue
                     if (uniqueDomains.has(item.domain)) {
-                        duplicateCount++
                         continue
                     }
                     uniqueDomains.add(item.domain)
                     uniqueResults.push(item)
                 }
 
-                let hiddenCount = 0
                 const filteredResults = uniqueResults.filter((item) => {
                     const isAlreadyAdded = addedCompetitors.some((comp) => {
                         const compDomain = (comp as ExtendedCompetitor).domain || ""
                         return compDomain === item.domain
                     })
-                    if (isAlreadyAdded) {
-                        hiddenCount++
-                    }
+
                     return !isAlreadyAdded
                 })
-
-                setDuplicateDomainsCount(duplicateCount)
-                setHiddenResultsCount(hiddenCount)
-                setFilteredResultsCount(filteredResults.length)
 
                 const fetchedCompetitors: Competitor[] = filteredResults.map((item) => ({
                     uuid: item.uuid || uuidv4(),
@@ -142,14 +125,55 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
                 setPageResult(pageId, {
                     query: searchTerm,
                     result: fetchedCompetitors,
-                    totalResultsCount: totalCount,
-                    filteredResultsCount: filteredResults.length,
-                    hiddenResultsCount: hiddenCount,
-                    duplicateDomainsCount: duplicateCount,
                 })
             }
         }
     }, [data, selectedCompany, searchTerm, pageId, setPageResult])
+
+    const metrics = useMemo(() => {
+        if (data && "answer" in data && data.answer?.[0]?.result) {
+            const competitorResults = data.answer[0].result as SistrixDomainResult[]
+            const validResults = competitorResults.filter((item) => Boolean(item.domain))
+            const totalResultsCount = validResults.length
+
+            const addedCompetitors = selectedCompany?.seo?.competitors || []
+            const uniqueDomains = new Set<string>()
+            const uniqueResults: SistrixDomainResult[] = []
+            let duplicateCount = 0
+            for (const item of validResults) {
+                if (!item.domain) continue
+                if (uniqueDomains.has(item.domain)) {
+                    duplicateCount++
+                } else {
+                    uniqueDomains.add(item.domain)
+                    uniqueResults.push(item)
+                }
+            }
+
+            let hiddenCount = 0
+            const filteredResults = uniqueResults.filter((item) => {
+                const isAlreadyAdded = addedCompetitors.some((comp) => {
+                    const compDomain = (comp as ExtendedCompetitor).domain || ""
+                    return compDomain === item.domain
+                })
+                if (isAlreadyAdded) hiddenCount++
+                return !isAlreadyAdded
+            })
+            return {
+                totalResultsCount,
+                filteredResultsCount: filteredResults.length,
+                hiddenResultsCount: hiddenCount,
+                duplicateCount,
+            }
+        } else {
+            return {
+                totalResultsCount: competitors.length,
+                filteredResultsCount: competitors.length,
+                hiddenResultsCount: 0,
+                duplicateCount: 0,
+            }
+        }
+    }, [data, selectedCompany, competitors])
 
     const handleSearch = () => {
         const trimmed = domainInput.trim()
@@ -201,11 +225,9 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
 
         const removedIds = selectedCompetitors.map((comp) => comp.uuid)
         removeCompetitors(pageId, removedIds)
-        // Получаем обновлённый результат из store и обновляем локальное состояние
         const updated = useSearchStore.getState().pages[pageId]
         if (updated) {
             setCompetitors(updated.result)
-            setFilteredResultsCount(updated.filteredResultsCount)
         }
         setSelected([])
     }
@@ -213,13 +235,13 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
     return (
         <Box sx={{ p: 2 }}>
             <Paper sx={{ width: "100%" }}>
-                <SearchBar domainInput={domainInput} onDomainInputChange={setDomainInput} onSearch={handleSearch} onOpenGeneralModal={handleOpenGeneralDomainsModal} />
+                <SearchBar domainInput={domainInput} onDomainInputChange={setDomainInput} onSearch={handleSearch} onOpenGeneralModal={handleOpenGeneralModal} />
                 <DomainStatsTableToolbar domain={domainInput} />
                 <CompetitorStats
-                    totalResultsCount={totalResultsCount}
-                    filteredResultsCount={filteredResultsCount}
-                    hiddenResultsCount={hiddenResultsCount}
-                    duplicateDomainsCount={duplicateDomainsCount}
+                    totalResultsCount={metrics.totalResultsCount}
+                    filteredResultsCount={metrics.filteredResultsCount}
+                    hiddenResultsCount={metrics.hiddenResultsCount}
+                    duplicateCount={metrics.duplicateCount}
                 />
                 <EnhancedTableToolbar numSelected={selected.length} onAddCompetitors={handleAddCompetitors} />
                 <CompetitorsDataGrid
