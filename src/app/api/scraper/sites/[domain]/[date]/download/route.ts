@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import fs from "fs"
 import path from "path"
 import archiver from "archiver"
 
-export async function GET(
-    req: Request,
-    context: { params: { domain: string; date: string } } // ✅ Убрали `?` и `undefined`
-) {
+interface RouteContext {
+    params: { domain: string; date: string }
+}
+
+export async function GET(req: NextRequest, context: RouteContext) {
     try {
         const { domain, date } = context.params
 
