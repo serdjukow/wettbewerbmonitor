@@ -5,29 +5,29 @@ import archiver from "archiver"
 
 export async function GET(
     req: Request,
-    context: { params: { domain?: string; date?: string } }
+    { params }: { params: Record<string, string> } // ✅ Исправленный тип
 ) {
     try {
-        // ✅ Ожидаем `params` перед их использованием
-        const { domain, date } = await context.params // 🟢 `await` решает проблему
+        const domain = params.domain
+        const date = params.date
 
-        // ✅ Проверяем, что `params` существуют перед доступом к ним
+        // ✅ Проверяем, что параметры существуют
         if (!domain || !date) {
-            return NextResponse.json({ error: "❌ Домен или дата не указаны" }, { status: 400 })
+            return NextResponse.json({ error: "❌ Domain or date is missing" }, { status: 400 })
         }
 
-        console.log(`🔍 Запрос на скачивание ZIP: ${domain}, Дата: ${date}`)
+        console.log(`🔍 Fetching ZIP: ${domain}, Date: ${date}`)
 
         const versionPath = path.join(process.cwd(), "websites", domain, date)
         if (!fs.existsSync(versionPath)) {
-            return NextResponse.json({ error: "❌ Версия не найдена" }, { status: 404 })
+            return NextResponse.json({ error: "❌ Version not found" }, { status: 404 })
         }
 
-        // 📂 Проверяем и создаем папку zips/, если её нет
+        // 📂 Создаем папку `zips/`, если её нет
         const zipFolderPath = path.join(process.cwd(), "public", "zips")
         if (!fs.existsSync(zipFolderPath)) {
             fs.mkdirSync(zipFolderPath, { recursive: true })
-            console.log("📂 Папка zips создана!")
+            console.log("📂 Folder `zips/` created!")
         }
 
         const zipPath = path.join(zipFolderPath, `${domain}-${date}.zip`)
@@ -37,7 +37,7 @@ export async function GET(
         const archive = archiver("zip", { zlib: { level: 9 } })
 
         output.on("close", () => {
-            console.log(`✅ ZIP-архив создан: ${zipPath}`)
+            console.log(`✅ ZIP archive created: ${zipPath}`)
         })
 
         archive.pipe(output)
@@ -45,17 +45,17 @@ export async function GET(
         await archive.finalize()
 
         return NextResponse.json({
-            message: "✅ ZIP-архив создан",
+            message: "✅ ZIP archive created",
             downloadUrl: `/zips/${domain}-${date}.zip`,
         })
     } catch (error: unknown) {
-        console.error("❌ Ошибка при создании ZIP:", error)
+        console.error("❌ Error creating ZIP:", error)
 
-        let errorMessage = "Неизвестная ошибка"
+        let errorMessage = "Unknown error"
         if (error instanceof Error) {
             errorMessage = error.message
         }
 
-        return NextResponse.json({ error: "Ошибка при создании ZIP", details: errorMessage }, { status: 500 })
+        return NextResponse.json({ error: "Error creating ZIP", details: errorMessage }, { status: 500 })
     }
 }
