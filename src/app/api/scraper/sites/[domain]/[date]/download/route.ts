@@ -1,24 +1,25 @@
-import { NextResponse, NextRequest } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import fs from "fs"
 import path from "path"
 import archiver from "archiver"
 
-// Определяем тип для параметров маршрута – именно строки
 type RouteParams = {
     domain: string
-    date: string
+    date: string[] // параметр передаётся как массив строк
 }
 
 export async function GET(req: NextRequest, { params }: { params: RouteParams }): Promise<NextResponse> {
-    const { domain, date } = params
+    // Извлекаем первый элемент массива date
+    const domain = params.domain
+    const dateValue = params.date[0]
 
-    if (!domain || !date) {
+    if (!domain || !dateValue) {
         return NextResponse.json({ error: "❌ Domain or date is missing" }, { status: 400 })
     }
 
-    console.log(`🔍 Fetching ZIP for: ${domain}, Date: ${date}`)
+    console.log(`🔍 Fetching ZIP for: ${domain}, Date: ${dateValue}`)
 
-    const versionPath = path.join(process.cwd(), "websites", domain, date)
+    const versionPath = path.join(process.cwd(), "websites", domain, dateValue)
     if (!fs.existsSync(versionPath)) {
         return NextResponse.json({ error: "❌ Version not found" }, { status: 404 })
     }
@@ -30,9 +31,8 @@ export async function GET(req: NextRequest, { params }: { params: RouteParams })
         console.log("📂 Folder `zips/` created!")
     }
 
-    const zipPath = path.join(zipFolderPath, `${domain}-${date}.zip`)
+    const zipPath = path.join(zipFolderPath, `${domain}-${dateValue}.zip`)
 
-    // Создаем ZIP-архив
     const output = fs.createWriteStream(zipPath)
     const archive = archiver("zip", { zlib: { level: 9 } })
 
@@ -46,6 +46,6 @@ export async function GET(req: NextRequest, { params }: { params: RouteParams })
 
     return NextResponse.json({
         message: "✅ ZIP archive created",
-        downloadUrl: `/zips/${domain}-${date}.zip`,
+        downloadUrl: `/zips/${domain}-${dateValue}.zip`,
     })
 }
