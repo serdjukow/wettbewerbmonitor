@@ -14,7 +14,7 @@ import Sitemark from "./SitemarkIcon"
 import PersonIcon from "@mui/icons-material/Person"
 import Image from "next/image"
 
-import { COMPANIES_ROUTE, LOGIN_PAGE_ROUTE } from "@/src/utils/consts"
+import { COMPANIES_ROUTE, LOGIN_PAGE_ROUTE, SCRAPER_ROUTE } from "@/src/utils/consts"
 
 export interface User {
     id: string
@@ -62,7 +62,14 @@ const DashboardMenuBar = () => {
                 <Container maxWidth="xl" sx={{ margin: "0 auto 0 0", width: "100%" }}>
                     <Toolbar disableGutters>
                         <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-                            <IconButton size="large" aria-label="open navigation menu" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleOpenNavMenu} color="inherit">
+                            <IconButton
+                                size="large"
+                                aria-label="open navigation menu"
+                                aria-controls="menu-appbar"
+                                aria-haspopup="true"
+                                onClick={handleOpenNavMenu}
+                                color="inherit"
+                            >
                                 <MenuIcon />
                             </IconButton>
                             <Menu
@@ -80,9 +87,9 @@ const DashboardMenuBar = () => {
                                         <Typography textAlign="center">My Companies</Typography>
                                     </MenuItem>
                                 </Link>
-                                <Link href="/settings" style={{ color: "inherit", textDecoration: "none" }}>
+                                <Link href={SCRAPER_ROUTE} style={{ color: "inherit", textDecoration: "none" }}>
                                     <MenuItem onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">Settings</Typography>
+                                        <Typography textAlign="center">Scraper</Typography>
                                     </MenuItem>
                                 </Link>
                             </Menu>
@@ -91,6 +98,9 @@ const DashboardMenuBar = () => {
                         <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
                             <Link href={COMPANIES_ROUTE} style={{ color: "inherit", textDecoration: "none" }}>
                                 <Button sx={{ my: 2, color: "white", display: "block" }}>My Companies</Button>
+                            </Link>
+                            <Link href={SCRAPER_ROUTE} style={{ color: "inherit", textDecoration: "none" }}>
+                                <Button sx={{ my: 2, color: "white", display: "block" }}>Scraper</Button>
                             </Link>
                         </Box>
                     </Toolbar>
@@ -102,7 +112,11 @@ const DashboardMenuBar = () => {
                         <Tooltip title={user?.displayName}>
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                                 <Avatar sx={{ width: 40, height: 40 }}>
-                                    {user?.photoURL ? <Image src={user?.photoURL} alt={user?.displayName || "User Avatar"} width={40} height={40} /> : <PersonIcon />}
+                                    {user?.photoURL ? (
+                                        <Image src={user?.photoURL} alt={user?.displayName || "User Avatar"} width={40} height={40} />
+                                    ) : (
+                                        <PersonIcon />
+                                    )}
                                 </Avatar>
                             </IconButton>
                         </Tooltip>

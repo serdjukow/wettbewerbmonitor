@@ -35,7 +35,7 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
     }, [pathname])
 
     const { updateCompany, selectedCompany } = useAppStore()
-    const { companies, setSearchResult, removeCompetitors, clearSearchResult } = useSearchStore()
+    const { companies, setSearchResult, removeCompetitors } = useSearchStore()
     const companyId = selectedCompany?.uuid || "defaultCompany"
 
     const [domainInput, setDomainInput] = useState("")
@@ -63,20 +63,13 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
     const generalDomains = selectedCompany?.generalDomains || []
 
     useEffect(() => {
-        useSearchStore.getState().setCurrentCompanyId(companyId)
-        clearSearchResult(companyId)
-        setDomainInput("")
-        setSearchTerm("")
-        setCompetitors([])
-
         const cache = companies[companyId]
-
         if (cache && cache.query) {
             setSearchTerm(cache.query)
             setDomainInput(cache.query)
             setCompetitors(cache.result)
         }
-    }, [companyId, clearSearchResult, companies])
+    }, [searchTerm, companies, companyId])
 
     const { data, isLoading, isError, error } = useSistrixDomainsData(searchTerm)
 
@@ -236,7 +229,12 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
     return (
         <Box sx={{ p: 2 }}>
             <Paper sx={{ width: "100%" }}>
-                <SearchBar domainInput={domainInput} onDomainInputChange={setDomainInput} onSearch={handleSearch} onOpenGeneralModal={handleOpenGeneralModal} />
+                <SearchBar
+                    domainInput={domainInput}
+                    onDomainInputChange={setDomainInput}
+                    onSearch={handleSearch}
+                    onOpenGeneralModal={handleOpenGeneralModal}
+                />
                 <DomainStatsTableToolbar domain={domainInput} />
                 <CompetitorStats
                     totalResultsCount={metrics.totalResultsCount}

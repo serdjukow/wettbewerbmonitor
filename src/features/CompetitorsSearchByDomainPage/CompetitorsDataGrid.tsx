@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import React, { useMemo } from "react"
 import { Box, Alert } from "@mui/material"
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid"
 import CustomOverlay from "@/src/components/CustomOverlay"
@@ -34,23 +34,31 @@ const CompetitorsDataGrid: React.FC<CompetitorsDataGridProps> = ({
     isError,
     error,
 }) => {
-    const gridRows = competitors.map((comp) => ({
-        id: comp.uuid,
-        domain: comp.domain,
-        match: comp.match ?? 0,
-    }))
+    const gridRows = useMemo(() => {
+        return competitors.map((comp) => ({
+            id: comp.uuid,
+            domain: comp.domain,
+            match: comp.match ?? 0,
+        }))
+    }, [competitors])
 
-    const columns: GridColDef[] = [
-        { field: "domain", headerName: "Domain", flex: 1 },
-        { field: "match", headerName: "Match", flex: 1 },
-    ]
+    const columns: GridColDef[] = useMemo(
+        () => [
+            { field: "domain", headerName: "Domain", flex: 1 },
+            { field: "match", headerName: "Match", flex: 1 },
+        ],
+        []
+    )
 
-    const sortModel: GridSortModel = [
-        {
-            field: orderBy,
-            sort: order,
-        },
-    ]
+    const sortModel: GridSortModel = useMemo(
+        () => [
+            {
+                field: orderBy,
+                sort: order,
+            },
+        ],
+        [orderBy, order]
+    )
 
     return (
         <Box sx={{ height: "55vh", width: "100%" }}>

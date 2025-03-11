@@ -5,7 +5,7 @@ import archiver from "archiver"
 
 export async function GET(
     req: Request,
-    context: { params: { domain?: string; date?: string } } // ✅ Теперь `params` обрабатываются правильно
+    context: { params: { domain?: string; date?: string } }
 ) {
     try {
         // ✅ Ожидаем `params` перед их использованием
