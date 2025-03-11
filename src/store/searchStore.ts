@@ -3,50 +3,60 @@ import { persist } from "zustand/middleware"
 import { Competitor } from "@/src/utils/types"
 
 export interface SearchCacheItem {
+    companyId: string
     query: string
     result: Competitor[]
 }
 
 interface SearchState {
-    pages: Record<string, SearchCacheItem | undefined>
-    setPageResult: (pageId: string, item: SearchCacheItem) => void
-    clearPageResult: (pageId: string) => void
-    removeCompetitors: (pageId: string, competitorIds: string[]) => void
+    companies: Record<string, SearchCacheItem | undefined>
+    currentCompanyId: string | null
+    setSearchResult: (companyId: string, item: SearchCacheItem) => void
+    clearSearchResult: (companyId: string) => void
+    removeCompetitors: (companyId: string, competitorIds: string[]) => void
+    setCurrentCompanyId: (companyId: string) => void
 }
 
 export const useSearchStore = create<SearchState>()(
     persist(
         (set) => ({
-            pages: {},
-            setPageResult: (pageId, item) =>
+            companies: {},
+            currentCompanyId: null,
+            setSearchResult: (companyId, item) =>
                 set((state) => ({
-                    pages: {
-                        ...state.pages,
-                        [pageId]: item,
+                    companies: {
+                        ...state.companies,
+                        [companyId]: {
+                            companyId,
+                            query: item.query,
+                            result: item.result,
+                        },
                     },
                 })),
-            clearPageResult: (pageId) =>
+            clearSearchResult: (companyId) =>
                 set((state) => ({
-                    pages: {
-                        ...state.pages,
-                        [pageId]: undefined,
+                    companies: {
+                        ...state.companies,
+                        [companyId]: undefined,
                     },
                 })),
-            removeCompetitors: (pageId, competitorIds) =>
+            removeCompetitors: (companyId, competitorIds) =>
                 set((state) => {
-                    const current = state.pages[pageId]
+                    const current = state.companies[companyId]
                     if (!current) return {}
                     const newResult = current.result.filter((comp) => !competitorIds.includes(comp.uuid))
                     return {
-                        pages: {
-                            ...state.pages,
-                            [pageId]: {
+                        companies: {
+                            ...state.companies,
+                            [companyId]: {
+                                companyId,
                                 query: current.query,
                                 result: newResult,
                             },
                         },
                     }
                 }),
+            setCurrentCompanyId: (companyId) => set({ currentCompanyId: companyId }),
         }),
         { name: "search-store" }
     )

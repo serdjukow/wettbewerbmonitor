@@ -35,8 +35,8 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
     }, [pathname])
 
     const { updateCompany, selectedCompany } = useAppStore()
-    const { pages, setPageResult, removeCompetitors } = useSearchStore()
-    const storedSearch = pages[pageId]
+    const { companies, setSearchResult, removeCompetitors, clearSearchResult } = useSearchStore()
+    const companyId = selectedCompany?.uuid || "defaultCompany"
 
     const [domainInput, setDomainInput] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
@@ -58,21 +58,25 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
         setOpenGeneralDomainsModal(false)
         setGeneralSearchQuery("")
     }
+
     const [generalSearchQuery, setGeneralSearchQuery] = useState("")
     const generalDomains = selectedCompany?.generalDomains || []
 
     useEffect(() => {
-        if (storedSearch && !searchTerm) {
-            setSearchTerm(storedSearch.query)
-        }
-    }, [storedSearch, searchTerm])
+        useSearchStore.getState().setCurrentCompanyId(companyId)
+        clearSearchResult(companyId)
+        setDomainInput("")
+        setSearchTerm("")
+        setCompetitors([])
 
-    useEffect(() => {
-        if (storedSearch) {
-            setDomainInput(storedSearch.query)
-            setCompetitors(storedSearch.result)
+        const cache = companies[companyId]
+
+        if (cache && cache.query) {
+            setSearchTerm(cache.query)
+            setDomainInput(cache.query)
+            setCompetitors(cache.result)
         }
-    }, [storedSearch])
+    }, [companyId, clearSearchResult, companies])
 
     const { data, isLoading, isError, error } = useSistrixDomainsData(searchTerm)
 
@@ -122,13 +126,10 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
 
                 setCompetitors(fetchedCompetitors)
 
-                setPageResult(pageId, {
-                    query: searchTerm,
-                    result: fetchedCompetitors,
-                })
+                setSearchResult(companyId, { companyId, query: searchTerm, result: fetchedCompetitors })
             }
         }
-    }, [data, selectedCompany, searchTerm, pageId, setPageResult])
+    }, [data, selectedCompany, searchTerm, pageId, setSearchResult, companyId])
 
     const metrics = useMemo(() => {
         if (data && "answer" in data && data.answer?.[0]?.result) {
@@ -224,8 +225,8 @@ const CompetitorsSearchByDomainPage: React.FC = () => {
         handleSaveCompetitors(selectedCompetitors)
 
         const removedIds = selectedCompetitors.map((comp) => comp.uuid)
-        removeCompetitors(pageId, removedIds)
-        const updated = useSearchStore.getState().pages[pageId]
+        removeCompetitors(companyId, removedIds)
+        const updated = useSearchStore.getState().companies[companyId]
         if (updated) {
             setCompetitors(updated.result)
         }

@@ -12,3 +12,5 @@ export const KEYWORDS_ROUTE = "/dashboard/keywords"
 export const AUTOPILOT_ROUTE = "/dashboard/autopilot"
 export const COMPETITORS_ROUTE = "/dashboard/competitors"
 export const EDIT_PROFILE_ROUTE = "/dashboard/edit-profile"
+
+export const SCRAPER_ROUTE = "/companies/scraper"
