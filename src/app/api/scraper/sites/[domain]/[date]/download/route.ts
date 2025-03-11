@@ -5,11 +5,10 @@ import archiver from "archiver"
 
 export async function GET(
     req: Request,
-    { params }: { params: Record<string, string> } // ✅ Исправленный тип
+    context: { params: { domain: string; date: string } } // ✅ Убрали `?` и `undefined`
 ) {
     try {
-        const domain = params.domain
-        const date = params.date
+        const { domain, date } = context.params
 
         // ✅ Проверяем, что параметры существуют
         if (!domain || !date) {
