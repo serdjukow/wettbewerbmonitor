@@ -3,13 +3,13 @@ import fs from "fs"
 import path from "path"
 import archiver from "archiver"
 
-interface RouteContext {
-    params: { domain: string; date: string }
-}
-
-export async function GET(req: NextRequest, context: RouteContext) {
+// ✅ Объявляем правильный тип параметров маршрута
+export async function GET(
+    req: NextRequest,
+    { params }: { params: { domain: string; date: string } } // ✅ Теперь Next.js примет этот формат
+) {
     try {
-        const { domain, date } = context.params
+        const { domain, date } = params
 
         // ✅ Проверяем, что параметры существуют
         if (!domain || !date) {
