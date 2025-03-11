@@ -58,11 +58,11 @@ const ScraperPage = () => {
         }
     }
 
-    const downloadZip = async (domain: string, version: string) => {
-        toast.info(`⏳ Preparing ZIP for ${domain} (${version})...`)
+    const downloadZip = async (domain: string, date: string) => {
+        toast.info(`⏳ Preparing ZIP for ${domain} (${date})...`)
 
         try {
-            const response = await fetch(`${BASE_URL}sites/${domain}/${version}/download`)
+            const response = await fetch(`${BASE_URL}sites/${domain}/${date}/download`)
             const data = await response.json()
 
             if (data.downloadUrl) {
