@@ -1,30 +1,50 @@
-import { NextResponse, type NextRequest } from "next/server"
+import { NextResponse } from "next/server"
 import fs from "fs"
 import path from "path"
+import archiver from "archiver"
 
-export async function DELETE(req: NextRequest, context: { params: { domain?: string } }): Promise<NextResponse> {
+export async function GET(req: Request, context: { params: { domain?: string; version?: string } }) {
+    const { domain, version } = context.params // ✅ Правильный доступ к params
+
+    if (!domain || !version) {
+        return NextResponse.json({ error: "❌ Domain or version is missing" }, { status: 400 })
+    }
+
+    console.log(`🔍 Fetching ZIP for: ${domain}, Version: ${version}`)
+
+    const versionPath = path.join(process.cwd(), "websites", domain, version)
+    if (!fs.existsSync(versionPath)) {
+        return NextResponse.json({ error: "❌ Version not found" }, { status: 404 })
+    }
+
+    // Создаём ZIP-файл
+    const zipFolderPath = path.join(process.cwd(), "public", "zips")
+    if (!fs.existsSync(zipFolderPath)) {
+        fs.mkdirSync(zipFolderPath, { recursive: true })
+        console.log("📂 Folder `zips/` created!")
+    }
+
+    const zipPath = path.join(zipFolderPath, `${domain}-${version}.zip`)
+    const output = fs.createWriteStream(zipPath)
+    const archive = archiver("zip", { zlib: { level: 9 } })
+
     try {
-        const params = await context.params // ✅ Теперь `params` извлекаются асинхронно
+        await new Promise<void>((resolve, reject) => {
+            output.on("close", () => resolve()) // ✅ Фикс TypeScript ошибки
+            archive.on("error", reject)
 
-        if (!params?.domain) {
-            return NextResponse.json({ error: "❌ Domain not specified" }, { status: 400 })
-        }
+            archive.pipe(output)
+            archive.directory(versionPath, false)
+            archive.finalize()
+        })
 
-        const domain = params.domain
-        console.log(`🗑️ Deleting website: ${domain}`)
+        console.log(`✅ ZIP archive created: ${zipPath}`)
 
-        const domainPath = path.join(process.cwd(), "websites", domain)
-
-        if (!fs.existsSync(domainPath)) {
-            return NextResponse.json({ error: "❌ Website not found" }, { status: 404 })
-        }
-
-        fs.rmSync(domainPath, { recursive: true, force: true })
-
-        return NextResponse.json({ message: `✅ Website ${domain} deleted successfully!` })
+        return NextResponse.json({
+            message: "✅ ZIP archive created",
+            downloadUrl: `/zips/${domain}-${version}.zip`,
+        })
     } catch (error) {
-        console.error("❌ Error deleting website:", error)
-
-        return NextResponse.json({ error: "Error deleting website", details: `${error}` }, { status: 500 })
+        return NextResponse.json({ error: "Failed to create ZIP", details: `${error}` }, { status: 500 })
     }
 }
