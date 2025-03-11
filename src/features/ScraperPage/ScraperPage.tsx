@@ -9,7 +9,7 @@ import DeleteIcon from "@mui/icons-material/Delete"
 
 type WebsiteData = {
     domain: string
-    versions: string[]
+    data: string[]
 }
 
 const BASE_URL = "/api/scraper/"
@@ -126,9 +126,9 @@ const ScraperPage = () => {
                     websites.map((site) => (
                         <div key={site.domain}>
                             <ListItem>
-                                <ListItemText primary={site.domain} secondary={`Versions: ${site.versions.length}`} />
-                                {site.versions.length > 0 && (
-                                    <IconButton sx={{ mr: 1 }} edge="end" color="primary" onClick={() => downloadZip(site.domain, site.versions[0])}>
+                                <ListItemText primary={site.domain} secondary={`Versions: ${site.data.length}`} />
+                                {site.data.length > 0 && (
+                                    <IconButton sx={{ mr: 1 }} edge="end" color="primary" onClick={() => downloadZip(site.domain, site.data[0])}>
                                         <DownloadIcon />
                                     </IconButton>
                                 )}
