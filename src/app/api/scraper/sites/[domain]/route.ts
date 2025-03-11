@@ -1,40 +1,11 @@
-import { NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import fs from "fs"
 import path from "path"
 
-export async function GET(req: Request, context: { params?: { domain?: string } }) {
+export async function DELETE(req: NextRequest, context: { params: { domain?: string } }): Promise<NextResponse> {
     try {
-        const params = await context.params
-        if (!params?.domain) {
-            return NextResponse.json({ error: "❌ Домен не указан" }, { status: 400 })
-        }
+        const params = await context.params // ✅ Теперь `params` извлекаются асинхронно
 
-        const domain = params.domain
-        console.log("🔍 Получен запрос на сайт:", domain)
-
-        const domainPath = path.join(process.cwd(), "websites", domain)
-        if (!fs.existsSync(domainPath)) {
-            return NextResponse.json({ error: "❌ Домен не найден" }, { status: 404 })
-        }
-
-        const versions = fs.readdirSync(domainPath).filter((folder) => fs.statSync(path.join(domainPath, folder)).isDirectory())
-
-        return NextResponse.json({ domain, versions })
-    } catch (error: unknown) {
-        console.error("❌ Ошибка при получении версий сайта:", error)
-
-        let errorMessage = "Неизвестная ошибка"
-        if (error instanceof Error) {
-            errorMessage = error.message
-        }
-
-        return NextResponse.json({ error: "Ошибка при получении версий", details: errorMessage }, { status: 500 })
-    }
-}
-
-export async function DELETE(req: Request, context: { params: { domain?: string } }) {
-    try {
-        const { params } = context
         if (!params?.domain) {
             return NextResponse.json({ error: "❌ Domain not specified" }, { status: 400 })
         }
@@ -44,23 +15,16 @@ export async function DELETE(req: Request, context: { params: { domain?: string 
 
         const domainPath = path.join(process.cwd(), "websites", domain)
 
-        // Проверяем, существует ли папка сайта
         if (!fs.existsSync(domainPath)) {
             return NextResponse.json({ error: "❌ Website not found" }, { status: 404 })
         }
 
-        // Удаляем папку с сайтом рекурсивно
         fs.rmSync(domainPath, { recursive: true, force: true })
 
         return NextResponse.json({ message: `✅ Website ${domain} deleted successfully!` })
-    } catch (error: unknown) {
+    } catch (error) {
         console.error("❌ Error deleting website:", error)
 
-        let errorMessage = "Unknown error"
-        if (error instanceof Error) {
-            errorMessage = error.message
-        }
-
-        return NextResponse.json({ error: "Error deleting website", details: errorMessage }, { status: 500 })
+        return NextResponse.json({ error: "Error deleting website", details: `${error}` }, { status: 500 })
     }
 }

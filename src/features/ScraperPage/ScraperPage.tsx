@@ -9,7 +9,7 @@ import DeleteIcon from "@mui/icons-material/Delete"
 
 type WebsiteData = {
     domain: string
-    data: string[]
+    versions: string[]
 }
 
 const BASE_URL = "/api/scraper/"
@@ -22,15 +22,25 @@ const ScraperPage = () => {
     useEffect(() => {
         fetchWebsites()
     }, [])
-    
+
     const fetchWebsites = async () => {
         try {
             const res = await fetch(`${BASE_URL}sites`)
-            const data = await res.json()
-            setWebsites(data.websites || [])
+            const data: { websites: WebsiteData[] } = await res.json() 
+
+            if (!data.websites || !Array.isArray(data.websites)) {
+                throw new Error("Invalid API response")
+            }
+
+            setWebsites(
+                data.websites.map((site) => ({
+                    domain: site.domain,
+                    versions: site.versions ?? [],
+                }))
+            )
         } catch (error) {
             console.error("Error loading websites:", error)
-            toast.error(`${error}`)
+            toast.error(`❌ ${error}`)
         }
     }
 
@@ -58,11 +68,17 @@ const ScraperPage = () => {
         }
     }
 
-    const downloadZip = async (domain: string, date: string) => {
-        toast.info(`⏳ Preparing ZIP for ${domain} (${date})...`)
+    const downloadZip = async (domain: string, versions: string[]) => {
+        if (versions.length === 0) {
+            toast.warn(`⚠️ No available versions for ${domain}`)
+            return
+        }
+
+        const version = versions[0]
+        toast.info(`⏳ Preparing ZIP for ${domain} (${version})...`)
 
         try {
-            const response = await fetch(`${BASE_URL}sites/${domain}/${date}/download`)
+            const response = await fetch(`${BASE_URL}sites/${domain}/${version}/download`)
             const data = await response.json()
 
             if (data.downloadUrl) {
@@ -78,7 +94,8 @@ const ScraperPage = () => {
     }
 
     const deleteWebsite = async (domain: string) => {
-        if (!confirm(`Are you sure you want to delete ${domain}?`)) return
+        const confirmDelete = window.confirm(`Are you sure you want to delete ${domain}?`)
+        if (!confirmDelete) return
 
         toast.info(`⏳ Deleting ${domain}...`)
 
@@ -89,10 +106,12 @@ const ScraperPage = () => {
                 throw new Error("Failed to delete website")
             }
 
-            const data = response.headers.get("content-type")?.includes("application/json") ? await response.json() : { message: `✅ Website ${domain} deleted successfully!` }
+            const data = response.headers.get("content-type")?.includes("application/json")
+                ? await response.json()
+                : { message: `✅ Website ${domain} deleted successfully!` }
 
             toast.success(data.message)
-            fetchWebsites() 
+            fetchWebsites()
         } catch (error) {
             console.error("Delete error:", error)
             toast.error(`${error}`)
@@ -126,9 +145,14 @@ const ScraperPage = () => {
                     websites.map((site) => (
                         <div key={site.domain}>
                             <ListItem>
-                                <ListItemText primary={site.domain} secondary={`Versions: ${site.data.length}`} />
-                                {site.data.length > 0 && (
-                                    <IconButton sx={{ mr: 1 }} edge="end" color="primary" onClick={() => downloadZip(site.domain, site.data[0])}>
+                                <ListItemText primary={site.domain} secondary={`Versions: ${site.versions.length}`} />
+                                {site.versions.length > 0 && (
+                                    <IconButton
+                                        sx={{ mr: 1 }}
+                                        edge="end"
+                                        color="primary"
+                                        onClick={() => downloadZip(site.domain, site.versions)}
+                                    >
                                         <DownloadIcon />
                                     </IconButton>
                                 )}
