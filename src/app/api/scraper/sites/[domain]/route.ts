@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { NextResponse } from "next/server"
 import fs from "fs"
 import path from "path"
@@ -34,7 +32,7 @@ export async function GET(req: Request, context: { params?: { domain?: string } 
     }
 }
 
-export async function DELETE(req: Request, context: { params: { domain?: string } }) {
+export async function DELETE(req: Request, context: { params: { domain: string } }) {
     try {
         const { params } = context
         if (!params?.domain) {

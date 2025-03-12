@@ -4,13 +4,10 @@ import path from "path"
 import archiver from "archiver"
 
 type RouteParams = {
-    domain?: string
-    version?: string | string[]
+    domain: string
+    version: string | string[]
 }
 
-/**
- * Создаёт папку, если она отсутствует.
- */
 const ensureDirectoryExists = (dirPath: string) => {
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true })
@@ -20,7 +17,7 @@ const ensureDirectoryExists = (dirPath: string) => {
 
 export async function GET(req: NextRequest, context: { params: RouteParams }): Promise<NextResponse> {
     // Явно получаем params через await
-    const params = await context.params
+    const params = context.params
 
     if (!params.domain || !params.version) {
         return NextResponse.json({ error: "❌ Domain or version is missing" }, { status: 400 })

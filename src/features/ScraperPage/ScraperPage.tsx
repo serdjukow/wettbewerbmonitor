@@ -69,6 +69,7 @@ const ScraperPage = () => {
     }
 
     const downloadZip = async (domain: string, versions: string[]) => {
+        console.log("Download ZIP for:", domain, versions)
         if (versions.length === 0) {
             toast.warn(`⚠️ No available versions for ${domain}`)
             return
