@@ -5,27 +5,16 @@ import archiver from "archiver"
 
 type RouteParams = {
     domain: string
-    version: string | string[]
+    version: string
 }
 
-const ensureDirectoryExists = (dirPath: string) => {
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true })
-        console.log(`📂 Folder created: ${dirPath}`)
-    }
-}
+export async function GET(req: NextRequest, { params }: { params: Promise<RouteParams> }): Promise<NextResponse> {
+    // Ожидаем разрешения промиса params
+    const { domain, version } = await params
 
-export async function GET(req: NextRequest, context: { params: RouteParams }): Promise<NextResponse> {
-    // Явно получаем params через await
-    const params = context.params
-
-    if (!params.domain || !params.version) {
+    if (!domain || !version) {
         return NextResponse.json({ error: "❌ Domain or version is missing" }, { status: 400 })
     }
-
-    // Если `version` - массив, берем первый элемент
-    const domain = params.domain
-    const version = Array.isArray(params.version) ? params.version[0] : params.version
 
     console.log(`🔍 Fetching ZIP for: ${domain}, Version: ${version}`)
 
@@ -36,7 +25,10 @@ export async function GET(req: NextRequest, context: { params: RouteParams }): P
 
     // Создаём ZIP-файл
     const zipFolderPath = path.join(process.cwd(), "public", "zips")
-    ensureDirectoryExists(zipFolderPath)
+    if (!fs.existsSync(zipFolderPath)) {
+        fs.mkdirSync(zipFolderPath, { recursive: true })
+        console.log("📂 Folder `zips/` created!")
+    }
 
     const zipPath = path.join(zipFolderPath, `${domain}-${version}.zip`)
 
@@ -45,7 +37,7 @@ export async function GET(req: NextRequest, context: { params: RouteParams }): P
         const archive = archiver("zip", { zlib: { level: 9 } })
 
         await new Promise<void>((resolve, reject) => {
-            output.on("close", () => resolve()) // ✅ Теперь `resolve` вызывается без аргументов
+            output.on("close", resolve)
             archive.on("error", reject)
 
             archive.pipe(output)
