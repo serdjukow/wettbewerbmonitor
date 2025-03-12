@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import fs from "fs"
 import path from "path"
 
-export async function GET(req: Request, context: { params?: { domain?: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ domain: string }> }) {
     try {
-        const params = await context.params
-        if (!params?.domain) {
+        const { domain } = await context.params
+
+        if (!domain) {
             return NextResponse.json({ error: "❌ Домен не указан" }, { status: 400 })
         }
 
-        const domain = params.domain
         console.log("🔍 Получен запрос на сайт:", domain)
 
         const domainPath = path.join(process.cwd(), "websites", domain)
