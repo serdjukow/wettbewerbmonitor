@@ -32,24 +32,22 @@ export async function GET(req: NextRequest, context: { params: Promise<{ domain:
     }
 }
 
-export async function DELETE(req: Request, context: { params: { domain: string } }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ domain: string }> }) {
     try {
-        const { params } = context
-        if (!params?.domain) {
+        const { domain } = await context.params
+
+        if (!domain) {
             return NextResponse.json({ error: "❌ Domain not specified" }, { status: 400 })
         }
 
-        const domain = params.domain
         console.log(`🗑️ Deleting website: ${domain}`)
 
         const domainPath = path.join(process.cwd(), "websites", domain)
 
-        // Проверяем, существует ли папка сайта
         if (!fs.existsSync(domainPath)) {
             return NextResponse.json({ error: "❌ Website not found" }, { status: 404 })
         }
 
-        // Удаляем папку с сайтом рекурсивно
         fs.rmSync(domainPath, { recursive: true, force: true })
 
         return NextResponse.json({ message: `✅ Website ${domain} deleted successfully!` })
