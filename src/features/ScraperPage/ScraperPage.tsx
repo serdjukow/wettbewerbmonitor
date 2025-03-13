@@ -1,11 +1,25 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Container, TextField, Button, Typography, List, ListItem, ListItemText, IconButton, Divider } from "@mui/material"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import {
+    Container,
+    TextField,
+    Button,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
+    IconButton,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Box,
+} from "@mui/material"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 type WebsiteData = {
     domain: string
@@ -18,6 +32,7 @@ const ScraperPage = () => {
     const [url, setUrl] = useState("")
     const [message, setMessage] = useState("")
     const [websites, setWebsites] = useState<WebsiteData[]>([])
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         fetchWebsites()
@@ -26,18 +41,15 @@ const ScraperPage = () => {
     const fetchWebsites = async () => {
         try {
             const res = await fetch(`${BASE_URL}sites`)
-            const data: { websites: WebsiteData[] } = await res.json() 
+            const data = await res.json()
+
+            console.log("Fetched websites data:", data)
 
             if (!data.websites || !Array.isArray(data.websites)) {
                 throw new Error("Invalid API response")
             }
 
-            setWebsites(
-                data.websites.map((site) => ({
-                    domain: site.domain,
-                    versions: site.versions ?? [],
-                }))
-            )
+            setWebsites(data.websites)
         } catch (error) {
             console.error("Error loading websites:", error)
             toast.error(`❌ ${error}`)
@@ -50,32 +62,42 @@ const ScraperPage = () => {
             return
         }
 
+        setLoading(true)
+
+        const toastId = toast.loading("⏳ Downloading content...")
+
         try {
             const response = await fetch(`${BASE_URL}parser?url=${encodeURIComponent(url)}`)
             const data = await response.json()
 
             if (!response.ok) {
-                throw new Error(data.error || "API error")
+                if (response.status === 429) {
+                    toast.dismiss(toastId)
+                    toast.warning(`❌ ${data.error}`, { autoClose: 5000 })
+                } else {
+                    throw new Error(data.error || "API error")
+                }
+                return
             }
 
             setMessage(data.message)
-            toast.success("✅ Website successfully downloaded!")
+
+            await new Promise((resolve) => setTimeout(resolve, 2000))
+
+            toast.dismiss(toastId)
+            toast.success("✅ Website successfully downloaded!", { autoClose: 3000 })
 
             fetchWebsites()
         } catch (error) {
             console.error("Request error:", error)
-            toast.error(`${error}`)
+            toast.dismiss(toastId)
+            toast.error(`❌ Error: ${error}`, { autoClose: 5000 })
+        } finally {
+            setLoading(false)
         }
     }
 
-    const downloadZip = async (domain: string, versions: string[]) => {
-        console.log("Download ZIP for:", domain, versions)
-        if (versions.length === 0) {
-            toast.warn(`⚠️ No available versions for ${domain}`)
-            return
-        }
-
-        const version = versions[0]
+    const downloadZip = async (domain: string, version: string) => {
         toast.info(`⏳ Preparing ZIP for ${domain} (${version})...`)
 
         try {
@@ -107,11 +129,7 @@ const ScraperPage = () => {
                 throw new Error("Failed to delete website")
             }
 
-            const data = response.headers.get("content-type")?.includes("application/json")
-                ? await response.json()
-                : { message: `✅ Website ${domain} deleted successfully!` }
-
-            toast.success(data.message)
+            toast.success(`✅ Website ${domain} deleted successfully!`)
             fetchWebsites()
         } catch (error) {
             console.error("Delete error:", error)
@@ -122,47 +140,54 @@ const ScraperPage = () => {
     return (
         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
             <ToastContainer position="top-right" autoClose={3000} />
-
             <Typography variant="h4" gutterBottom>
                 Web Page Parser
             </Typography>
-
             <TextField label="Enter URL" variant="outlined" fullWidth value={url} onChange={(e) => setUrl(e.target.value)} sx={{ mb: 2 }} />
-            <Button variant="contained" color="primary" onClick={scrapeWebsite} sx={{ mb: 3 }}>
-                Download Content
+            <Button variant="contained" color="primary" onClick={scrapeWebsite} disabled={loading} sx={{ mb: 3 }}>
+                {loading ? "Downloading..." : "Download Content"}
             </Button>
-
             {message && (
                 <Typography variant="body1" sx={{ mt: 2 }}>
                     ✅ {message}
                 </Typography>
             )}
-
             <Typography variant="h5" sx={{ mt: 4 }}>
                 Saved Websites
             </Typography>
-            <List sx={{ width: "100%", bgcolor: "background.paper", mt: 2 }}>
+            <List sx={{ width: "100%", bgcolor: "background.paper", mt: 2, p: 2 }}>
                 {websites.length > 0 ? (
                     websites.map((site) => (
-                        <div key={site.domain}>
-                            <ListItem>
-                                <ListItemText primary={site.domain} secondary={`Versions: ${site.versions.length}`} />
-                                {site.versions.length > 0 && (
-                                    <IconButton
-                                        sx={{ mr: 1 }}
-                                        edge="end"
-                                        color="primary"
-                                        onClick={() => downloadZip(site.domain, site.versions)}
-                                    >
-                                        <DownloadIcon />
+                        <Accordion key={site.domain}>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography sx={{ flexGrow: 1 }}>
+                                    {String(site.domain)} ({site.versions.length} versions)
+                                </Typography>
+                                <Box>
+                                    {" "}
+                                    {/* ✅ Обернули в Box, теперь нет <button> внутри <button> */}
+                                    <IconButton sx={{ mr: 1 }} edge="end" color="error" onClick={() => deleteWebsite(site.domain)}>
+                                        <DeleteIcon />
                                     </IconButton>
-                                )}
-                                <IconButton edge="end" color="error" onClick={() => deleteWebsite(site.domain)}>
-                                    <DeleteIcon />
-                                </IconButton>
-                            </ListItem>
-                            <Divider />
-                        </div>
+                                </Box>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <List sx={{ width: "100%" }}>
+                                    {site.versions.length > 0 ? (
+                                        site.versions.map((version) => (
+                                            <ListItem key={version}>
+                                                <ListItemText primary={String(version)} />
+                                                <IconButton edge="end" color="primary" onClick={() => downloadZip(site.domain, version)}>
+                                                    <DownloadIcon />
+                                                </IconButton>
+                                            </ListItem>
+                                        ))
+                                    ) : (
+                                        <Typography variant="body2">No versions available</Typography>
+                                    )}
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
                     ))
                 ) : (
                     <Typography variant="body2" sx={{ textAlign: "center", mt: 2 }}>

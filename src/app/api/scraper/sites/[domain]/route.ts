@@ -7,28 +7,28 @@ export async function GET(req: NextRequest, context: { params: Promise<{ domain:
         const { domain } = await context.params
 
         if (!domain) {
-            return NextResponse.json({ error: "❌ Домен не указан" }, { status: 400 })
+            return NextResponse.json({ error: "❌ The domain is not specified" }, { status: 400 })
         }
 
-        console.log("🔍 Получен запрос на сайт:", domain)
+        console.log("🔍 Received a request to the website:", domain)
 
         const domainPath = path.join(process.cwd(), "websites", domain)
         if (!fs.existsSync(domainPath)) {
-            return NextResponse.json({ error: "❌ Домен не найден" }, { status: 404 })
+            return NextResponse.json({ error: "❌ Domain not found" }, { status: 404 })
         }
 
         const versions = fs.readdirSync(domainPath).filter((folder) => fs.statSync(path.join(domainPath, folder)).isDirectory())
 
         return NextResponse.json({ domain, versions })
     } catch (error: unknown) {
-        console.error("❌ Ошибка при получении версий сайта:", error)
+        console.error("❌ Error when getting site versions:", error)
 
-        let errorMessage = "Неизвестная ошибка"
+        let errorMessage = "Unknown error"
         if (error instanceof Error) {
             errorMessage = error.message
         }
 
-        return NextResponse.json({ error: "Ошибка при получении версий", details: errorMessage }, { status: 500 })
+        return NextResponse.json({ error: "Error when getting versions", details: errorMessage }, { status: 500 })
     }
 }
 
