@@ -1,25 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import {
-    Container,
-    TextField,
-    Button,
-    Typography,
-    List,
-    ListItem,
-    ListItemText,
-    IconButton,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
-    Box,
-} from "@mui/material"
+import { useState, useRef, useEffect } from "react"
+import { Container, TextField, Button, Typography, List, ListItem, ListItemText, IconButton, Accordion, AccordionSummary, AccordionDetails, Box } from "@mui/material"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import { AnimatePresence, motion } from "framer-motion"
 
 type WebsiteData = {
     domain: string
@@ -30,20 +18,24 @@ const BASE_URL = "/api/scraper/"
 
 const ScraperPage = () => {
     const [url, setUrl] = useState("")
-    const [message, setMessage] = useState("")
     const [websites, setWebsites] = useState<WebsiteData[]>([])
     const [loading, setLoading] = useState(false)
+    const [logs, setLogs] = useState<string[]>([])
+    const [isBlocked, setIsBlocked] = useState(false)
+    const logsEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         fetchWebsites()
     }, [])
 
+    useEffect(() => {
+        logsEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [logs])
+
     const fetchWebsites = async () => {
         try {
             const res = await fetch(`${BASE_URL}sites`)
             const data = await res.json()
-
-            console.log("Fetched websites data:", data)
 
             if (!data.websites || !Array.isArray(data.websites)) {
                 throw new Error("Invalid API response")
@@ -56,44 +48,42 @@ const ScraperPage = () => {
         }
     }
 
-    const scrapeWebsite = async () => {
+    const scrapeWebsite = () => {
         if (!url) {
             toast.warn("⚠️ Enter a URL!")
             return
         }
 
         setLoading(true)
+        setLogs([])
+        setIsBlocked(false)
 
         const toastId = toast.loading("⏳ Downloading content...")
+        const eventSource = new EventSource(`${BASE_URL}parser?url=${encodeURIComponent(url)}`)
 
-        try {
-            const response = await fetch(`${BASE_URL}parser?url=${encodeURIComponent(url)}`)
-            const data = await response.json()
+        eventSource.onmessage = (event) => {
+            const logMessage = event.data
 
-            if (!response.ok) {
-                if (response.status === 429) {
-                    toast.dismiss(toastId)
-                    toast.warning(`❌ ${data.error}`, { autoClose: 5000 })
-                } else {
-                    throw new Error(data.error || "API error")
-                }
-                return
+            setLogs((prev) => [...prev, logMessage])
+
+            if (logMessage.includes("⏳ Parsing blocked")) {
+                setIsBlocked(true)
+                toast.dismiss(toastId)
+                toast.warn("❌ Parsing blocked due to time limit!", { autoClose: 5000 })
+                eventSource.close()
+                setLoading(false)
             }
+        }
 
-            setMessage(data.message)
-
-            await new Promise((resolve) => setTimeout(resolve, 2000))
-
-            toast.dismiss(toastId)
-            toast.success("✅ Website successfully downloaded!", { autoClose: 3000 })
-
-            fetchWebsites()
-        } catch (error) {
-            console.error("Request error:", error)
-            toast.dismiss(toastId)
-            toast.error(`❌ Error: ${error}`, { autoClose: 5000 })
-        } finally {
+        eventSource.onerror = () => {
+            eventSource.close()
             setLoading(false)
+            toast.dismiss(toastId)
+
+            if (!isBlocked) {
+                toast.success("✅ Website successfully downloaded!", { autoClose: 3000 })
+                fetchWebsites()
+            }
         }
     }
 
@@ -137,22 +127,46 @@ const ScraperPage = () => {
         }
     }
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter") {
+            event.preventDefault()
+            scrapeWebsite()
+        }
+    }
+
     return (
         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
             <ToastContainer position="top-right" autoClose={3000} />
             <Typography variant="h4" gutterBottom>
                 Web Page Parser
             </Typography>
-            <TextField label="Enter URL" variant="outlined" fullWidth value={url} onChange={(e) => setUrl(e.target.value)} sx={{ mb: 2 }} />
+            <TextField label="Enter URL" variant="outlined" onKeyDown={handleKeyDown} fullWidth value={url} onChange={(e) => setUrl(e.target.value)} sx={{ mb: 2 }} />
             <Button variant="contained" color="primary" onClick={scrapeWebsite} disabled={loading} sx={{ mb: 3 }}>
                 {loading ? "Downloading..." : "Download Content"}
             </Button>
-            {message && (
-                <Typography variant="body1" sx={{ mt: 2 }}>
-                    ✅ {message}
-                </Typography>
-            )}
-            <Typography variant="h5" sx={{ mt: 4 }}>
+            <Typography variant="h6">Logs:</Typography>
+            <List sx={{ mt: 3, bgcolor: "background.paper" }}>
+                <Box sx={{ maxHeight: 300, overflowX: "hidden", overflowY: "auto", fontFamily: "monospace", p: 2 }}>
+                    <motion.ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                        <AnimatePresence>
+                            {logs.map((log, index) => (
+                                <motion.li
+                                    key={index}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3 }}
+                                    style={{ marginBottom: "5px" }}
+                                >
+                                    <Typography sx={{ whiteSpace: "pre-wrap" }}>{log}</Typography>
+                                </motion.li>
+                            ))}
+                        </AnimatePresence>
+                    </motion.ul>
+                    <div ref={logsEndRef} />
+                </Box>
+            </List>
+            <Typography variant="h6" sx={{ mt: 4 }}>
                 Saved Websites
             </Typography>
             <List sx={{ width: "100%", bgcolor: "background.paper", mt: 2, p: 2 }}>
@@ -163,12 +177,8 @@ const ScraperPage = () => {
                                 <Typography sx={{ flexGrow: 1 }}>
                                     {String(site.domain)} ({site.versions.length} versions)
                                 </Typography>
-                                <Box>
-                                    {" "}
-                                    {/* ✅ Обернули в Box, теперь нет <button> внутри <button> */}
-                                    <IconButton sx={{ mr: 1 }} edge="end" color="error" onClick={() => deleteWebsite(site.domain)}>
-                                        <DeleteIcon />
-                                    </IconButton>
+                                <Box color="error" onClick={() => deleteWebsite(site.domain)}>
+                                    <DeleteIcon color="error" />
                                 </Box>
                             </AccordionSummary>
                             <AccordionDetails>

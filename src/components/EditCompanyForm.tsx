@@ -9,11 +9,20 @@ import { type Company } from "@/src/utils/types"
 import { TextField, Button, Stack, Box, Card, CardContent } from "@mui/material"
 import { Save as SaveIcon, Edit as EditIcon, Cancel as CancelIcon } from "@mui/icons-material"
 import CountrySelect from "@/src/components/CountrySelect"
-import CompanyDeleteButton from "@/src/components/CompanyDeleteButton"
+
+import { redirect } from "next/navigation"
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever"
+import { COMPANIES_ROUTE } from "@/src/utils/consts"
+import DeleteDialog from "./DeleteDialog"
 
 const EditCompanyForm = () => {
-    const { selectedCompany, updateCompany } = useAppStore()
+    const { selectedCompany, updateCompany, removeCompany } = useAppStore()
     const [isEdit, setIsEdit] = useState(false)
+
+    const [openCompanyDeleteDialog, setOpenCompanyDeleteDialog] = useState(false)
+
+    const handleOpenCompanyDeleteDialog = () => setOpenCompanyDeleteDialog(true)
+    const handleCloseCompanyDeleteDialog = () => setOpenCompanyDeleteDialog(false)
 
     const {
         control,
@@ -64,6 +73,19 @@ const EditCompanyForm = () => {
         setIsEdit(!isEdit)
     }
 
+    const handleConfirmDelete = async () => {
+        if (selectedCompany?.uuid) {
+            try {
+                await removeCompany(selectedCompany.uuid)
+                toast.success("Company deleted")
+            } catch (error) {
+                toast.error(`Error deleting company ${error}`)
+            }
+        }
+        setOpenCompanyDeleteDialog(false)
+        redirect(COMPANIES_ROUTE)
+    }
+    
     return (
         <Card sx={{ paddingTop: 4 }}>
             <CardContent>
@@ -272,10 +294,13 @@ const EditCompanyForm = () => {
                                     <Button type="submit" variant="contained" startIcon={<SaveIcon />} color="success" sx={{ color: "#fff" }}>
                                         Save Changes
                                     </Button>
-                                    <Button onClick={() => setIsEdit(!isEdit)} type="button" variant="contained" startIcon={<CancelIcon />} color="primary" sx={{ color: "#fff" }}>
+                                    <Button onClick={() => setIsEdit(!isEdit)} type="button" variant="contained" startIcon={<CancelIcon />} color="warning" sx={{ color: "#fff" }}>
                                         Cancel
                                     </Button>
-                                    <CompanyDeleteButton />
+                                    <Button onClick={handleOpenCompanyDeleteDialog} variant="contained" startIcon={<DeleteForeverIcon />} color="error">
+                                        Delete company
+                                    </Button>
+                                    <DeleteDialog open={openCompanyDeleteDialog} onClose={handleCloseCompanyDeleteDialog} onConfirm={handleConfirmDelete} />
                                 </>
                             ) : (
                                 <Button onClick={handleButtonEdit} type="button" variant="contained" startIcon={<EditIcon />} color="primary" sx={{ color: "#fff" }}>

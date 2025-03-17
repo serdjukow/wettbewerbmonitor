@@ -14,7 +14,7 @@ import GeneralKeywordsDialog from "./GeneralKeywordsDialog"
 import CompetitorStats from "@/src/components/CompetitorStats"
 import EnhancedTableToolbar from "./EnhancedTableToolbar"
 import { usePathname } from "next/navigation"
-import { useCompetitorSearchStore } from "@/src/store/competitorSearchStore"
+// import { useCompetitorSearchStore } from "@/src/store/competitorSearchStore"
 import SearchBar from "./SearchBar"
 
 const CompetitorsSearchByKeywordPage = () => {
@@ -24,8 +24,8 @@ const CompetitorsSearchByKeywordPage = () => {
         return parts.pop() || "defaultPage"
     }, [pathname])
 
-    const { pages, setPageResult, removeCompetitors } = useCompetitorSearchStore()
-    const storedSearch = pages[pageId]
+    // const { pages, setPageResult, removeCompetitors } = useCompetitorSearchStore()
+    // const storedSearch = pages[pageId]
 
     const [searchBarInput, setSearchBarInput] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
@@ -64,18 +64,18 @@ const CompetitorsSearchByKeywordPage = () => {
 
     const { data, isLoading, isError, error } = useSistrixData(searchTerm)
 
-    useEffect(() => {
-        if (storedSearch && !searchTerm) {
-            setSearchTerm(storedSearch.query)
-        }
-    }, [storedSearch, searchTerm])
+    // useEffect(() => {
+    //     if (storedSearch && !searchTerm) {
+    //         setSearchTerm(storedSearch.query)
+    //     }
+    // }, [storedSearch, searchTerm])
 
-    useEffect(() => {
-        if (storedSearch) {
-            setSearchBarInput(storedSearch.query)
-            setCompetitors(storedSearch.result)
-        }
-    }, [storedSearch])
+    // useEffect(() => {
+    //     if (storedSearch) {
+    //         setSearchBarInput(storedSearch.query)
+    //         setCompetitors(storedSearch.result)
+    //     }
+    // }, [storedSearch])
 
     useEffect(() => {
         if (data) {
@@ -121,13 +121,13 @@ const CompetitorsSearchByKeywordPage = () => {
                 }))
 
                 setCompetitors(fetchedCompetitors)
-                setPageResult(pageId, {
-                    query: searchTerm,
-                    result: fetchedCompetitors,
-                })
+                // setPageResult(pageId, {
+                //     query: searchTerm,
+                //     result: fetchedCompetitors,
+                // })
             }
         }
-    }, [data, selectedCompany, searchTerm, pageId, setPageResult])
+    }, [data, selectedCompany, searchTerm, pageId])
 
     const stats = useMemo(() => {
         if (data && "answer" in data && data.answer?.[0]?.result) {
@@ -204,13 +204,13 @@ const CompetitorsSearchByKeywordPage = () => {
         const selectedCompetitors = competitors.filter((comp) => comp.uuid && selected.includes(comp.uuid))
         handleSaveCompetitors(selectedCompetitors)
 
-        const removedIds = selectedCompetitors.map((comp) => comp.uuid)
-        removeCompetitors(pageId, removedIds)
+        // const removedIds = selectedCompetitors.map((comp) => comp.uuid)
+        // removeCompetitors(pageId, removedIds)
 
-        const updated = useCompetitorSearchStore.getState().pages[pageId]
-        if (updated) {
-            setCompetitors(updated.result)
-        }
+        // const updated = useCompetitorSearchStore.getState().pages[pageId]
+        // if (updated) {
+        //     setCompetitors(updated.result)
+        // }
         setSelected([])
     }
 

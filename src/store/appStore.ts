@@ -6,7 +6,6 @@ import { addCompanyToDB, getCompanies, deleteCompanyFromDB, updateCompanyInDB } 
 type AppState = {
     companies: Company[]
     selectedCompany: Company | null
-    keywords: string[]
     isAutopilotActive: boolean
     setAutopilotActive: (active: boolean) => void
     addCompany: (company: Company) => void
@@ -21,7 +20,6 @@ export const useAppStore = create(
         (set) => ({
             companies: [],
             selectedCompany: null,
-            keywords: [],
             isAutopilotActive: false,
 
             setAutopilotActive: (active) => set({ isAutopilotActive: active }),

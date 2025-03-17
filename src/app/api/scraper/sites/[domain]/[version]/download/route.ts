@@ -9,7 +9,7 @@ type RouteParams = {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<RouteParams> }): Promise<NextResponse> {
-    // Ожидаем разрешения промиса params
+
     const { domain, version } = await params
 
     if (!domain || !version) {
@@ -23,7 +23,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<RouteP
         return NextResponse.json({ error: "❌ Version not found" }, { status: 404 })
     }
 
-    // Создаём ZIP-файл
     const zipFolderPath = path.join(process.cwd(), "public", "zips")
     if (!fs.existsSync(zipFolderPath)) {
         fs.mkdirSync(zipFolderPath, { recursive: true })

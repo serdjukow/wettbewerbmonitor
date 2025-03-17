@@ -114,7 +114,7 @@ const CompetitorViewPage: React.FC = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Box sx={{ mt: 4, display: "flex", gap:1 }}>
+            <Box sx={{ mt: 4, display: "flex", gap: 1 }}>
                 <Button
                     data-uuid={competitor.uuid}
                     color="success"
@@ -122,6 +122,7 @@ const CompetitorViewPage: React.FC = () => {
                         const competitorUuid = e.currentTarget.dataset.uuid
                         if (competitorUuid) handleEditCompetitor(competitorUuid)
                     }}
+                    sx={{ color: "#fff" }}
                     variant="contained"
                 >
                     Edit

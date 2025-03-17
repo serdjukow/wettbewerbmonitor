@@ -75,8 +75,6 @@ const QuizPages: React.FC = () => {
     const { currentStep, company } = state
     const [selectedSurveyType, setSelectedSurveyType] = useState<SurveyType | null>(null)
 
-    console.log("company:", company)
-
     const handleStepClick = (stepIndex: number) => {
         dispatch({ type: "SET_STEP", payload: stepIndex })
     }

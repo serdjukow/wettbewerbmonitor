@@ -25,17 +25,7 @@ const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = ({ numSelected
                         {numSelected} selected
                     </Typography>
                     <Tooltip title="Add keywords">
-                        <Button
-                            variant="contained"
-                            size="small"
-                            color="success"
-                            onClick={onAddKeywords}
-                            sx={{
-                                "&:hover": {
-                                    color: "white",
-                                },
-                            }}
-                        >
+                        <Button variant="contained" size="small" color="success" onClick={onAddKeywords} sx={{ color: "#fff" }}>
                             Save keywords
                         </Button>
                     </Tooltip>

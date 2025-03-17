@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react"
 import { Box, Paper } from "@mui/material"
-import { usePathname } from "next/navigation"
+// import { usePathname } from "next/navigation"
 import SearchBar from "./SearchBar"
 import DomainSelectionModal from "./DomainSelectionModal"
 import DomainStatsTableToolbar from "./DomainStatsTableToolbar"
@@ -11,7 +11,7 @@ import CompetitorStats from "@/src/components/CompetitorStats"
 import KeywordsDataGrid from "./KeywordsDataGrid"
 import { useSistrixDomainKeywordsData } from "@/src/hooks/useSistrixDomainKeywordsQuery"
 import { useAppStore } from "@/src/store/appStore"
-import { useKeywordSearchStore } from "@/src/store/keywordSearchStore"
+// import { useKeywordSearchStore } from "@/src/store/keywordSearchStore"
 
 export interface SistrixDomainsKeywordsResult {
     kw: string
@@ -24,15 +24,15 @@ export interface SistrixDomainsKeywordsResult {
 type Order = "asc" | "desc"
 
 export default function KeywordsSearchByDomainPage() {
-    const pathname = usePathname()
-    const pageId = useMemo(() => {
-        const parts = pathname.split("/").filter(Boolean)
-        return parts.pop() || "defaultPage"
-    }, [pathname])
+    // const pathname = usePathname()
+    // const pageId = useMemo(() => {
+    //     const parts = pathname.split("/").filter(Boolean)
+    //     return parts.pop() || "defaultPage"
+    // }, [pathname])
 
     const { updateCompany, selectedCompany } = useAppStore()
-    const { pages, setPageResult, removeKeywords } = useKeywordSearchStore()
-    const storedSearch = pages[pageId]
+    // const { pages, setPageResult, removeKeywords } = useKeywordSearchStore()
+    // const storedSearch = pages[pageId]
 
     const [searchBarInput, setSearchBarInput] = useState("")
     const [searchTerm, setSearchTerm] = useState("")
@@ -56,18 +56,18 @@ export default function KeywordsSearchByDomainPage() {
     }
     const [generalSearchQuery, setGeneralSearchQuery] = useState("")
 
-    useEffect(() => {
-        if (storedSearch && !searchTerm) {
-            setSearchTerm(storedSearch.query)
-        }
-    }, [storedSearch, searchTerm])
+    // useEffect(() => {
+    //     if (storedSearch && !searchTerm) {
+    //         setSearchTerm(storedSearch.query)
+    //     }
+    // }, [storedSearch, searchTerm])
 
-    useEffect(() => {
-        if (storedSearch) {
-            setSearchBarInput(storedSearch.query)
-            setKeywords(storedSearch.result)
-        }
-    }, [storedSearch])
+    // useEffect(() => {
+    //     if (storedSearch) {
+    //         setSearchBarInput(storedSearch.query)
+    //         setKeywords(storedSearch.result)
+    //     }
+    // }, [storedSearch])
 
     const { data, isLoading, isError, error } = useSistrixDomainKeywordsData(searchTerm)
 
@@ -84,13 +84,13 @@ export default function KeywordsSearchByDomainPage() {
                     return !isAlreadyAdded
                 })
                 setKeywords(filteredResults)
-                setPageResult(pageId, {
-                    query: searchTerm,
-                    result: filteredResults,
-                })
+                // setPageResult(pageId, {
+                //     query: searchTerm,
+                //     result: filteredResults,
+                // })
             }
         }
-    }, [data, selectedCompany, searchTerm, pageId, setPageResult])
+    }, [data, selectedCompany, searchTerm])
 
     const stats = useMemo(() => {
         if (data && "answer" in data && data.answer?.[0]?.result) {
@@ -139,14 +139,14 @@ export default function KeywordsSearchByDomainPage() {
         const selectedKeywords = keywords.filter((item) => item.kw && selected.includes(item.kw))
         handleSaveKeywords(selectedKeywords)
 
-        const removedKeywords = selectedKeywords.map((item) => item.kw)
-        removeKeywords(pageId, removedKeywords)
+        // const removedKeywords = selectedKeywords.map((item) => item.kw)
+        // removeKeywords(pageId, removedKeywords)
 
-        const updated = useKeywordSearchStore.getState().pages[pageId]
-        if (updated) {
-            setKeywords(updated.result)
-        }
-        setSelected([])
+        // const updated = useKeywordSearchStore.getState().pages[pageId]
+        // if (updated) {
+        //     setKeywords(updated.result)
+        // }
+        // setSelected([])
     }
 
     return (

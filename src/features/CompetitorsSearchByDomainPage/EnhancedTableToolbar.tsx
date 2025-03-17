@@ -30,11 +30,7 @@ const EnhancedTableToolbar: React.FC<EnhancedTableToolbarProps> = ({ numSelected
                             variant="contained"
                             size="small"
                             color="success"
-                            sx={{
-                                "&:hover": {
-                                    color: "white",
-                                },
-                            }}
+                            sx={{ color: "#fff" }}                    
                         >
                             Save competitors
                         </Button>

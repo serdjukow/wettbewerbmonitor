@@ -2,7 +2,7 @@ import React from "react"
 import { Paper, Tabs, Tab, Badge } from "@mui/material"
 import { shortNumber } from "@/src/utils/functions"
 
-export interface CompetitorTabsTabsProps {
+export interface CompetitorTabsProps {
     value: string
     onChange: (event: React.SyntheticEvent, newValue: string) => void
     counts: {
@@ -13,7 +13,7 @@ export interface CompetitorTabsTabsProps {
     }
 }
 
-const CompetitorTabs: React.FC<CompetitorTabsTabsProps> = ({ value, onChange, counts }) => {
+const CompetitorTabs: React.FC<CompetitorTabsProps> = ({ value, onChange, counts }) => {
     return (
         <Paper sx={{ width: "100%", mb: 2, p: 1 }}>
             <Tabs value={value} onChange={onChange} indicatorColor="primary" textColor="primary" variant="scrollable">

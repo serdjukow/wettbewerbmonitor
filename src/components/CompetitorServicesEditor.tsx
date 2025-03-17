@@ -148,10 +148,10 @@ const CompetitorServicesEditor: React.FC<CompetitorServicesEditorProps> = ({ ope
                     </TableContainer>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleSave} variant="contained" color="success">
+                    <Button sx={{ color: "#fff" }} onClick={handleSave} variant="contained" color="success">
                         Save
                     </Button>
-                    <Button onClick={onClose} variant="contained" color="primary">
+                    <Button sx={{ color: "#fff" }} onClick={onClose} variant="contained" color="warning">
                         Cancel
                     </Button>
                 </DialogActions>

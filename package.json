@@ -39,6 +39,7 @@
         "sanitize-html": "^2.14.0",
         "uuid": "^11.0.5",
         "website-scraper": "^5.3.1",
+        "ws": "^8.18.1",
         "zustand": "^5.0.3"
     },
     "devDependencies": {
@@ -51,6 +52,7 @@
         "@types/react-dom": "^19",
         "@types/sanitize-html": "^2.13.0",
         "@types/website-scraper": "^1.2.10",
+        "@types/ws": "^8.18.0",
         "eslint": "^9",
         "eslint-config-next": "15.1.6",
         "typescript": "^5"

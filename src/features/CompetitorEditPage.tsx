@@ -198,10 +198,10 @@ const CompetitorEditPage = () => {
                                     paddingTop: 4,
                                 }}
                             >
-                                <Button type="submit" variant="contained" startIcon={<SaveIcon />} color="success">
+                                <Button sx={{ color: "#fff" }} type="submit" variant="contained" startIcon={<SaveIcon />} color="success">
                                     Save Changes
                                 </Button>
-                                <Button onClick={() => router.back()} variant="contained" startIcon={<CancelIcon />} color="warning">
+                                <Button sx={{ color: "#fff" }} onClick={() => router.back()} variant="contained" startIcon={<CancelIcon />} color="warning">
                                     Cancel
                                 </Button>
                                 {/* Instead of directly calling handleDeleteCompetitor, open the confirmation dialog */}
